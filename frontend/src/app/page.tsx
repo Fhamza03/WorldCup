@@ -1,6 +1,9 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect  } from "react";
+import { FaTimes } from 'react-icons/fa';  // Importation de l'icône "X"
+import Link from 'next/link'; // Importez Link pour la navigation
+
 import {
   Menu,
   X,
@@ -15,9 +18,58 @@ import {
   Utensils,
   Home as HomeIcon,
 } from "lucide-react";
-
+import { FormEvent } from "react";
+import { signIn } from "next-auth/react";
+import { Mail, Lock } from "lucide-react";
+import { FcGoogle } from "react-icons/fc";
+import LoginPage from "./login/page";
 export default function Home() {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const [isAuthOpen, setIsAuthOpen] = useState<boolean>(false);
+  const [email, setEmail] = useState<string>("");
+  const [password, setPassword] = useState<string>("");
+  const [isSignup, setIsSignup] = useState(false); // État pour gérer si c'est Login ou Signup
+  const [confirmPassword, setConfirmPassword] = useState('');
+  const [isDarkMode, setIsDarkMode] = useState(false);
+
+
+  // État pour la validation des mots de passe
+  const [passwordMatch, setPasswordMatch] = useState(true);
+
+  useEffect(() => {
+    const savedTheme = localStorage.getItem('theme');
+    if (savedTheme === 'dark') {
+      setIsDarkMode(true);
+    } else {
+      setIsDarkMode(false);
+    }
+  }, []);
+
+  // Gérer le changement de thème
+  const toggleTheme = () => {
+    setIsDarkMode((prevMode) => {
+      const newMode = !prevMode;
+      localStorage.setItem('theme', newMode ? 'dark' : 'light'); // Sauvegarder dans localStorage
+      return newMode;
+    });
+  };
+  const themeClass = isDarkMode ? 'bg-gray-900 text-white' : 'bg-white text-gray-700';
+
+
+
+  // Fonction pour vérifier si les mots de passe correspondent
+  const validatePasswords = () => {
+    if (confirmPassword !== password) {
+      setPasswordMatch(false);
+    } else {
+      setPasswordMatch(true);
+    }
+  };
+
+  const handleSubmit = (e: FormEvent) => {
+    e.preventDefault();
+    // Logique de connexion
+  };
 
   const services = [
     {
@@ -63,19 +115,20 @@ export default function Home() {
   ];
 
   return (
-    <div className="min-h-screen bg-white">
+    <div className={`min-h-screen ${themeClass}`}>
+
       {/* Navigation */}
-      <nav className="bg-white shadow-lg fixed w-full z-50">
+      <nav className={`${themeClass} shadow-lg fixed w-full z-50`}>
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between h-16">
             <div className="flex items-center">
-              <span className="text-2xl font-bold text-green-700">
-                Fan<span className="text-red-700">ID</span>
-              </span>
+            <div className="flex items-center">
+              <img src="/logo.png" alt="Logo" className="w-15 h-15 mr-2" />
+            </div>
             </div>
 
             {/* Desktop Navigation */}
-            <div className="hidden md:flex items-center space-x-8">
+            <div className={`hidden md:flex items-center space-x-8 ${themeClass}`}>
               <a href="#" className="text-gray-700 hover:text-green-700">
                 Home
               </a>
@@ -88,13 +141,38 @@ export default function Home() {
               <a href="#" className="text-gray-700 hover:text-green-700">
                 FAQ
               </a>
-              <button className="bg-red-700 text-white px-6 py-2 rounded-full hover:bg-red-800 transition">
-                Apply Now
-              </button>
+              <button
+  className="bg-red-700 text-white px-6 py-2 rounded-full hover:bg-red-800 transition"
+>
+  <Link href="/login">Apply Now</Link>
+</button>
+
+  
+              {/* Toggle theme switch */}
+         <div className="flex items-center ml-4">
+              <label htmlFor="theme-toggle" className="flex items-center cursor-pointer">
+                <div className="relative">
+                  <input
+                    id="theme-toggle"
+                    type="checkbox"
+                    checked={isDarkMode}
+                    onChange={toggleTheme}
+                    className="hidden"
+                  />
+                  <div className="block bg-gray-300 w-12 h-6 rounded-full"></div>
+                  <div
+                    className={`dot absolute left-1 top-1 bg-white w-4 h-4 rounded-full transition ${
+                      isDarkMode ? 'transform translate-x-full' : ''
+                    }`}
+                  ></div>
+                </div>
+              </label>
+            </div>
             </div>
 
+
             {/* Mobile menu button */}
-            <div className="md:hidden flex items-center">
+            <div className={`md:hidden  ${themeClass} flex items-center`}>
               <button
                 onClick={() => setIsMenuOpen(!isMenuOpen)}
                 className="text-gray-700"
@@ -104,42 +182,14 @@ export default function Home() {
             </div>
           </div>
         </div>
+         
 
-        {/* Mobile Navigation */}
-        {isMenuOpen && (
-          <div className="md:hidden">
-            <div className="px-2 pt-2 pb-3 space-y-1 sm:px-3">
-              <a
-                href="#"
-                className="block px-3 py-2 text-gray-700 hover:text-green-700"
-              >
-                Home
-              </a>
-              <a
-                href="#"
-                className="block px-3 py-2 text-gray-700 hover:text-green-700"
-              >
-                Services
-              </a>
-              <a
-                href="#"
-                className="block px-3 py-2 text-gray-700 hover:text-green-700"
-              >
-                Support
-              </a>
-              <a
-                href="#"
-                className="block px-3 py-2 text-gray-700 hover:text-green-700"
-              >
-                FAQ
-              </a>
-            </div>
-          </div>
-        )}
       </nav>
 
+
+
       {/* Hero Section */}
-      <div className="relative bg-gradient-to-r from-green-700 to-red-700 h-screen flex items-center">
+      <div className={` ${themeClass} relative bg-gradient-to-r from-green-700 to-red-700 h-screen flex items-center`}>
         <div
           className="absolute inset-0 z-0 bg-cover bg-center"
           style={{
@@ -170,7 +220,7 @@ export default function Home() {
       </div>
 
       {/* Services Section */}
-      <div className="py-20 bg-gray-50">
+      <div className={` ${themeClass} py-20 bg-gray-50 `}>
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-16">
             <h2 className="text-3xl font-bold text-gray-900 mb-4">
@@ -181,14 +231,14 @@ export default function Home() {
               benefits throughout the tournament.
             </p>
           </div>
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
+          <div className={`grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8 `}>
             {services.map((service, index) => (
               <div
                 key={index}
-                className="bg-white p-6 rounded-xl shadow-md hover:shadow-lg transition group"
+                className={`bg-white p-6 rounded-xl shadow-md hover:shadow-lg transition group  ${themeClass}`}
               >
-                <service.icon className="w-12 h-12 text-green-700 mb-4 group-hover:text-red-700 transition-colors" />
-                <h3 className="text-xl font-semibold mb-2">{service.title}</h3>
+                <service.icon className={`w-12 h-12 text-green-700 mb-4 group-hover:text-red-700 transition-colors`} />
+                <h3 className="text-xl font-semibold mb-2 text-black">{service.title}</h3>
                 <p className="text-gray-600 mb-4">{service.description}</p>
                 <a
                   href="#"
@@ -203,10 +253,10 @@ export default function Home() {
       </div>
 
       {/* Application Steps */}
-      <div className="py-20 bg-white">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div className={`py-20  ${themeClass}`}>
+        <div className={`max-w-7xl mx-auto px-4 sm:px-6 lg:px-8  ${themeClass}`}>
           <div className="text-center mb-16">
-            <h2 className="text-3xl font-bold text-gray-900 mb-4">
+            <h2 className={`text-3xl font-bold text-gray-900 mb-4  ${themeClass}`}>
               How to Apply
             </h2>
             <p className="text-gray-600 max-w-2xl mx-auto">
@@ -247,7 +297,7 @@ export default function Home() {
       </div>
 
       {/* CTA Section */}
-      <div className="bg-gradient-to-r from-green-700 to-red-700 py-16">
+      <div className={` ${themeClass} bg-gradient-to-r from-green-700 to-red-700 py-16`}>
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center">
             <h2 className="text-3xl font-bold text-white mb-4">
@@ -265,13 +315,13 @@ export default function Home() {
       </div>
 
       {/* Help Section */}
-      <div className="py-16 bg-gray-50">
+      <div className={` ${themeClass} py-16 bg-gray-50`}>
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="bg-white rounded-2xl shadow-xl p-8 flex flex-col md:flex-row items-center justify-between">
             <div className="flex items-center mb-6 md:mb-0">
               <HelpCircle className="w-12 h-12 text-green-700 mr-4" />
               <div>
-                <h3 className="text-xl font-semibold mb-1">Need Help?</h3>
+                <h3 className="text-xl font-semibold mb-1 text-black">Need Help?</h3>
                 <p className="text-gray-600">
                   Our support team is available 24/7
                 </p>
@@ -290,13 +340,13 @@ export default function Home() {
       </div>
 
       {/* Footer */}
-      <footer className="bg-gray-900 text-white py-12">
+      <footer className={`bg-gray-900 text-white py-12 ${themeClass}`}>
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
             <div>
-              <h3 className="text-xl font-bold mb-4">
-                Fan<span className="text-red-500">ID</span>
-              </h3>
+            <div className="flex items-center">
+              <img src="/logo.png" alt="Logo" className="w-20 h-20 mr-2" />
+            </div>
               <p className="text-gray-400">
                 Your official World Cup identification system.
               </p>
@@ -378,7 +428,7 @@ export default function Home() {
             </div>
           </div>
           <div className="border-t border-gray-800 mt-12 pt-8 text-center text-gray-400">
-            <p>&copy; 2024 FanID. All rights reserved.</p>
+            <p>&copy; 2025 FanID. All rights reserved.</p>
           </div>
         </div>
       </footer>
