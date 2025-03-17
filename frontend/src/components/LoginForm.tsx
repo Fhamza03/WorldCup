@@ -1,21 +1,17 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { FaTimes } from "react-icons/fa";
 import { Menu, X } from "lucide-react";
 import { FormEvent } from "react";
 import { signIn } from "next-auth/react";
 import { FcGoogle } from "react-icons/fc";
 import Image from "next/image";
-import Link from 'next/link'; // Importez Link pour la navigation
+import Link from 'next/link';
 
 export default function LoginForm() {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const [isSignup, setIsSignup] = useState(false);
-  const [confirmPassword, setConfirmPassword] = useState("");
-  const [passwordMatch, setPasswordMatch] = useState(true);
   const [isDarkMode, setIsDarkMode] = useState(false);
 
   useEffect(() => {
@@ -40,19 +36,10 @@ export default function LoginForm() {
     ? "bg-gray-900 text-white"
     : "bg-white text-gray-700";
 
-  // Fonction pour vérifier si les mots de passe correspondent
-  const validatePasswords = () => {
-    setPasswordMatch(confirmPassword === password);
-  };
-
   const handleSubmit = (e: FormEvent) => {
     e.preventDefault();
-    if (isSignup && password !== confirmPassword) {
-      setPasswordMatch(false);
-      return;
-    }
-    // Logique de connexion ou d'inscription
-    console.log("Form submitted");
+    // Logique de connexion
+    console.log("Login form submitted");
   };
 
   return (
@@ -65,8 +52,7 @@ export default function LoginForm() {
               <Image src="/logo.png" alt="Logo" width={60} height={60} className="mr-2" />
             </div>
             <div className={`hidden md:flex items-center space-x-8 ${themeClass}`}>
-            <Link className={`${isDarkMode ? 'text-white' : 'text-gray-700'} hover:text-green-700`} href="/">Home</Link>
-
+              <Link className={`${isDarkMode ? 'text-white' : 'text-gray-700'} hover:text-green-700`} href="/">Home</Link>
               <a href="#" className={`${isDarkMode ? 'text-white' : 'text-gray-700'} hover:text-green-700`}>
                 Services
               </a>
@@ -76,7 +62,6 @@ export default function LoginForm() {
               <a href="#" className={`${isDarkMode ? 'text-white' : 'text-gray-700'} hover:text-green-700`}>
                 FAQ
               </a>
-
 
               {/* Toggle theme switch */}
               <div className="flex items-center ml-4">
@@ -128,8 +113,6 @@ export default function LoginForm() {
               </a>
             </div>
           </div>
-
-
         )}
       </nav>
 
@@ -147,42 +130,11 @@ export default function LoginForm() {
 
         {/* Auth Form Container */}
         <div
-          className={`${themeClass} p-8 rounded-lg shadow-2xl shadow-gray-500/40 w-full max-w-lg sm:max-w-xl relative z-10`}
+          className={`${themeClass} p-6 rounded-lg shadow-2xl shadow-gray-500/40 w-full max-w-lg sm:max-w-xl relative z-10`}
         >
           {/* Logo */}
           <div className="flex justify-center mb-6">
             <Image src="/logo.png" alt="Logo" width={90} height={90} />
-          </div>
-
-          {/* Options Login/Signup */}
-          <div className="flex justify-center space-x-8 mb-4">
-            <button
-              onClick={() => setIsSignup(false)}
-              className={`text-lg font-semibold 
-                ${!isSignup
-                  ? "text-red-700 opacity-100"
-                  : "text-green-900 opacity-30"
-                } relative transition-all duration-300 ease-in-out`}
-            >
-              Login
-              {!isSignup && (
-                <div className="absolute bottom-0 left-0 w-full h-[2px] bg-red-700"></div>
-              )}
-            </button>
-
-            <button
-              onClick={() => setIsSignup(true)}
-              className={`text-lg font-semibold ${isSignup
-                ? (isDarkMode ? "text-red-500" : "text-red-700")
-                : (isDarkMode ? "text-green-600 opacity-50" : "text-green-900 opacity-30")
-                } relative transition-all duration-300 ease-in-out`}
-            >
-              Signup
-              {isSignup && (
-                <div className={`absolute bottom-0 left-0 w-full h-[2px] ${isDarkMode ? 'bg-red-500' : 'bg-red-700'}`}></div>
-              )}
-            </button>
-              
           </div>
 
           {/* Form Title */}
@@ -191,87 +143,46 @@ export default function LoginForm() {
           </h2>
 
           {/* Login Form */}
-          {!isSignup ? (
-            <form onSubmit={handleSubmit} className="space-y-6">
-              <div className="relative">
-                <input
-                  type="email"
-                  placeholder="Email"
-                  value={email}
-                  onChange={(e) => setEmail(e.target.value)}
-                  className="w-full bg-transparent placeholder:text-slate-400 text-slate-700 text-sm border border-slate-200 rounded-md px-3 py-2 transition duration-300 ease focus:outline-none focus:border-slate-400 hover:border-slate-300 shadow-sm focus:shadow"
-                  required
-                />
-              </div>
+          <form onSubmit={handleSubmit} className="space-y-6">
+            <div className="relative">
+              <input
+                type="email"
+                placeholder="Email"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                className="w-full bg-transparent placeholder:text-slate-400 text-slate-700 text-sm border border-slate-200 rounded-md px-3 py-2 transition duration-300 ease focus:outline-none focus:border-slate-400 hover:border-slate-300 shadow-sm focus:shadow"
+                required
+              />
+            </div>
 
-              <div className="relative">
-                <input
-                  type="password"
-                  placeholder="Password"
-                  value={password}
-                  onChange={(e) => setPassword(e.target.value)}
-                  className="w-full bg-transparent placeholder:text-slate-400 text-slate-700 text-sm border border-slate-200 rounded-md px-3 py-2 transition duration-300 ease focus:outline-none focus:border-slate-400 hover:border-slate-300 shadow-sm focus:shadow"
-                  required
-                />
-              </div>
+            <div className="relative">
+              <input
+                type="password"
+                placeholder="Password"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                className="w-full bg-transparent placeholder:text-slate-400 text-slate-700 text-sm border border-slate-200 rounded-md px-3 py-2 transition duration-300 ease focus:outline-none focus:border-slate-400 hover:border-slate-300 shadow-sm focus:shadow"
+                required
+              />
+            </div>
 
-              <button
-                type="submit"
-                className="mt-4 w-full rounded-md bg-gradient-to-r from-green-700 to-red-700 py-2 px-4 border border-transparent text-center text-sm text-white transition-all shadow-md hover:shadow-lg focus:shadow-none active:shadow-none disabled:pointer-events-none disabled:opacity-50 disabled:shadow-none"
-              >
-                Login
-              </button>
-            </form>
-          ) : (
-            // Signup Form
-            <form onSubmit={handleSubmit} className="space-y-6">
-              <div className="relative">
-                <input
-                  type="email"
-                  placeholder="Email"
-                  value={email}
-                  onChange={(e) => setEmail(e.target.value)}
-                  className="w-full bg-transparent placeholder:text-slate-400 text-slate-700 text-sm border border-slate-200 rounded-md px-3 py-2 transition duration-300 ease focus:outline-none focus:border-slate-400 hover:border-slate-300 shadow-sm focus:shadow"
-                  required
-                />
-              </div>
+            <button
+              type="submit"
+              className="mt-4 w-full rounded-md bg-gradient-to-r from-green-700 to-red-700 py-2 px-4 border border-transparent text-center text-sm text-white transition-all shadow-md hover:shadow-lg focus:shadow-none active:shadow-none disabled:pointer-events-none disabled:opacity-50 disabled:shadow-none"
+            >
+              Login
+            </button>
+          </form>
 
-              <div className="relative">
-                <input
-                  type="password"
-                  placeholder="Password"
-                  value={password}
-                  onChange={(e) => setPassword(e.target.value)}
-                  className={`w-full bg-transparent placeholder:text-slate-400 text-slate-700 text-sm border ${passwordMatch ? "border-slate-200" : "border-red-500"
-                    } rounded-md px-3 py-2 transition duration-300 ease focus:outline-none focus:border-slate-400 hover:border-slate-300 shadow-sm focus:shadow`}
-                  onBlur={validatePasswords}
-                  required
-                />
-              </div>
-
-              <div className="relative">
-                <input
-                  type="password"
-                  placeholder="Confirm Password"
-                  value={confirmPassword}
-                  onChange={(e) => setConfirmPassword(e.target.value)}
-                  className={`w-full bg-transparent placeholder:text-slate-400 text-slate-700 text-sm border ${passwordMatch ? "border-slate-200" : "border-red-500"
-                    } rounded-md px-3 py-2 transition duration-300 ease focus:outline-none focus:border-slate-400 hover:border-slate-300 shadow-sm focus:shadow`}
-                  onBlur={validatePasswords}
-                  required
-                />
-              </div>
-
-              <button
-                type="submit"
-                className={`mt-4 w-full rounded-md bg-gradient-to-r from-green-700 to-red-700 py-2 px-4 border border-transparent text-center text-sm text-white transition-all shadow-md hover:shadow-lg focus:shadow-none active:shadow-none ${!passwordMatch ? "opacity-50 cursor-not-allowed" : ""
-                  }`}
-                disabled={!passwordMatch}
-              >
+          {/* Don't have an account - Signup Link */}
+          <div className="mt-4 text-center">
+            <p className={`text-sm ${isDarkMode ? 'text-gray-300' : 'text-gray-600'}`}>
+              Don't have an account?{' '}
+              <Link href="/auth/signup" className="text-red-700 hover:text-red-600 font-semibold">
                 Sign Up
-              </button>
-            </form>
-          )}
+              </Link>
+            </p>
+          </div>
 
           {/* Google Sign-In Button */}
           <button
@@ -301,9 +212,6 @@ export default function LoginForm() {
           </div>
         </div>
       </footer>
-
-
-
     </div>
   );
 }

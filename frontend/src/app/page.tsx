@@ -22,7 +22,7 @@ import { FormEvent } from "react";
 import { signIn } from "next-auth/react";
 import { Mail, Lock } from "lucide-react";
 import { FcGoogle } from "react-icons/fc";
-import LoginPage from "./login/page";
+import LoginPage from "./auth/login/page";
 export default function Home() {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [isAuthOpen, setIsAuthOpen] = useState<boolean>(false);
@@ -144,7 +144,7 @@ export default function Home() {
               <button
   className="bg-red-700 text-white px-6 py-2 rounded-full hover:bg-red-800 transition"
 >
-  <Link href="/login">Apply Now</Link>
+  <Link href="/auth/login">Apply Now</Link>
 </button>
 
   
