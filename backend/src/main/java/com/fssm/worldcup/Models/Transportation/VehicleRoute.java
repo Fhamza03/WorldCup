@@ -1,11 +1,17 @@
 package com.fssm.worldcup.Models.Transportation;
 
 import jakarta.persistence.*;
+import lombok.*;
 
 import java.util.Date;
 import java.util.List;
 
 @Entity
+@AllArgsConstructor
+@NoArgsConstructor
+@Getter
+@Setter
+@Builder
 public class VehicleRoute {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
