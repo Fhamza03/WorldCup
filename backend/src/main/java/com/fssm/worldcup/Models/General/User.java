@@ -1,8 +1,14 @@
 package com.fssm.worldcup.Models.General;
 
+import jakarta.persistence.*;
+import org.hibernate.annotations.Immutable;
+
 import java.util.Date;
 
-public class User {
+@MappedSuperclass
+public abstract class User {
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer userId;
     private String email;
     private String password;
