@@ -1,5 +1,11 @@
 package com.fssm.worldcup.Models.General;
 
-public class Provider extends User{
+import jakarta.persistence.*;
 
+import java.util.List;
+
+@Entity
+public class Provider extends User{
+    @OneToMany(mappedBy = "provider")
+    private List<ServiceType> serviceTypes;
 }
