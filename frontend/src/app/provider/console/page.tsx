@@ -201,7 +201,7 @@ export default function ProviderConsole() {
             </p>
             <div className="flex flex-col sm:flex-row justify-center space-y-4 sm:space-y-0 sm:space-x-4">
               <button className="bg-white text-green-700 px-8 py-3 rounded-full font-semibold hover:bg-gray-100 transition">
-                <Link href="/signup">Create Account</Link>
+                <Link href="/provider/console/signup">Create Account</Link>
               </button>
               <button className="border-2 border-white text-white px-8 py-3 rounded-full font-semibold hover:bg-white hover:text-green-700 transition">
                 <Link href="/provider/console/login">Log In</Link>
