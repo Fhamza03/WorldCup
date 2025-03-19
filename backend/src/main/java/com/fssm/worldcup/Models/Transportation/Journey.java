@@ -2,8 +2,14 @@ package com.fssm.worldcup.Models.Transportation;
 
 import com.fssm.worldcup.Models.General.Supporter;
 import jakarta.persistence.*;
+import lombok.*;
 
 @Entity
+@AllArgsConstructor
+@NoArgsConstructor
+@Getter
+@Setter
+@Builder
 public class Journey {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
