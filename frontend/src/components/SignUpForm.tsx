@@ -14,7 +14,7 @@ export default function SignUpForm() {
     email: "",
     password: "",
     confirmPassword: "",
-    typeUser: "supporter",
+    typeUser: "SUPPORTER",
     firstName: "",
     lastName: "",
     birthDate: "",

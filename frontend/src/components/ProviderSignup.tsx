@@ -14,7 +14,7 @@ export default function ProviderSignUp() {
         email: "",
         password: "",
         confirmPassword: "",
-        typeUser: "provider",
+        typeUser: "PROVIDER",
         firstName: "",
         lastName: "",
         birthDate: "",
