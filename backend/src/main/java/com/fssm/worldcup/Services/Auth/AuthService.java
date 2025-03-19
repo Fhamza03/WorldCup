@@ -2,13 +2,11 @@ package com.fssm.worldcup.Services.Auth;
 import com.fssm.worldcup.DTOs.AuthResponse;
 import com.fssm.worldcup.DTOs.SigninRequest;
 import com.fssm.worldcup.DTOs.SignupRequest;
-import com.fssm.worldcup.Models.General.Administrator;
-import com.fssm.worldcup.Models.General.Card;
-import com.fssm.worldcup.Models.General.Provider;
-import com.fssm.worldcup.Models.General.Supporter;
+import com.fssm.worldcup.Models.General.*;
 
 import com.fssm.worldcup.Repositories.General.AdministratorRepository;
 import com.fssm.worldcup.Repositories.General.ProviderRepository;
+import com.fssm.worldcup.Repositories.General.ServiceTypeRepository;
 import com.fssm.worldcup.Repositories.General.SupporterRepository;
 import com.fssm.worldcup.Utils.JwtUtil;
 import com.fssm.worldcup.Utils.PasswordEncoder;
@@ -23,6 +21,7 @@ import java.nio.file.Paths;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.List;
 import java.util.Optional;
 
 @Service
@@ -42,6 +41,10 @@ public class AuthService {
 
     @Autowired
     private JwtUtil jwtUtil;
+
+    @Autowired
+    private ServiceTypeRepository serviceTypeRepository;
+
 
     public Date convertStringToDate(String birthDateStr) throws ParseException {
         SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd");
@@ -164,7 +167,17 @@ public class AuthService {
         provider.setNationality(request.getNationality());
         provider.setNationalCode(request.getNationalCode());
         provider.setProfilePicture(profilePicturePath);
+
+        // Création d'un seul service à partir du nom du service
+        ServiceType serviceType = new ServiceType();
+        serviceType.setServiceTypeName(request.getServiceType());
+        serviceType.setProvider(provider); // Associer ce service au provider
+
+        provider.setServiceTypes(List.of(serviceType)); // Liste contenant le service
+
+        // Sauvegarde du provider et de son service
         Provider savedProvider = providerRepository.save(provider);
+        serviceTypeRepository.save(serviceType); // Sauvegarde du service
 
         String token = jwtUtil.generateToken(savedProvider.getEmail(), "PROVIDER", savedProvider.getUserId());
 

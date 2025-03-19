@@ -20,6 +20,15 @@ public class SignupRequest {
 
     // Pour Admin
     private String accessStatistics;
+    private String serviceType;
+
+    public void setServiceType(String serviceType) {
+        this.serviceType = serviceType;
+    }
+
+    public String getServiceType() {
+        return serviceType;
+    }
 
     // Getters and Setters
     public String getEmail() {
