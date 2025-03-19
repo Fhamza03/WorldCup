@@ -14,7 +14,7 @@ export default function ProviderSignUp() {
         email: "",
         password: "",
         confirmPassword: "",
-        typeUser: "PROVIDER",
+        userType: "PROVIDER",
         firstName: "",
         lastName: "",
         birthDate: "",
@@ -65,42 +65,89 @@ export default function ProviderSignUp() {
         }
     };
 
-    const handleSubmit = (e: FormEvent) => {
+    const handleSubmit = async (e: FormEvent) => {
         e.preventDefault();
         if (!passwordMatch) return;
-        console.log("Form data submitted", formData);
+
+        try {
+            // Create FormData object for multipart/form-data submission
+            const formDataObj = new FormData();
+
+            // Add all form fields to FormData
+            formDataObj.append("email", formData.email);
+            formDataObj.append("password", formData.password);
+            formDataObj.append("firstName", formData.firstName);
+            formDataObj.append("lastName", formData.lastName);
+            formDataObj.append("birthDate", formData.birthDate);
+            formDataObj.append("nationality", formData.countryOfOrigin);
+            formDataObj.append("nationalCode", formData.nationalId);
+            formDataObj.append("userType", formData.userType);
+
+            // Add profile picture if exists
+            if (profilePhoto) {
+                // Convert base64 string back to file
+                const response = await fetch(profilePhoto);
+                const blob = await response.blob();
+                const file = new File([blob], "profile-picture.jpg", { type: "image/jpeg" });
+                formDataObj.append("profilePicture", file);
+            }
+
+            // Send request to backend
+            const response = await fetch("http://localhost:8080/api/auth/signup", {
+                method: "POST",
+                body: formDataObj,
+            });
+
+            const data = await response.json();
+
+            if (data.success) {
+                // Store token in localStorage
+                localStorage.setItem("token", data.token);
+                localStorage.setItem("userType", data.userType);
+                localStorage.setItem("userId", data.userId);
+
+                // Redirect to provider console
+                window.location.href = "/provider/console";
+            } else {
+                // Show error message
+                alert(data.message || "Registration failed");
+            }
+        } catch (error) {
+            console.error("Error during registration:", error);
+            alert("An error occurred during registration. Please try again.");
+        }
     };
 
     const countries = [
-        "Afghanistan", "Albania", "Algeria", "Andorra", "Angola", "Antigua and Barbuda", "Argentina", 
-        "Armenia", "Australia", "Austria", "Azerbaijan", "Bahamas", "Bahrain", "Bangladesh", "Barbados", 
-        "Belarus", "Belgium", "Belize", "Benin", "Bhutan", "Bolivia", "Bosnia and Herzegovina", 
-        "Botswana", "Brazil", "Brunei", "Bulgaria", "Burkina Faso", "Burundi", "Cabo Verde", "Cambodia", 
-        "Cameroon", "Canada", "Central African Republic", "Chad", "Chile", "China", "Colombia", 
-        "Comoros", "Congo (Congo-Brazzaville)", "Costa Rica", "Croatia", "Cuba", "Cyprus", 
-        "Czechia (Czech Republic)", "Denmark", "Djibouti", "Dominica", "Dominican Republic", "Ecuador", 
-        "Egypt", "El Salvador", "Equatorial Guinea", "Eritrea", "Estonia", "Eswatini", "Ethiopia", 
-        "Fiji", "Finland", "France", "Gabon", "Gambia", "Georgia", "Germany", "Ghana", "Greece", 
-        "Grenada", "Guatemala", "Guinea", "Guinea-Bissau", "Guyana", "Haiti", "Honduras", "Hungary", 
-        "Iceland", "India", "Indonesia", "Iran", "Iraq", "Ireland", "Israel", "Italy", "Ivory Coast", 
-        "Jamaica", "Japan", "Jordan", "Kazakhstan", "Kenya", "Kiribati", "Kuwait", "Kyrgyzstan", 
-        "Laos", "Latvia", "Lebanon", "Lesotho", "Liberia", "Libya", "Liechtenstein", "Lithuania", 
-        "Luxembourg", "Madagascar", "Malawi", "Malaysia", "Maldives", "Mali", "Malta", "Marshall Islands", 
-        "Mauritania", "Mauritius", "Mexico", "Micronesia", "Moldova", "Monaco", "Mongolia", "Montenegro", 
-        "Morocco", "Mozambique", "Myanmar (Burma)", "Namibia", "Nauru", "Nepal", "Netherlands", 
-        "New Zealand", "Nicaragua", "Niger", "Nigeria", "North Korea", "North Macedonia", "Norway", 
-        "Oman", "Pakistan", "Palau", "Palestine", "Panama", "Papua New Guinea", "Paraguay", "Peru", 
-        "Philippines", "Poland", "Portugal", "Qatar", "Romania", "Russia", "Rwanda", "Saint Kitts and Nevis", 
-        "Saint Lucia", "Saint Vincent and the Grenadines", "Samoa", "San Marino", "Sao Tome and Principe", 
-        "Saudi Arabia", "Senegal", "Serbia", "Seychelles", "Sierra Leone", "Singapore", "Slovakia", 
-        "Slovenia", "Solomon Islands", "Somalia", "South Africa", "South Korea", "South Sudan", "Spain", 
-        "Sri Lanka", "Sudan", "Suriname", "Sweden", "Switzerland", "Syria", "Taiwan", "Tajikistan", 
-        "Tanzania", "Thailand", "Timor-Leste", "Togo", "Tonga", "Trinidad and Tobago", "Tunisia", 
-        "Turkey", "Turkmenistan", "Tuvalu", "Uganda", "Ukraine", "United Arab Emirates", "United Kingdom", 
-        "United States", "Uruguay", "Uzbekistan", "Vanuatu", "Vatican City", "Venezuela", "Vietnam", 
+        "Afghanistan", "Albania", "Algeria", "Andorra", "Angola", "Antigua and Barbuda", "Argentina",
+        "Armenia", "Australia", "Austria", "Azerbaijan", "Bahamas", "Bahrain", "Bangladesh", "Barbados",
+        "Belarus", "Belgium", "Belize", "Benin", "Bhutan", "Bolivia", "Bosnia and Herzegovina",
+        "Botswana", "Brazil", "Brunei", "Bulgaria", "Burkina Faso", "Burundi", "Cabo Verde", "Cambodia",
+        "Cameroon", "Canada", "Central African Republic", "Chad", "Chile", "China", "Colombia",
+        "Comoros", "Congo (Congo-Brazzaville)", "Costa Rica", "Croatia", "Cuba", "Cyprus",
+        "Czechia (Czech Republic)", "Denmark", "Djibouti", "Dominica", "Dominican Republic", "Ecuador",
+        "Egypt", "El Salvador", "Equatorial Guinea", "Eritrea", "Estonia", "Eswatini", "Ethiopia",
+        "Fiji", "Finland", "France", "Gabon", "Gambia", "Georgia", "Germany", "Ghana", "Greece",
+        "Grenada", "Guatemala", "Guinea", "Guinea-Bissau", "Guyana", "Haiti", "Honduras", "Hungary",
+        "Iceland", "India", "Indonesia", "Iran", "Iraq", "Ireland", "Israel", "Italy", "Ivory Coast",
+        "Jamaica", "Japan", "Jordan", "Kazakhstan", "Kenya", "Kiribati", "Kuwait", "Kyrgyzstan",
+        "Laos", "Latvia", "Lebanon", "Lesotho", "Liberia", "Libya", "Liechtenstein", "Lithuania",
+        "Luxembourg", "Madagascar", "Malawi", "Malaysia", "Maldives", "Mali", "Malta", "Marshall Islands",
+        "Mauritania", "Mauritius", "Mexico", "Micronesia", "Moldova", "Monaco", "Mongolia", "Montenegro",
+        "Morocco", "Mozambique", "Myanmar (Burma)", "Namibia", "Nauru", "Nepal", "Netherlands",
+        "New Zealand", "Nicaragua", "Niger", "Nigeria", "North Korea", "North Macedonia", "Norway",
+        "Oman", "Pakistan", "Palau", "Palestine", "Panama", "Papua New Guinea", "Paraguay", "Peru",
+        "Philippines", "Poland", "Portugal", "Qatar", "Romania", "Russia", "Rwanda", "Saint Kitts and Nevis",
+        "Saint Lucia", "Saint Vincent and the Grenadines", "Samoa", "San Marino", "Sao Tome and Principe",
+        "Saudi Arabia", "Senegal", "Serbia", "Seychelles", "Sierra Leone", "Singapore", "Slovakia",
+        "Slovenia", "Solomon Islands", "Somalia", "South Africa", "South Korea", "South Sudan", "Spain",
+        "Sri Lanka", "Sudan", "Suriname", "Sweden", "Switzerland", "Syria", "Taiwan", "Tajikistan",
+        "Tanzania", "Thailand", "Timor-Leste", "Togo", "Tonga", "Trinidad and Tobago", "Tunisia",
+        "Turkey", "Turkmenistan", "Tuvalu", "Uganda", "Ukraine", "United Arab Emirates", "United Kingdom",
+        "United States", "Uruguay", "Uzbekistan", "Vanuatu", "Vatican City", "Venezuela", "Vietnam",
         "Yemen", "Zambia", "Zimbabwe"
-      ];
-          const services = ["Transportation", "Restauration", "Accommondation"];
+    ];
+    const services = ["Transportation", "Restauration", "Accommondation"];
 
 
     return (
@@ -113,8 +160,8 @@ export default function ProviderSignUp() {
                             <span className="font-bold text-green-700">Provider Portal</span>
                         </div>
                         <div className={`hidden md:flex items-center space-x-8 ${themeClass}`}>
-                        <Link className={`${isDarkMode ? 'text-white' : 'text-gray-700'} hover:text-green-700`} href="/provider/console">Home</Link>
-                        <a href="#" className={`${isDarkMode ? 'text-white' : 'text-gray-700'} hover:text-green-700`}>
+                            <Link className={`${isDarkMode ? 'text-white' : 'text-gray-700'} hover:text-green-700`} href="/provider/console">Home</Link>
+                            <a href="#" className={`${isDarkMode ? 'text-white' : 'text-gray-700'} hover:text-green-700`}>
                                 Services
                             </a>
                             <a href="#" className={`${isDarkMode ? 'text-white' : 'text-gray-700'} hover:text-green-700`}>
@@ -239,17 +286,17 @@ export default function ProviderSignUp() {
                             </div>
                         </div>
                         <div className="relative">
-                                <input
-                                    type="hidden"
-                                    name="typeUser"
-                                    value={formData.typeUser}
-                                    onChange={handleChange}
-                                    className="w-full bg-transparent placeholder:text-slate-400 text-slate-700 text-sm border border-slate-200 rounded-md px-3 py-2 transition duration-300 ease focus:outline-none focus:border-slate-400 hover:border-slate-300 shadow-sm focus:shadow"
-                                    required
-                                />
-                            </div>
+                            <input
+                                type="hidden"
+                                name="userType"
+                                value={formData.userType}
+                                onChange={handleChange}
+                                className="w-full bg-transparent placeholder:text-slate-400 text-slate-700 text-sm border border-slate-200 rounded-md px-3 py-2 transition duration-300 ease focus:outline-none focus:border-slate-400 hover:border-slate-300 shadow-sm focus:shadow"
+                                required
+                            />
+                        </div>
 
-                        
+
                         {/* First Name and Last Name (on same line) */}
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                             <div className="relative">
@@ -315,7 +362,7 @@ export default function ProviderSignUp() {
                                     onBlur={validatePasswords}
                                     className={`w-full bg-transparent placeholder:text-slate-400 text-slate-700 text-sm border ${passwordMatch ? "border-slate-200" : "border-red-500"
                                         } rounded-md px-3 py-2 transition duration-300 ease focus:outline-none focus:border-slate-400 hover:border-slate-300 shadow-sm focus:shadow`}
-                                    required
+                                    
                                 />
                             </div>
                         </div>
@@ -372,46 +419,46 @@ export default function ProviderSignUp() {
                                 />
                             </div>
                         </div>
-                         {/* Date of Birth and National ID (on same line) */}
-                         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        {/* Date of Birth and National ID (on same line) */}
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                             <div className="relative">
-                            <label className={`block text-sm font-medium ${isDarkMode ? 'text-gray-300' : 'text-gray-700'} mb-1`}>
-                                Country of Origin
-                            </label>
-                            <select
-                                name="countryOfOrigin"
-                                value={formData.countryOfOrigin}
-                                onChange={handleChange}
-                                className="w-full bg-transparent text-slate-700 text-sm border border-slate-200 rounded-md px-3 py-2 transition duration-300 ease focus:outline-none focus:border-slate-400 hover:border-slate-300 shadow-sm focus:shadow"
-                                required
-                            >
-                                <option value="">Select your country</option>
-                                {countries.map(country => (
-                                    <option key={country} value={country}>{country}</option>
-                                ))}
-                            </select>
+                                <label className={`block text-sm font-medium ${isDarkMode ? 'text-gray-300' : 'text-gray-700'} mb-1`}>
+                                    Country of Origin
+                                </label>
+                                <select
+                                    name="countryOfOrigin"
+                                    value={formData.countryOfOrigin}
+                                    onChange={handleChange}
+                                    className="w-full bg-transparent text-slate-700 text-sm border border-slate-200 rounded-md px-3 py-2 transition duration-300 ease focus:outline-none focus:border-slate-400 hover:border-slate-300 shadow-sm focus:shadow"
+                                    required
+                                >
+                                    <option value="">Select your country</option>
+                                    {countries.map(country => (
+                                        <option key={country} value={country}>{country}</option>
+                                    ))}
+                                </select>
                             </div>
 
                             <div className="relative">
-                            <label className={`block text-sm font-medium ${isDarkMode ? 'text-gray-300' : 'text-gray-700'} mb-1`}>
-                                Type of Service
-                            </label>
-                            <select
-                                name="typeOfService"
-                                value={formData.typeOfService}
-                                onChange={handleChange}
-                                className="w-full bg-transparent text-slate-700 text-sm border border-slate-200 rounded-md px-3 py-2 transition duration-300 ease focus:outline-none focus:border-slate-400 hover:border-slate-300 shadow-sm focus:shadow"
-                                required
-                            >
-                                <option value="">Select your service</option>
-                                {services.map(service => (
-                                    <option key={service} value={service}>{service}</option>
-                                ))}
-                            </select>
+                                <label className={`block text-sm font-medium ${isDarkMode ? 'text-gray-300' : 'text-gray-700'} mb-1`}>
+                                    Type of Service
+                                </label>
+                                <select
+                                    name="typeOfService"
+                                    value={formData.typeOfService}
+                                    onChange={handleChange}
+                                    className="w-full bg-transparent text-slate-700 text-sm border border-slate-200 rounded-md px-3 py-2 transition duration-300 ease focus:outline-none focus:border-slate-400 hover:border-slate-300 shadow-sm focus:shadow"
+                                    
+                                >
+                                    <option value="">Select your service</option>
+                                    {services.map(service => (
+                                        <option key={service} value={service}>{service}</option>
+                                    ))}
+                                </select>
                             </div>
                         </div>
 
-                    
+
 
                         {/* Submit Button */}
                         <button
