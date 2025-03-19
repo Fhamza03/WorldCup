@@ -10,11 +10,16 @@ import lombok.*;
 @Setter
 @Builder
 public class Card {
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Integer cardId;
-    private String cardName;
-    private String fanId;
-    @OneToOne(mappedBy = "card", cascade = CascadeType.ALL, orphanRemoval = true)
-    private Supporter supporter;
+    Integer cardId;
+
+    String cardNumber;
+    String cardType;
+    String issueDate;
+    String expiryDate;
+
+    @OneToOne(mappedBy = "card")
+    Supporter supporter;
 }

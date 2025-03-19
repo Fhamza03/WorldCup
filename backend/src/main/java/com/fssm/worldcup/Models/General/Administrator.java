@@ -13,5 +13,15 @@ import lombok.*;
 @Setter
 @Builder
 public class Administrator extends User {
-    private String AccessStatistics;
+
+    private String accessStatistics;
+
+    // Getters et Setters
+    public String getAccessStatistics() {
+        return accessStatistics;
+    }
+
+    public void setAccessStatistics(String accessStatistics) {
+        this.accessStatistics = accessStatistics;
+    }
 }

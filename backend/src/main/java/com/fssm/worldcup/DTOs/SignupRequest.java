@@ -1,19 +1,8 @@
-package com.fssm.worldcup.Models.General;
-
-import jakarta.persistence.*;
-import lombok.*;
-import org.hibernate.annotations.Immutable;
+package com.fssm.worldcup.DTOs;
 
 import java.util.Date;
 
-@MappedSuperclass
-@Getter
-@Setter
-public abstract class User {
-
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Integer userId;
+public class SignupRequest {
     private String email;
     private String password;
     private String firstName;
@@ -21,16 +10,15 @@ public abstract class User {
     private Date birthDate;
     private String nationality;
     private String nationalCode;
+    private String userType; // "ADMIN", "SUPPORTER", "PROVIDER"
 
-    // Getters et Setters
-    public Integer getUserId() {
-        return userId;
-    }
+    // Pour Supporter
+    private Boolean isFanIdValid;
 
-    public void setUserId(Integer userId) {
-        this.userId = userId;
-    }
+    // Pour Admin
+    private String accessStatistics;
 
+    // Getters and Setters
     public String getEmail() {
         return email;
     }
@@ -85,5 +73,29 @@ public abstract class User {
 
     public void setNationalCode(String nationalCode) {
         this.nationalCode = nationalCode;
+    }
+
+    public String getUserType() {
+        return userType;
+    }
+
+    public void setUserType(String userType) {
+        this.userType = userType;
+    }
+
+    public Boolean getIsFanIdValid() {
+        return isFanIdValid;
+    }
+
+    public void setIsFanIdValid(Boolean isFanIdValid) {
+        this.isFanIdValid = isFanIdValid;
+    }
+
+    public String getAccessStatistics() {
+        return accessStatistics;
+    }
+
+    public void setAccessStatistics(String accessStatistics) {
+        this.accessStatistics = accessStatistics;
     }
 }
