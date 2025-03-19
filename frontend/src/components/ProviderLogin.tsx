@@ -54,7 +54,7 @@ export default function ProviderLogin() {
                             <span className="font-bold text-green-700">Provider Portal</span>
                         </div>
                         <div className={`hidden md:flex items-center space-x-8 ${themeClass}`}>
-                            <Link className={`${isDarkMode ? 'text-white' : 'text-gray-700'} hover:text-green-700`} href="/">Home</Link>
+                            <Link className={`${isDarkMode ? 'text-white' : 'text-gray-700'} hover:text-green-700`} href="/provider/console">Home</Link>
                             <a href="#" className={`${isDarkMode ? 'text-white' : 'text-gray-700'} hover:text-green-700`}>
                                 Services
                             </a>

@@ -107,7 +107,7 @@ export default function ProviderConsole() {
 
             {/* Desktop Navigation */}
             <div className={`hidden md:flex items-center space-x-8 ${themeClass}`}>
-              <a href="#" className="text-gray-700 hover:text-green-700 dark:text-gray-300 dark:hover:text-green-500">
+              <a href="/provider/console" className="text-gray-700 hover:text-green-700 dark:text-gray-300 dark:hover:text-green-500">
                 Home
               </a>
               <a href="#" className="text-gray-700 hover:text-green-700 dark:text-gray-300 dark:hover:text-green-500">
@@ -298,13 +298,13 @@ export default function ProviderConsole() {
                 Log in to your account or create a new account to access our Fan ID management console.
               </p>
               <div className="space-y-4">
-                <Link href="/login" className="block w-full">
+                <Link href="/provider/console/login" className="block w-full">
                   <button className="w-full flex items-center justify-center bg-green-700 text-white px-6 py-3 rounded-full hover:bg-green-800 transition">
                     <LogIn className="w-5 h-5 mr-2" />
                     Log In
                   </button>
                 </Link>
-                <Link href="/signup" className="block w-full">
+                <Link href="/provider/console/signup" className="block w-full">
                   <button className="w-full flex items-center justify-center border-2 border-red-700 text-red-700 px-6 py-3 rounded-full hover:bg-red-700 hover:text-white transition">
                     <UserPlus className="w-5 h-5 mr-2" />
                     Create Account

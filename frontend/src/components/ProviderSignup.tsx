@@ -14,6 +14,7 @@ export default function ProviderSignUp() {
         email: "",
         password: "",
         confirmPassword: "",
+        typeUser: "provider",
         firstName: "",
         lastName: "",
         birthDate: "",
@@ -112,8 +113,8 @@ export default function ProviderSignUp() {
                             <span className="font-bold text-green-700">Provider Portal</span>
                         </div>
                         <div className={`hidden md:flex items-center space-x-8 ${themeClass}`}>
-                            <Link className={`${isDarkMode ? 'text-white' : 'text-gray-700'} hover:text-green-700`} href="/">Home</Link>
-                            <a href="#" className={`${isDarkMode ? 'text-white' : 'text-gray-700'} hover:text-green-700`}>
+                        <Link className={`${isDarkMode ? 'text-white' : 'text-gray-700'} hover:text-green-700`} href="/provider/console">Home</Link>
+                        <a href="#" className={`${isDarkMode ? 'text-white' : 'text-gray-700'} hover:text-green-700`}>
                                 Services
                             </a>
                             <a href="#" className={`${isDarkMode ? 'text-white' : 'text-gray-700'} hover:text-green-700`}>
@@ -237,6 +238,18 @@ export default function ProviderSignUp() {
                                 </label>
                             </div>
                         </div>
+                        <div className="relative">
+                                <input
+                                    type="hidden"
+                                    name="typeUser"
+                                    value={formData.typeUser}
+                                    onChange={handleChange}
+                                    className="w-full bg-transparent placeholder:text-slate-400 text-slate-700 text-sm border border-slate-200 rounded-md px-3 py-2 transition duration-300 ease focus:outline-none focus:border-slate-400 hover:border-slate-300 shadow-sm focus:shadow"
+                                    required
+                                />
+                            </div>
+
+                        
                         {/* First Name and Last Name (on same line) */}
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                             <div className="relative">

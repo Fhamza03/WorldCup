@@ -95,7 +95,6 @@ export default function SupporterProfile() {
         "Yemen", "Zambia", "Zimbabwe"
     ];
 
-    const teams = ["Argentina", "Brazil", "England", "France", "Germany", "Italy", "Japan", "Mexico", "Netherlands", "Portugal", "Senegal", "Spain", "Uruguay", "USA"];
 
     return (
         <div className={`min-h-screen ${themeClass} flex flex-col bg-gradient-to-b ${isDarkMode ? 'from-gray-900 to-gray-800' : 'from-gray-50 to-white'}`}>
