@@ -1,5 +1,5 @@
 
-import SupporterProfile from "@/components/SupporterProfile";        
+import SupporterProfile from "@/components/Supporter/SupporterProfile";        
 const ProfileSupporter = () => {
   return (
     <div >

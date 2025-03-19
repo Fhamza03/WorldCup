@@ -186,14 +186,8 @@ export default function SupporterProfile() {
                 <div className="w-full max-w-3xl">
                     <div className={`${cardBgClass} rounded-xl shadow-xl overflow-hidden`}>
                         {/* Profile Header Banner */}
-                        <div className="h-40 bg-gradient-to-r from-red-600 via-yellow-500 to-green-900 relative">
-                            <div className="absolute bottom-0 left-0 w-full h-16">
-                                <svg className="w-full h-full" preserveAspectRatio="none" viewBox="0 0 1200 120" xmlns="http://www.w3.org/2000/svg">
-                                    <path d="M321.39,56.44c58-10.79,114.16-30.13,172-41.86,82.39-16.72,168.19-17.73,250.45-.39C823.78,31,906.67,72,985.66,92.83c70.05,18.48,146.53,26.09,214.34,3V0H0V27.35A600.21,600.21,0,0,0,321.39,56.44Z"
-                                        fill={isDarkMode ? '#1f2937' : '#ffffff'}></path>
-                                </svg>
-                            </div>
-                            <div className="absolute -bottom-12 left-8 z-10">
+                        <div className="h-32 bg-gradient-to-r from-red-600  to-green-900 relative">
+                            <div className="absolute -bottom-12 left-8">
                                 <div className="relative">
                                     <div className={`w-24 h-24 rounded-full border-4 ${isDarkMode ? 'border-gray-800' : 'border-white'} overflow-hidden`}>
                                         {profilePhoto ? (
@@ -207,7 +201,7 @@ export default function SupporterProfile() {
                                     {isEditing && (
                                         <label
                                             htmlFor="profile-photo"
-                                            className="absolute bottom-0 right-0 w-8 h-8 rounded-full bg-blue-600 flex items-center justify-center cursor-pointer hover:bg-blue-700 transition-colors shadow-md"
+                                            className="absolute bottom-0 right-0 w-8 h-8 rounded-full bg-green-600 flex items-center justify-center cursor-pointer hover:bg-green-700 transition-colors shadow-md"
                                         >
                                             <Camera size={16} className="text-white" />
                                             <input

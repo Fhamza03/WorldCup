@@ -1,5 +1,5 @@
 
-import ProviderLogin from "@/components/ProviderLogin";
+import ProviderLogin from "@/components/Provider/ProviderLogin";
 
 const LoginPage = () => {
   return (

@@ -1,5 +1,5 @@
 
-import ProviderSignUp from "@/components/ProviderSignup";
+import ProviderSignUp from "@/components/Provider/ProviderSignup";
 
 const SignUpPage = () => {
   return (

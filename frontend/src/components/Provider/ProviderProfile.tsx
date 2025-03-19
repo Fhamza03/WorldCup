@@ -4,10 +4,12 @@ import { useState, useEffect, FormEvent, ChangeEvent } from "react";
 import { Menu, X, Upload, Camera, Edit, User, Mail, Calendar, Globe, Briefcase, CreditCard, Save, Phone, Shield } from "lucide-react";
 import Image from "next/image";
 import Link from 'next/link';
+import SidebarPr from "../Layout/Provider/SidebarPr";// Import the SidebarPr component
 
 export default function ProviderProfile() {
     const [isMenuOpen, setIsMenuOpen] = useState(false);
     const [isDarkMode, setIsDarkMode] = useState(false);
+    const [isSidebarOpen, setIsSidebarOpen] = useState(true);
     const [isEditing, setIsEditing] = useState(false);
     const [profilePhoto, setProfilePhoto] = useState<string | null>("/profile.png");
     const [formData, setFormData] = useState({
@@ -36,6 +38,10 @@ export default function ProviderProfile() {
             localStorage.setItem("theme", newMode ? "dark" : "light");
             return newMode;
         });
+    };
+
+    const toggleSidebar = () => {
+        setIsSidebarOpen(!isSidebarOpen);
     };
 
     const themeClass = isDarkMode ? "bg-gray-900 text-white" : "bg-white text-gray-700";
@@ -100,11 +106,28 @@ export default function ProviderProfile() {
 
     return (
         <div className={`min-h-screen ${themeClass} flex flex-col bg-gradient-to-b ${isDarkMode ? 'from-gray-900 to-gray-800' : 'from-gray-50 to-white'}`}>
+            {/* Sidebar - Now passing isDarkMode prop */}
+            {isSidebarOpen && (
+                <SidebarPr 
+                    isDarkMode={isDarkMode} 
+                    firstName={formData.firstName} 
+                    lastName={formData.lastName}
+                    isLoggedIn={true}
+                    onCategoryClick={() => setIsSidebarOpen(false)}
+                />
+            )}
+            
             {/* Header */}
             <nav className={`sticky top-0 ${isDarkMode ? 'bg-gray-900/95 border-b border-gray-700' : 'bg-white/95 border-b border-gray-200'} backdrop-blur-sm shadow-sm w-full z-50`}>
                 <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
                     <div className="flex justify-between h-16">
                         <div className="flex items-center">
+                            <button
+                                onClick={toggleSidebar}
+                                className={`mr-4 ${isDarkMode ? 'text-white' : 'text-gray-700'} hover:opacity-75 transition-opacity`}
+                            >
+                                <Menu size={24} />
+                            </button>
                             <div className="flex items-center">
                                 <Image src="/logo.png" alt="Logo" width={40} height={40} className="mr-2" />
                                 <span className={`font-bold text-xl ${isDarkMode ? 'text-white' : 'text-gray-900'}`}>FanID</span>
@@ -199,8 +222,8 @@ export default function ProviderProfile() {
                 )}
             </nav>
 
-            {/* Main Content */}
-            <div className="flex-grow flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8">
+            {/* Main Content - Adjust padding when sidebar is open */}
+            <div className={`flex-grow flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8 ${isSidebarOpen ? 'md:ml-64' : ''}`}>
                 <div className="w-full max-w-3xl">
                     <div className={`${cardBgClass} rounded-xl shadow-xl overflow-hidden`}>
                         {/* Profile Header Banner */}
@@ -265,6 +288,10 @@ export default function ProviderProfile() {
                                 </div>
                             </div>
 
+                            {/* Rest of the profile content remains the same */}
+                            {/* ... */}
+                            
+                            {/* Form content continues here */}
                             <form onSubmit={handleSubmit} className="space-y-6">
                                 {/* First Name and Last Name */}
                                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
