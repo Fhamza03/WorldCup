@@ -13,6 +13,8 @@ interface SidebarProps {
 
 export default function SidebarPr({ isDarkMode, firstName, lastName, isLoggedIn = true, onCategoryClick }: SidebarProps) {
   const [expandedCategory, setExpandedCategory] = useState<string | null>(null);
+  const [errorMessage, setErrorMessage] = useState<string | null>(null);
+
 
   const hoverClass = isDarkMode ? "hover:bg-gray-700" : "hover:bg-gray-100";
   
@@ -79,6 +81,32 @@ export default function SidebarPr({ isDarkMode, firstName, lastName, isLoggedIn 
   const inputBgClass = isDarkMode ? "bg-gray-800 text-white" : "bg-white text-gray-700";
   const cardBgClass = isDarkMode ? "bg-gray-800" : "bg-white";
 
+  const handleLogout = async () => {
+    try {
+      const response = await fetch("http://localhost:8080/api/auth/signout", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+      });
+
+      const data = await response.json();
+
+      if (data.success) {
+        localStorage.removeItem("token");
+        localStorage.removeItem("userType");
+        localStorage.removeItem("userId");
+
+        window.location.href = "/auth/login";
+      } else {
+        setErrorMessage(data.message || "Logout failed. Please try again.");
+      }
+    } catch (error) {
+      console.error("Error during logout:", error);
+      setErrorMessage("An error occurred during logout. Please try again.");
+    }
+  };
+
   return (
 <div className={`w-64 pt-16 px-8 pb-8 fixed top-16 left-0 bottom-0 overflow-y-auto ${isDarkMode ? 'bg-gray-800 text-white border-gray-700' : 'bg-white text-gray-700 border-gray-200'} border-r shadow-lg`}>{/* Navigation */}
       <div className="flex-grow py-4">
@@ -128,10 +156,13 @@ export default function SidebarPr({ isDarkMode, firstName, lastName, isLoggedIn 
       {/* Login/Logout Button */}
       <div className="p-4 border-t border-gray-200 dark:border-gray-700">
         {isLoggedIn ? (
-          <button className="w-full flex items-center justify-center gap-2 px-4 py-2 bg-red-600 text-white rounded-md hover:bg-red-700 transition-colors">
-            <LogOut size={16} />
-            <span>Déconnexion</span>
-          </button>
+ <button
+ onClick={handleLogout}
+ className="w-full flex items-center justify-center gap-2 px-4 py-2 bg-red-600 text-white rounded-md hover:bg-red-700 transition-colors mt-4"
+>
+ <LogOut size={16} />
+ <span>Déconnexion</span>
+</button>
         ) : (
           <button className="w-full flex items-center justify-center gap-2 px-4 py-2 bg-green-700 text-white rounded-md hover:bg-green-800 transition-colors">
             <LogIn size={16} />

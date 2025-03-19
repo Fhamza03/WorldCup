@@ -1,15 +1,20 @@
 "use client";
 
 import { useState, useEffect, FormEvent, ChangeEvent } from "react";
-import { Menu, X, Upload, Camera, Edit, User, Mail, Calendar, Globe, Heart, CreditCard, Save, Phone, Shield } from "lucide-react";
+import { Menu, X, Upload, Camera, Edit, User, Mail, Calendar, Globe, Heart, CreditCard, Save, Phone, Shield, LogOut } from "lucide-react";
 import Image from "next/image";
 import Link from 'next/link';
+import { useRouter } from 'next/navigation';
 
 export default function SupporterProfile() {
+    const router = useRouter();
     const [isMenuOpen, setIsMenuOpen] = useState(false);
+    const [isProfileMenuOpen, setIsProfileMenuOpen] = useState(false);
     const [isDarkMode, setIsDarkMode] = useState(false);
     const [isEditing, setIsEditing] = useState(false);
     const [profilePhoto, setProfilePhoto] = useState<string | null>("/profile.png");
+      const [errorMessage, setErrorMessage] = useState<string | null>(null);
+    
     const [formData, setFormData] = useState({
         email: "supporter@example.com",
         firstName: "Abdelmoughith",
@@ -36,6 +41,32 @@ export default function SupporterProfile() {
             return newMode;
         });
     };
+
+    const handleLogout = async () => {
+        try {
+          const response = await fetch("http://localhost:8080/api/auth/signout", {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+            },
+          });
+    
+          const data = await response.json();
+    
+          if (data.success) {
+            localStorage.removeItem("token");
+            localStorage.removeItem("userType");
+            localStorage.removeItem("userId");
+    
+            window.location.href = "/auth/login";
+          } else {
+            setErrorMessage(data.message || "Logout failed. Please try again.");
+          }
+        } catch (error) {
+          console.error("Error during logout:", error);
+          setErrorMessage("An error occurred during logout. Please try again.");
+        }
+      };
 
     const themeClass = isDarkMode ? "bg-gray-900 text-white" : "bg-white text-gray-700";
     const inputBgClass = isDarkMode ? "bg-gray-800 text-white" : "bg-white text-gray-700";
@@ -142,9 +173,104 @@ export default function SupporterProfile() {
                                     </div>
                                 </label>
                             </div>
+                            
+                            {/* Profile Photo and Menu */}
+                            <div className="relative ml-4">
+                                <div 
+                                    className="w-10 h-10 rounded-full overflow-hidden cursor-pointer border-2 border-green-700"
+                                    onClick={() => setIsProfileMenuOpen(!isProfileMenuOpen)}
+                                >
+                                    {profilePhoto ? (
+                                        <img src={profilePhoto} alt="Profile" className="w-full h-full object-cover" />
+                                    ) : (
+                                        <div className={`w-full h-full flex items-center justify-center ${isDarkMode ? 'bg-gray-700' : 'bg-gray-200'}`}>
+                                            <User size={24} className={isDarkMode ? 'text-gray-500' : 'text-gray-400'} />
+                                        </div>
+                                    )}
+                                </div>
+                                
+                                {/* Profile Dropdown Menu */}
+                                {isProfileMenuOpen && (
+                                    <div 
+                                        className={`absolute right-0 mt-2 w-48 rounded-md shadow-lg py-1 z-50 ${isDarkMode ? 'bg-gray-800' : 'bg-white'} ring-1 ring-black ring-opacity-5`}
+                                        onBlur={() => setTimeout(() => setIsProfileMenuOpen(false), 100)}
+                                    >
+                                        <Link 
+                                            href="" 
+                                            className={`block px-4 py-2 text-sm ${isDarkMode ? 'text-gray-300 hover:bg-gray-700' : 'text-gray-700 hover:bg-gray-100'}`}
+                                            onClick={() => setIsProfileMenuOpen(false)}
+                                        >
+                                            <div className="flex items-center">
+                                                <User size={16} className="mr-2" />
+                                                Profile
+                                            </div>
+                                        </Link>
+                                        <button
+                                            onClick={() => {
+                                                setIsProfileMenuOpen(false);
+                                                handleLogout();
+                                            }}
+                                            className={`block w-full text-left px-4 py-2 text-sm ${isDarkMode ? 'text-gray-300 hover:bg-gray-700' : 'text-gray-700 hover:bg-gray-100'}`}
+                                        >
+                                            <div className="flex items-center">
+                                                <LogOut size={16} className="mr-2" />
+                                                Déconnexion
+                                            </div>
+                                        </button>
+                                    </div>
+                                )}
+                            </div>
                         </div>
                         {/* Mobile menu button */}
                         <div className={`md:hidden ${themeClass} flex items-center`}>
+                            {/* Mobile Profile Photo */}
+                            <div className="relative mr-4">
+                                <div 
+                                    className="w-8 h-8 rounded-full overflow-hidden cursor-pointer border-2 border-green-700"
+                                    onClick={() => setIsProfileMenuOpen(!isProfileMenuOpen)}
+                                >
+                                    {profilePhoto ? (
+                                        <img src={profilePhoto} alt="Profile" className="w-full h-full object-cover" />
+                                    ) : (
+                                        <div className={`w-full h-full flex items-center justify-center ${isDarkMode ? 'bg-gray-700' : 'bg-gray-200'}`}>
+                                            <User size={16} className={isDarkMode ? 'text-gray-500' : 'text-gray-400'} />
+                                        </div>
+                                    )}
+                                </div>
+                                
+                                {/* Mobile Profile Dropdown Menu */}
+                                {isProfileMenuOpen && (
+                                    <div 
+                                        className={`absolute right-0 mt-2 w-48 rounded-md shadow-lg py-1 z-50 ${isDarkMode ? 'bg-gray-800' : 'bg-white'} ring-1 ring-black ring-opacity-5`}
+                                    >
+                                        <Link 
+                                            href="" 
+                                            className={`block px-4 py-2 text-sm ${isDarkMode ? 'text-gray-300 hover:bg-gray-700' : 'text-gray-700 hover:bg-gray-100'}`}
+                                            onClick={() => setIsProfileMenuOpen(false)}
+                                        >
+                                            <div className="flex items-center">
+                                                <User size={16} className="mr-2" />
+                                                Profile
+                                            </div>
+                                        </Link>
+                                        <button
+                                            onClick={() => {
+                                                setIsProfileMenuOpen(false);
+                                                handleLogout();
+                                            }}
+                                            className={`block w-full text-left px-4 py-2 text-sm ${isDarkMode ? 'text-gray-300 hover:bg-gray-700' : 'text-gray-700 hover:bg-gray-100'}`}
+                                        >
+                                            <div className="flex items-center">
+                                                <Link href="/auth/login">
+                                                <LogOut size={16} className="mr-2" />
+                                                Déconnexion
+                                                </Link>
+                                            </div>
+                                        </button>
+                                    </div>
+                                )}
+                            </div>
+                            
                             <button onClick={() => setIsMenuOpen(!isMenuOpen)} className="text-gray-700">
                                 {isMenuOpen ? <X size={24} /> : <Menu size={24} />}
                             </button>

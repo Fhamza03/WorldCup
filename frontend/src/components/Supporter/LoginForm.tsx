@@ -13,6 +13,8 @@ export default function LoginForm() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [isDarkMode, setIsDarkMode] = useState(false);
+  const [errorMessage, setErrorMessage] = useState<string | null>(null);
+
 
   useEffect(() => {
     const savedTheme = localStorage.getItem("theme");
@@ -36,11 +38,36 @@ export default function LoginForm() {
     ? "bg-gray-900 text-white"
     : "bg-white text-gray-700";
 
-  const handleSubmit = (e: FormEvent) => {
-    e.preventDefault();
-    // Logique de connexion
-    console.log("Login form submitted");
-  };
+    const handleSubmit = async (e: FormEvent) => {
+      e.preventDefault();
+      setErrorMessage(null);
+  
+      try {
+        const response = await fetch("http://localhost:8080/api/auth/signin", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({ email, password, userType: "SUPPORTER" }),
+        });
+  
+        const data = await response.json();
+  
+        if (data.success) {
+          localStorage.setItem("token", data.token);
+          localStorage.setItem("userType", data.userType);
+          localStorage.setItem("userId", data.userId);
+          
+          window.location.href = "/auth/profile";
+        } else {
+          setErrorMessage(data.message || "Login failed. Please try again.");
+        }
+      } catch (error) {
+        console.error("Error during login:", error);
+        setErrorMessage("An error occurred during login. Please try again.");
+      }
+    };
+  
 
   return (
     <div className={`min-h-screen ${themeClass} flex flex-col`}>

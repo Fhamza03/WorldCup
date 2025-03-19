@@ -13,7 +13,6 @@ export default function ProviderSignUp() {
     const [formData, setFormData] = useState({
         email: "",
         password: "",
-        confirmPassword: "",
         userType: "PROVIDER",
         firstName: "",
         lastName: "",
@@ -21,6 +20,7 @@ export default function ProviderSignUp() {
         countryOfOrigin: "",
         typeOfService: "",
         nationalId: "",
+        confirmPassword:""
     });
     const [profilePhoto, setProfilePhoto] = useState<string | null>(null);
     const [passwordMatch, setPasswordMatch] = useState(true);
@@ -82,6 +82,8 @@ export default function ProviderSignUp() {
             formDataObj.append("nationality", formData.countryOfOrigin);
             formDataObj.append("nationalCode", formData.nationalId);
             formDataObj.append("userType", formData.userType);
+            formDataObj.append("typeOfService", formData.typeOfService);
+
 
             // Add profile picture if exists
             if (profilePhoto) {

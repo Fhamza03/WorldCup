@@ -14,7 +14,7 @@ export default function SignUpForm() {
     email: "",
     password: "",
     confirmPassword: "",
-    typeUser: "SUPPORTER",
+    userType: "SUPPORTER",
     firstName: "",
     lastName: "",
     birthDate: "",
@@ -71,22 +71,59 @@ export default function SignUpForm() {
     }
   };
 
-  const handleSubmit = (e: FormEvent) => {
+  const handleSubmit = async (e: FormEvent) => {
     e.preventDefault();
-    if (formData.password !== formData.confirmPassword) {
-      setPasswordMatch(false);
-      return;
+    if (!passwordMatch) return;
+
+    try {
+        // Create FormData object for multipart/form-data submission
+        const formDataObj = new FormData();
+
+        // Add all form fields to FormData
+        formDataObj.append("email", formData.email);
+        formDataObj.append("password", formData.password);
+        formDataObj.append("firstName", formData.firstName);
+        formDataObj.append("lastName", formData.lastName);
+        formDataObj.append("birthDate", formData.birthDate);
+        formDataObj.append("nationality", formData.countryOfOrigin);
+        formDataObj.append("nationalCode", formData.nationalId);
+        formDataObj.append("userType", formData.userType);
+
+
+        // Add profile picture if exists
+        if (profilePhoto) {
+            // Convert base64 string back to file
+            const response = await fetch(profilePhoto);
+            const blob = await response.blob();
+            const file = new File([blob], "profile-picture.jpg", { type: "image/jpeg" });
+            formDataObj.append("profilePicture", file);
+        }
+
+        // Send request to backend
+        const response = await fetch("http://localhost:8080/api/auth/signup", {
+            method: "POST",
+            body: formDataObj,
+        });
+
+        const data = await response.json();
+
+        if (data.success) {
+            // Store token in localStorage
+            localStorage.setItem("token", data.token);
+            localStorage.setItem("userType", data.userType);
+            localStorage.setItem("userId", data.userId);
+
+            // Redirect to provider console
+            window.location.href = "/provider/console/profile";
+        } else {
+            // Show error message
+            alert(data.message || "Registration failed");
+        }
+    } catch (error) {
+        console.error("Error during registration:", error);
+        alert("An error occurred during registration. Please try again.");
     }
-
-    // Créer l'objet avec toutes les données
-    const userData = {
-      ...formData,
-      profilePhotoId: profilePhoto // Normalement, vous enverriez l'image au serveur et stockeriez une référence
-    };
-
-    console.log("Signup form submitted", userData);
-    // Logique d'inscription avec toutes les données
-  };
+};
 
   // Liste des pays (exemple simplifié)
   const countries = [
@@ -254,7 +291,7 @@ export default function SignUpForm() {
               <input
                 type="hidden"
                 name="typeUser"
-                value={formData.typeUser}
+                value={formData.userType}
                 onChange={handleChange}
                 className="w-full bg-transparent placeholder:text-slate-400 text-slate-700 text-sm border border-slate-200 rounded-md px-3 py-2 transition duration-300 ease focus:outline-none focus:border-slate-400 hover:border-slate-300 shadow-sm focus:shadow"
                 required

@@ -15,10 +15,10 @@ public class CorsConfig {
         UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
         CorsConfiguration config = new CorsConfiguration();
 
-        // Permettre les requêtes depuis n'importe quelle origine
-        config.addAllowedOrigin("*");
+        // Permettre les requêtes depuis n'importe quelle origine (tout en autorisant les credentials)
+        config.addAllowedOriginPattern("*");
 
-        // Permettre les en-têtes standard et Authorization
+        // Permettre tous les en-têtes
         config.addAllowedHeader("*");
 
         // Permettre les méthodes HTTP standard
@@ -28,7 +28,7 @@ public class CorsConfig {
         config.addAllowedMethod("DELETE");
         config.addAllowedMethod("OPTIONS");
 
-        // Autoriser les cookies dans les requêtes cross-origin
+        // Autoriser les cookies ou les tokens d'authentification
         config.setAllowCredentials(true);
 
         // Appliquer cette configuration à tous les chemins
@@ -36,4 +36,5 @@ public class CorsConfig {
 
         return new CorsFilter(source);
     }
+
 }
