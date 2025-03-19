@@ -13,13 +13,20 @@ public abstract class User {
     private String password;
     private String firstName;
     private String lastName;
-    private Date birthDate;
+    private String birthDate;
     private String nationality;
     private String nationalCode;
+    private String profilePicture;
+
+
 
     // Getters et Setters
     public Integer getUserId() {
         return userId;
+    }
+
+    public String getProfilePicture() {
+        return profilePicture;
     }
 
     public void setUserId(Integer userId) {
@@ -58,11 +65,11 @@ public abstract class User {
         this.lastName = lastName;
     }
 
-    public Date getBirthDate() {
+    public String getBirthDate() {
         return birthDate;
     }
 
-    public void setBirthDate(Date birthDate) {
+    public void setBirthDate(String birthDate) {
         this.birthDate = birthDate;
     }
 
@@ -73,6 +80,11 @@ public abstract class User {
     public void setNationality(String nationality) {
         this.nationality = nationality;
     }
+
+    public void setProfilePicture(String profilePicture) {
+        this.profilePicture = profilePicture;
+    }
+
 
     public String getNationalCode() {
         return nationalCode;
