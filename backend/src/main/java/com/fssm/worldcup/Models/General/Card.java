@@ -1,18 +1,14 @@
 package com.fssm.worldcup.Models.General;
 
 import jakarta.persistence.*;
-import lombok.Getter;
-import lombok.Setter;
-import lombok.NoArgsConstructor;
-import lombok.AllArgsConstructor;
-import lombok.experimental.FieldDefaults;
+import lombok.*;
 
 @Entity
+@AllArgsConstructor
+@NoArgsConstructor
 @Getter
 @Setter
-@NoArgsConstructor
-@AllArgsConstructor
-@FieldDefaults(level = lombok.AccessLevel.PRIVATE)
+@Builder
 public class Card {
 
     @Id
