@@ -1,4 +1,4 @@
 package com.fssm.worldcup.Repositories.Transportation;
 
-public interface PointRepository {
+public interface DriverRepository {
 }
