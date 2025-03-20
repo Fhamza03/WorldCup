@@ -6,7 +6,8 @@ import { signIn } from "next-auth/react";
 import { FcGoogle } from "react-icons/fc";
 import Image from "next/image";
 import Link from 'next/link';
-
+import ManagementFooter from "../Layout/Footers/ManagementFooter";
+import HeaderProvider from "../Layout/Headers/HeaderProvider";
 export default function ProviderSignUp() {
     const [isMenuOpen, setIsMenuOpen] = useState(false);
     const [isDarkMode, setIsDarkMode] = useState(false);
@@ -24,15 +25,32 @@ export default function ProviderSignUp() {
     });
     const [profilePhoto, setProfilePhoto] = useState<string | null>(null);
     const [passwordMatch, setPasswordMatch] = useState(true);
+    const [isSidebarOpen, setIsSidebarOpen] = useState(true);
+    const [countries, setCountries] = useState<string[]>([]);
+
 
     useEffect(() => {
         const savedTheme = localStorage.getItem("theme");
         if (savedTheme === "dark") {
-            setIsDarkMode(true);
+          setIsDarkMode(true);
         } else {
-            setIsDarkMode(false);
+          setIsDarkMode(false);
         }
-    }, []);
+    
+        // Fetch countries from the JSON file
+        fetchCountries();
+      }, []);
+      const fetchCountries = async () => {
+        try {
+          const response = await fetch('/countries.json');
+          const data = await response.json();
+          setCountries(data);
+        } catch (error) {
+          console.error("Error fetching countries:", error);
+          // Fallback in case the file cannot be loaded
+          setCountries(["Error loading countries"]);
+        }
+      };
 
     const toggleTheme = () => {
         setIsDarkMode((prevMode) => {
@@ -119,123 +137,21 @@ export default function ProviderSignUp() {
             alert("An error occurred during registration. Please try again.");
         }
     };
+    const toggleSidebar = () => {
+        setIsSidebarOpen(!isSidebarOpen);
+    };
 
-    const countries = [
-        "Afghanistan", "Albania", "Algeria", "Andorra", "Angola", "Antigua and Barbuda", "Argentina",
-        "Armenia", "Australia", "Austria", "Azerbaijan", "Bahamas", "Bahrain", "Bangladesh", "Barbados",
-        "Belarus", "Belgium", "Belize", "Benin", "Bhutan", "Bolivia", "Bosnia and Herzegovina",
-        "Botswana", "Brazil", "Brunei", "Bulgaria", "Burkina Faso", "Burundi", "Cabo Verde", "Cambodia",
-        "Cameroon", "Canada", "Central African Republic", "Chad", "Chile", "China", "Colombia",
-        "Comoros", "Congo (Congo-Brazzaville)", "Costa Rica", "Croatia", "Cuba", "Cyprus",
-        "Czechia (Czech Republic)", "Denmark", "Djibouti", "Dominica", "Dominican Republic", "Ecuador",
-        "Egypt", "El Salvador", "Equatorial Guinea", "Eritrea", "Estonia", "Eswatini", "Ethiopia",
-        "Fiji", "Finland", "France", "Gabon", "Gambia", "Georgia", "Germany", "Ghana", "Greece",
-        "Grenada", "Guatemala", "Guinea", "Guinea-Bissau", "Guyana", "Haiti", "Honduras", "Hungary",
-        "Iceland", "India", "Indonesia", "Iran", "Iraq", "Ireland", "Israel", "Italy", "Ivory Coast",
-        "Jamaica", "Japan", "Jordan", "Kazakhstan", "Kenya", "Kiribati", "Kuwait", "Kyrgyzstan",
-        "Laos", "Latvia", "Lebanon", "Lesotho", "Liberia", "Libya", "Liechtenstein", "Lithuania",
-        "Luxembourg", "Madagascar", "Malawi", "Malaysia", "Maldives", "Mali", "Malta", "Marshall Islands",
-        "Mauritania", "Mauritius", "Mexico", "Micronesia", "Moldova", "Monaco", "Mongolia", "Montenegro",
-        "Morocco", "Mozambique", "Myanmar (Burma)", "Namibia", "Nauru", "Nepal", "Netherlands",
-        "New Zealand", "Nicaragua", "Niger", "Nigeria", "North Korea", "North Macedonia", "Norway",
-        "Oman", "Pakistan", "Palau", "Palestine", "Panama", "Papua New Guinea", "Paraguay", "Peru",
-        "Philippines", "Poland", "Portugal", "Qatar", "Romania", "Russia", "Rwanda", "Saint Kitts and Nevis",
-        "Saint Lucia", "Saint Vincent and the Grenadines", "Samoa", "San Marino", "Sao Tome and Principe",
-        "Saudi Arabia", "Senegal", "Serbia", "Seychelles", "Sierra Leone", "Singapore", "Slovakia",
-        "Slovenia", "Solomon Islands", "Somalia", "South Africa", "South Korea", "South Sudan", "Spain",
-        "Sri Lanka", "Sudan", "Suriname", "Sweden", "Switzerland", "Syria", "Taiwan", "Tajikistan",
-        "Tanzania", "Thailand", "Timor-Leste", "Togo", "Tonga", "Trinidad and Tobago", "Tunisia",
-        "Turkey", "Turkmenistan", "Tuvalu", "Uganda", "Ukraine", "United Arab Emirates", "United Kingdom",
-        "United States", "Uruguay", "Uzbekistan", "Vanuatu", "Vatican City", "Venezuela", "Vietnam",
-        "Yemen", "Zambia", "Zimbabwe"
-    ];
     const services = ["Transportation", "Restauration", "Accommondation"];
 
 
     return (
         <div className={`min-h-screen ${themeClass} flex flex-col`}>
-            <nav className={`${themeClass} shadow-lg w-full z-50`}>
-                <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-                    <div className="flex justify-between h-16">
-                        <div className="flex items-center">
-                            <Image src="/logo.png" alt="Logo" width={60} height={60} className="mr-2" />
-                            <span className="font-bold text-green-700">Provider Portal</span>
-                        </div>
-                        <div className={`hidden md:flex items-center space-x-8 ${themeClass}`}>
-                            <Link className={`${isDarkMode ? 'text-white' : 'text-gray-700'} hover:text-green-700`} href="/provider/console">Home</Link>
-                            <a href="#" className={`${isDarkMode ? 'text-white' : 'text-gray-700'} hover:text-green-700`}>
-                                Services
-                            </a>
-                            <a href="#" className={`${isDarkMode ? 'text-white' : 'text-gray-700'} hover:text-green-700`}>
-                                Support
-                            </a>
-                            <a href="#" className={`${isDarkMode ? 'text-white' : 'text-gray-700'} hover:text-green-700`}>
-                                FAQ
-                            </a>
-                            <a href="#" className={`${isDarkMode ? 'text-white' : 'text-gray-700'} hover:text-green-700`}>
-                                Provider Help
-                            </a>
+   <HeaderProvider 
+                isDarkMode={isDarkMode} 
+                toggleTheme={toggleTheme} 
+                toggleSidebar={toggleSidebar} 
+            />
 
-                            {/* Toggle theme switch */}
-                            <div className="flex items-center ml-4">
-                                <label
-                                    htmlFor="theme-toggle"
-                                    className="flex items-center cursor-pointer"
-                                >
-                                    <div className="relative">
-                                        <input
-                                            id="theme-toggle"
-                                            type="checkbox"
-                                            checked={isDarkMode}
-                                            onChange={toggleTheme}
-                                            className="hidden"
-                                        />
-                                        <div className="block bg-gray-300 w-12 h-6 rounded-full"></div>
-                                        <div
-                                            className={`dot absolute left-1 top-1 bg-white w-4 h-4 rounded-full transition ${isDarkMode ? "transform translate-x-full" : ""
-                                                }`}
-                                        ></div>
-                                    </div>
-                                </label>
-                            </div>
-                        </div>
-                        {/* Mobile menu button */}
-                        <div className={`md:hidden ${themeClass} flex items-center`}>
-                            <button onClick={() => setIsMenuOpen(!isMenuOpen)} className="text-gray-700">
-                                {isMenuOpen ? <X size={24} /> : <Menu size={24} />}
-                            </button>
-                        </div>
-                    </div>
-                </div>
-
-                {/* Mobile Navigation */}
-                {isMenuOpen && (
-                    <div className={`md:hidden ${themeClass}`}>
-                        <div className={`md:hidden ${themeClass} fixed inset-0 z-40 pt-16`}>
-                            <div className="p-4 space-y-4">
-                                <a href="#" className="block py-2 px-4 text-lg hover:bg-gray-100 dark:hover:bg-gray-800 rounded">
-                                    Home
-                                </a>
-                                <a href="#" className="block py-2 px-4 text-lg hover:bg-gray-100 dark:hover:bg-gray-800 rounded">
-                                    Services
-                                </a>
-                                <a href="#" className="block py-2 px-4 text-lg hover:bg-gray-100 dark:hover:bg-gray-800 rounded">
-                                    Support
-                                </a>
-                                <a href="#" className="block py-2 px-4 text-lg hover:bg-gray-100 dark:hover:bg-gray-800 rounded">
-                                    FAQ
-                                </a>
-                                <a href="#" className="block py-2 px-4 text-lg hover:bg-gray-100 dark:hover:bg-gray-800 rounded">
-                                    Provider Help
-                                </a>
-                                <button className="w-full bg-green-700 text-white py-2 px-4 rounded-full hover:bg-green-800 transition">
-                                    <Link href="/login">Login</Link>
-                                </button>
-                            </div>
-                        </div>
-                    </div>
-                )}
-            </nav>
             <div className="flex-grow flex items-center justify-center relative py-8">
                 <div
                     className="absolute inset-0 z-0 bg-cover bg-center"
@@ -479,23 +395,8 @@ export default function ProviderSignUp() {
                 </div>
             </div>
             {/* Footer */}
-            <footer className={`bg-gray-900 text-white py-2 ${themeClass}`}>
-                <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-                    {/* Center block with logo and text */}
-                    <div className="flex items-center justify-center space-x-4">
-                        <img src="/logo.png" alt="Logo" className="w-20 h-20" />
-                        <div>
-                            <p className="text-gray-400">Your official World Cup identification system.</p>
-                            <p className="text-green-600 text-sm">Provider Portal</p>
-                        </div>
-                    </div>
+            <ManagementFooter isDarkMode={isDarkMode} />
 
-                    {/* Center block with copyright text */}
-                    <div className="border-t border-gray-800 mt-4 pt-4 text-center text-gray-400">
-                        <p>&copy; 2025 FanID. All rights reserved.</p>
-                    </div>
-                </div>
-            </footer>
         </div>
 
 

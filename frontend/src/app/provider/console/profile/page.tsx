@@ -3,7 +3,7 @@
 import { useState, useEffect } from "react";
 import ProviderProfile from "@/components/Provider/ProviderProfile";
 import SidebarPr from "@/components/Layout/Provider/SidebarPr";
-
+import ProtectedRoute from "@/route/ProtectedRoute";
 const ProviderConsoleProfilePage = () => {
   const [isDarkMode, setIsDarkMode] = useState(false);
   const [showSidebar, setShowSidebar] = useState(true);
@@ -67,7 +67,9 @@ const ProviderConsoleProfilePage = () => {
         
         {/* Main content area */}
         <div className="flex-grow">
-          <ProviderProfile />
+    <ProtectedRoute>
+      <ProviderProfile />
+      </ProtectedRoute>
         </div>
       </div>
     </div>

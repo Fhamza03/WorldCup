@@ -20,14 +20,27 @@ import {
   PieChart,
   FileText,
   LogIn,
-  UserPlus
+  UserPlus,
+  Ticket,
+  Plane,
+  UserCog,
+  Activity,
+  Layers,
+  ArrowRightCircle,
+  Sun,
+  Moon
 } from "lucide-react";
 import { FormEvent } from "react";
 import { FcGoogle } from "react-icons/fc";
+import ConsoleHeader from "@/components/Layout/Headers/ConsoleHeader";
+import MainFooter from "@/components/Layout/Footers/MainFooter";
+
 
 export default function ProviderConsole() {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [isDarkMode, setIsDarkMode] = useState(false);
+  const [isModeDropdownOpen, setIsModeDropdownOpen] = useState(false);
+  const [isModeHovering, setIsModeHovering] = useState(false);
 
   useEffect(() => {
     const savedTheme = localStorage.getItem('theme');
@@ -46,7 +59,7 @@ export default function ProviderConsole() {
       return newMode;
     });
   };
-  
+
   const themeClass = isDarkMode ? 'bg-gray-900 text-white' : 'bg-white text-gray-700';
 
   const services = [
@@ -95,68 +108,8 @@ export default function ProviderConsole() {
   return (
     <div className={`min-h-screen ${themeClass}`}>
       {/* Navigation */}
-      <nav className={`${themeClass} shadow-lg fixed w-full z-50`}>
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex justify-between h-16">
-            <div className="flex items-center">
-              <div className="flex items-center">
-                <img src="/logo.png" alt="Logo" className="w-15 h-15 mr-2" />
-                <span className="font-bold text-xl">Yalla Provider</span>
-              </div>
-            </div>
+      <ConsoleHeader isDarkMode={isDarkMode} toggleTheme={toggleTheme} />
 
-            {/* Desktop Navigation */}
-            <div className={`hidden md:flex items-center space-x-8 ${themeClass}`}>
-              <a href="/provider/console" className="text-gray-700 hover:text-green-700 dark:text-gray-300 dark:hover:text-green-500">
-                Home
-              </a>
-              <a href="#" className="text-gray-700 hover:text-green-700 dark:text-gray-300 dark:hover:text-green-500">
-                Services
-              </a>
-              <a href="#" className="text-gray-700 hover:text-green-700 dark:text-gray-300 dark:hover:text-green-500">
-                Support
-              </a>
-              <a href="#" className="text-gray-700 hover:text-green-700 dark:text-gray-300 dark:hover:text-green-500">
-                FAQ
-              </a>
-              <button className="bg-red-700 text-white px-6 py-2 rounded-full hover:bg-red-800 transition">
-                <Link href="/provider/console/login">Login</Link>
-              </button>
-
-              {/* Toggle theme switch */}
-              <div className="flex items-center ml-4">
-                <label htmlFor="theme-toggle" className="flex items-center cursor-pointer">
-                  <div className="relative">
-                    <input
-                      id="theme-toggle"
-                      type="checkbox"
-                      checked={isDarkMode}
-                      onChange={toggleTheme}
-                      className="hidden"
-                    />
-                    <div className="block bg-gray-300 w-12 h-6 rounded-full"></div>
-                    <div
-                      className={`dot absolute left-1 top-1 bg-white w-4 h-4 rounded-full transition ${
-                        isDarkMode ? 'transform translate-x-full' : ''
-                      }`}
-                    ></div>
-                  </div>
-                </label>
-              </div>
-            </div>
-
-            {/* Mobile menu button */}
-            <div className={`md:hidden ${themeClass} flex items-center`}>
-              <button
-                onClick={() => setIsMenuOpen(!isMenuOpen)}
-                className="text-gray-700 dark:text-gray-300"
-              >
-                {isMenuOpen ? <X size={24} /> : <Menu size={24} />}
-              </button>
-            </div>
-          </div>
-        </div>
-      </nav>
 
       {/* Mobile Menu */}
       {isMenuOpen && (
@@ -365,98 +318,8 @@ export default function ProviderConsole() {
       </div>
 
       {/* Footer */}
-      <footer className={`bg-gray-900 text-white py-12`}>
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
-            <div>
-              <div className="flex items-center">
-                <img src="/logo.png" alt="Logo" className="w-20 h-20 mr-2" />
-              </div>
-              <p className="text-gray-400">
-                Your official Fan ID partner management system.
-              </p>
-            </div>
-            <div>
-              <h4 className="font-semibold mb-4">Quick Links</h4>
-              <ul className="space-y-2">
-                <li>
-                  <a href="#" className="text-gray-400 hover:text-white">
-                    About
-                  </a>
-                </li>
-                <li>
-                  <a href="#" className="text-gray-400 hover:text-white">
-                    Services
-                  </a>
-                </li>
-                <li>
-                  <a href="#" className="text-gray-400 hover:text-white">
-                    Support
-                  </a>
-                </li>
-                <li>
-                  <a href="#" className="text-gray-400 hover:text-white">
-                    Contact
-                  </a>
-                </li>
-              </ul>
-            </div>
-            <div>
-              <h4 className="font-semibold mb-4">Resources</h4>
-              <ul className="space-y-2">
-                <li>
-                  <a href="#" className="text-gray-400 hover:text-white">
-                    FAQ
-                  </a>
-                </li>
-                <li>
-                  <a href="#" className="text-gray-400 hover:text-white">
-                    Guidelines
-                  </a>
-                </li>
-                <li>
-                  <a href="#" className="text-gray-400 hover:text-white">
-                    Documentation
-                  </a>
-                </li>
-                <li>
-                  <a href="#" className="text-gray-400 hover:text-white">
-                    Privacy Policy
-                  </a>
-                </li>
-              </ul>
-            </div>
-            <div>
-              <h4 className="font-semibold mb-4">Follow Us</h4>
-              <ul className="space-y-2">
-                <li>
-                  <a href="#" className="text-gray-400 hover:text-white">
-                    Facebook
-                  </a>
-                </li>
-                <li>
-                  <a href="#" className="text-gray-400 hover:text-white">
-                    Twitter
-                  </a>
-                </li>
-                <li>
-                  <a href="#" className="text-gray-400 hover:text-white">
-                    Instagram
-                  </a>
-                </li>
-                <li>
-                  <a href="#" className="text-gray-400 hover:text-white">
-                    LinkedIn
-                  </a>
-                </li>
-              </ul>
-            </div>
-          </div>
-          <div className="border-t border-gray-800 mt-12 pt-8 text-center text-gray-400">
-            <p>&copy; 2025 Yalla FanID Provider Console. All rights reserved.</p>
-          </div>
-        </div>
-      </footer>
+      <MainFooter isDarkMode={isDarkMode} />
+
     </div>
   );
 }

@@ -5,6 +5,8 @@ import { Menu, X, Upload, Camera, Edit, User, Mail, Calendar, Globe, Briefcase, 
 import Image from "next/image";
 import Link from 'next/link';
 import SidebarPr from "../Layout/Provider/SidebarPr";// Import the SidebarPr component
+import HeaderProvider from "../Layout/Headers/HeaderProvider";
+import ManagementFooter from "../Layout/Footers/ManagementFooter";
 
 export default function ProviderProfile() {
     const [isMenuOpen, setIsMenuOpen] = useState(false);
@@ -118,109 +120,11 @@ export default function ProviderProfile() {
             )}
             
             {/* Header */}
-            <nav className={`sticky top-0 ${isDarkMode ? 'bg-gray-900/95 border-b border-gray-700' : 'bg-white/95 border-b border-gray-200'} backdrop-blur-sm shadow-sm w-full z-50`}>
-                <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-                    <div className="flex justify-between h-16">
-                        <div className="flex items-center">
-                            <button
-                                onClick={toggleSidebar}
-                                className={`mr-4 ${isDarkMode ? 'text-white' : 'text-gray-700'} hover:opacity-75 transition-opacity`}
-                            >
-                                <Menu size={24} />
-                            </button>
-                            <div className="flex items-center">
-                                <Image src="/logo.png" alt="Logo" width={40} height={40} className="mr-2" />
-                                <span className={`font-bold text-xl ${isDarkMode ? 'text-white' : 'text-gray-900'}`}>FanID</span>
-                            </div>
-                        </div>
-                        <div className={`hidden md:flex items-center space-x-8 ${themeClass}`}>
-                            <Link className={`text-sm font-medium ${isDarkMode ? 'text-white hover:text-green-400' : 'text-gray-700 hover:text-green-600'} transition-colors`} href="/">Home</Link>
-                            <a href="#" className={`text-sm font-medium ${isDarkMode ? 'text-white hover:text-green-400' : 'text-gray-700 hover:text-green-600'} transition-colors`}>
-                                Services
-                            </a>
-                            <a href="#" className={`text-sm font-medium ${isDarkMode ? 'text-white hover:text-green-400' : 'text-gray-700 hover:text-green-600'} transition-colors`}>
-                                Support
-                            </a>
-                            <a href="#" className={`text-sm font-medium ${isDarkMode ? 'text-white hover:text-green-400' : 'text-gray-700 hover:text-green-600'} transition-colors`}>
-                                FAQ
-                            </a>
-
-                            {/* Toggle theme switch */}
-                            <div className="flex items-center ml-4">
-                                <label
-                                    htmlFor="theme-toggle"
-                                    className="flex items-center cursor-pointer"
-                                >
-                                    <div className="relative">
-                                        <input
-                                            id="theme-toggle"
-                                            type="checkbox"
-                                            checked={isDarkMode}
-                                            onChange={toggleTheme}
-                                            className="hidden"
-                                        />
-                                        <div className={`block w-12 h-6 rounded-full transition ${isDarkMode ? 'bg-gray-600' : 'bg-gray-300'}`}></div>
-                                        <div
-                                            className={`absolute left-1 top-1 bg-white w-4 h-4 rounded-full transition-transform duration-300 ease-in-out ${isDarkMode ? "transform translate-x-6" : ""
-                                                }`}
-                                        ></div>
-                                    </div>
-                                </label>
-                            </div>
-                        </div>
-                        {/* Mobile menu button */}
-                        <div className={`md:hidden ${themeClass} flex items-center`}>
-                            <button
-                                onClick={() => setIsMenuOpen(!isMenuOpen)}
-                                className={`${isDarkMode ? 'text-white' : 'text-gray-700'} hover:opacity-75 transition-opacity`}
-                            >
-                                {isMenuOpen ? <X size={24} /> : <Menu size={24} />}
-                            </button>
-                        </div>
-                    </div>
-                </div>
-
-                {/* Mobile Navigation */}
-                {isMenuOpen && (
-                    <div className={`md:hidden ${isDarkMode ? 'bg-gray-800' : 'bg-white'} absolute w-full border-b ${isDarkMode ? 'border-gray-700' : 'border-gray-200'} shadow-lg`}>
-                        <div className="px-4 py-3 space-y-2">
-                            <Link className={`block py-2 px-4 rounded-md ${isDarkMode ? 'text-white hover:bg-gray-700' : 'text-gray-900 hover:bg-gray-100'} transition-colors`} href="/">
-                                Home
-                            </Link>
-                            <a href="#" className={`block py-2 px-4 rounded-md ${isDarkMode ? 'text-white hover:bg-gray-700' : 'text-gray-900 hover:bg-gray-100'} transition-colors`}>
-                                Services
-                            </a>
-                            <a href="#" className={`block py-2 px-4 rounded-md ${isDarkMode ? 'text-white hover:bg-gray-700' : 'text-gray-900 hover:bg-gray-100'} transition-colors`}>
-                                Support
-                            </a>
-                            <a href="#" className={`block py-2 px-4 rounded-md ${isDarkMode ? 'text-white hover:bg-gray-700' : 'text-gray-900 hover:bg-gray-100'} transition-colors`}>
-                                FAQ
-                            </a>
-                            <div className="flex items-center pt-2">
-                                <span className={`text-sm ${isDarkMode ? 'text-gray-400' : 'text-gray-600'} mr-3`}>
-                                    {isDarkMode ? 'Dark Mode' : 'Light Mode'}
-                                </span>
-                                <label htmlFor="mobile-theme-toggle" className="flex items-center cursor-pointer">
-                                    <div className="relative">
-                                        <input
-                                            id="mobile-theme-toggle"
-                                            type="checkbox"
-                                            checked={isDarkMode}
-                                            onChange={toggleTheme}
-                                            className="hidden"
-                                        />
-                                        <div className={`block w-12 h-6 rounded-full transition ${isDarkMode ? 'bg-gray-600' : 'bg-gray-300'}`}></div>
-                                        <div
-                                            className={`absolute left-1 top-1 bg-white w-4 h-4 rounded-full transition-transform duration-300 ease-in-out ${isDarkMode ? "transform translate-x-6" : ""
-                                                }`}
-                                        ></div>
-                                    </div>
-                                </label>
-                            </div>
-                        </div>
-                    </div>
-                )}
-            </nav>
+            <HeaderProvider 
+                isDarkMode={isDarkMode} 
+                toggleTheme={toggleTheme} 
+                toggleSidebar={toggleSidebar} 
+            />
 
             {/* Main Content - Adjust padding when sidebar is open */}
             <div className={`flex-grow flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8 ${isSidebarOpen ? 'md:ml-64' : ''}`}>
@@ -288,8 +192,7 @@ export default function ProviderProfile() {
                                 </div>
                             </div>
 
-                            {/* Rest of the profile content remains the same */}
-                            {/* ... */}
+                     
                             
                             {/* Form content continues here */}
                             <form onSubmit={handleSubmit} className="space-y-6">
@@ -500,23 +403,8 @@ export default function ProviderProfile() {
 
 
             {/* Footer */}
-            <footer className={`bg-gray-900 text-white py-2 ${themeClass}`}>
-                <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-                    {/* Center block with logo and text */}
-                    <div className="flex items-center justify-center space-x-4">
-                        <img src="/logo.png" alt="Logo" className="w-20 h-20" />
-                        <div>
-                            <p className="text-gray-400">Your official World Cup identification system.</p>
-                            <p className="text-green-600 text-sm">Provider Portal</p>
-                        </div>
-                    </div>
+            <ManagementFooter isDarkMode={isDarkMode} />
 
-                    {/* Center block with copyright text */}
-                    <div className="border-t border-gray-800 mt-4 pt-4 text-center text-gray-400">
-                        <p>&copy; 2025 FanID. All rights reserved.</p>
-                    </div>
-                </div>
-            </footer>
         </div>
     );
 }

@@ -7,7 +7,8 @@ import { signIn } from "next-auth/react";
 import { FcGoogle } from "react-icons/fc";
 import Image from "next/image";
 import Link from 'next/link';
-
+import ManagementFooter from "../Layout/Footers/ManagementFooter";
+import HeaderProvider from "../Layout/Headers/HeaderProvider";
 export default function ProviderLogin() {
     const [isMenuOpen, setIsMenuOpen] = useState(false);
     const [email, setEmail] = useState("");
@@ -15,6 +16,7 @@ export default function ProviderLogin() {
     const [isDarkMode, setIsDarkMode] = useState(false);
     const [rememberMe, setRememberMe] = useState(false);
     const [errorMessage, setErrorMessage] = useState<string | null>(null);
+    const [isSidebarOpen, setIsSidebarOpen] = useState(true);
 
 
     useEffect(() => {
@@ -25,6 +27,9 @@ export default function ProviderLogin() {
             setIsDarkMode(false);
         }
     }, []);
+    const toggleSidebar = () => {
+        setIsSidebarOpen(!isSidebarOpen);
+    };
 
     // Handle theme change
     const toggleTheme = () => {
@@ -42,7 +47,7 @@ export default function ProviderLogin() {
         const handleSubmit = async (e: FormEvent) => {
             e.preventDefault();
             setErrorMessage(null);
-        
+          
             try {
               const response = await fetch("http://localhost:8080/api/auth/signin", {
                 method: "POST",
@@ -51,14 +56,16 @@ export default function ProviderLogin() {
                 },
                 body: JSON.stringify({ email, password, userType: "PROVIDER" }),
               });
-        
+          
               const data = await response.json();
-        
+          
               if (data.success) {
+                // Stocker les informations d'authentification
                 localStorage.setItem("token", data.token);
                 localStorage.setItem("userType", data.userType);
                 localStorage.setItem("userId", data.userId);
                 
+                // Redirection vers la page de profil
                 window.location.href = "/provider/console/profile";
               } else {
                 setErrorMessage(data.message || "Login failed. Please try again.");
@@ -72,88 +79,12 @@ export default function ProviderLogin() {
     return (
         <div className={`min-h-screen ${themeClass} flex flex-col`}>
             {/* Navigation */}
-            <nav className={`${themeClass} shadow-lg w-full z-50`}>
-                <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-                    <div className="flex justify-between h-16">
-                        <div className="flex items-center">
-                            <Image src="/logo.png" alt="Logo" width={60} height={60} className="mr-2" />
-                            <span className="font-bold text-green-700">Provider Portal</span>
-                        </div>
-                        <div className={`hidden md:flex items-center space-x-8 ${themeClass}`}>
-                            <Link className={`${isDarkMode ? 'text-white' : 'text-gray-700'} hover:text-green-700`} href="/provider/console">Home</Link>
-                            <a href="#" className={`${isDarkMode ? 'text-white' : 'text-gray-700'} hover:text-green-700`}>
-                                Services
-                            </a>
-                            <a href="#" className={`${isDarkMode ? 'text-white' : 'text-gray-700'} hover:text-green-700`}>
-                                Support
-                            </a>
-                            <a href="#" className={`${isDarkMode ? 'text-white' : 'text-gray-700'} hover:text-green-700`}>
-                                FAQ
-                            </a>
-                            <a href="#" className={`${isDarkMode ? 'text-white' : 'text-gray-700'} hover:text-green-700`}>
-                                Provider Help
-                            </a>
+            <HeaderProvider 
+                isDarkMode={isDarkMode} 
+                toggleTheme={toggleTheme} 
+                toggleSidebar={toggleSidebar} 
+            />
 
-                            {/* Toggle theme switch */}
-                            <div className="flex items-center ml-4">
-                                <label
-                                    htmlFor="theme-toggle"
-                                    className="flex items-center cursor-pointer"
-                                >
-                                    <div className="relative">
-                                        <input
-                                            id="theme-toggle"
-                                            type="checkbox"
-                                            checked={isDarkMode}
-                                            onChange={toggleTheme}
-                                            className="hidden"
-                                        />
-                                        <div className="block bg-gray-300 w-12 h-6 rounded-full"></div>
-                                        <div
-                                            className={`dot absolute left-1 top-1 bg-white w-4 h-4 rounded-full transition ${isDarkMode ? "transform translate-x-full" : ""
-                                                }`}
-                                        ></div>
-                                    </div>
-                                </label>
-                            </div>
-                        </div>
-                        {/* Mobile menu button */}
-                        <div className={`md:hidden ${themeClass} flex items-center`}>
-                            <button onClick={() => setIsMenuOpen(!isMenuOpen)} className="text-gray-700">
-                                {isMenuOpen ? <X size={24} /> : <Menu size={24} />}
-                            </button>
-                        </div>
-                    </div>
-                </div>
-
-                {/* Mobile Navigation */}
-                {isMenuOpen && (
-                    <div className={`md:hidden ${themeClass}`}>
-                        <div className={`md:hidden ${themeClass} fixed inset-0 z-40 pt-16`}>
-                            <div className="p-4 space-y-4">
-                                <a href="#" className="block py-2 px-4 text-lg hover:bg-gray-100 dark:hover:bg-gray-800 rounded">
-                                    Home
-                                </a>
-                                <a href="#" className="block py-2 px-4 text-lg hover:bg-gray-100 dark:hover:bg-gray-800 rounded">
-                                    Services
-                                </a>
-                                <a href="#" className="block py-2 px-4 text-lg hover:bg-gray-100 dark:hover:bg-gray-800 rounded">
-                                    Support
-                                </a>
-                                <a href="#" className="block py-2 px-4 text-lg hover:bg-gray-100 dark:hover:bg-gray-800 rounded">
-                                    FAQ
-                                </a>
-                                <a href="#" className="block py-2 px-4 text-lg hover:bg-gray-100 dark:hover:bg-gray-800 rounded">
-                                    Provider Help
-                                </a>
-                                <button className="w-full bg-green-700 text-white py-2 px-4 rounded-full hover:bg-green-800 transition">
-                                    <Link href="/login">Login</Link>
-                                </button>
-                            </div>
-                        </div>
-                    </div>
-                )}
-            </nav>
 
             {/* Main Content */}
             <div className="flex-grow flex items-center justify-center relative py-8">
@@ -251,23 +182,8 @@ export default function ProviderLogin() {
                 </div>
             </div>
             {/* Footer */}
-            <footer className={`bg-gray-900 text-white py-2 ${themeClass}`}>
-                <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-                    {/* Center block with logo and text */}
-                    <div className="flex items-center justify-center space-x-4">
-                        <img src="/logo.png" alt="Logo" className="w-20 h-20" />
-                        <div>
-                            <p className="text-gray-400">Your official World Cup identification system.</p>
-                            <p className="text-green-600 text-sm">Provider Portal</p>
-                        </div>
-                    </div>
+            <ManagementFooter isDarkMode={isDarkMode} />
 
-                    {/* Center block with copyright text */}
-                    <div className="border-t border-gray-800 mt-4 pt-4 text-center text-gray-400">
-                        <p>&copy; 2025 FanID. All rights reserved.</p>
-                    </div>
-                </div>
-            </footer>
         </div>
     );
 }

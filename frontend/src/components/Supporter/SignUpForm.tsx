@@ -6,6 +6,8 @@ import { signIn } from "next-auth/react";
 import { FcGoogle } from "react-icons/fc";
 import Image from "next/image";
 import Link from 'next/link';
+import SupporterAuthHeader from "../Layout/Headers/SupporterAuthHeader";
+import ManagementFooter from "../Layout/Footers/ManagementFooter";
 
 export default function SignUpForm() {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
@@ -23,6 +25,7 @@ export default function SignUpForm() {
   });
   const [profilePhoto, setProfilePhoto] = useState<string | null>(null);
   const [passwordMatch, setPasswordMatch] = useState(true);
+  const [countries, setCountries] = useState<string[]>([]);
 
   useEffect(() => {
     const savedTheme = localStorage.getItem("theme");
@@ -31,7 +34,23 @@ export default function SignUpForm() {
     } else {
       setIsDarkMode(false);
     }
+
+    // Fetch countries from the JSON file
+    fetchCountries();
   }, []);
+
+  // Function to fetch countries from the JSON file
+  const fetchCountries = async () => {
+    try {
+      const response = await fetch('/countries.json');
+      const data = await response.json();
+      setCountries(data);
+    } catch (error) {
+      console.error("Error fetching countries:", error);
+      // Fallback in case the file cannot be loaded
+      setCountries(["Error loading countries"]);
+    }
+  };
 
   // Gérer le changement de thème
   const toggleTheme = () => {
@@ -123,110 +142,13 @@ export default function SignUpForm() {
         console.error("Error during registration:", error);
         alert("An error occurred during registration. Please try again.");
     }
-};
-
-  // Liste des pays (exemple simplifié)
-  const countries = [
-    "Afghanistan", "Albania", "Algeria", "Andorra", "Angola", "Antigua and Barbuda", "Argentina",
-    "Armenia", "Australia", "Austria", "Azerbaijan", "Bahamas", "Bahrain", "Bangladesh", "Barbados",
-    "Belarus", "Belgium", "Belize", "Benin", "Bhutan", "Bolivia", "Bosnia and Herzegovina",
-    "Botswana", "Brazil", "Brunei", "Bulgaria", "Burkina Faso", "Burundi", "Cabo Verde", "Cambodia",
-    "Cameroon", "Canada", "Central African Republic", "Chad", "Chile", "China", "Colombia",
-    "Comoros", "Congo (Congo-Brazzaville)", "Costa Rica", "Croatia", "Cuba", "Cyprus",
-    "Czechia (Czech Republic)", "Denmark", "Djibouti", "Dominica", "Dominican Republic", "Ecuador",
-    "Egypt", "El Salvador", "Equatorial Guinea", "Eritrea", "Estonia", "Eswatini", "Ethiopia",
-    "Fiji", "Finland", "France", "Gabon", "Gambia", "Georgia", "Germany", "Ghana", "Greece",
-    "Grenada", "Guatemala", "Guinea", "Guinea-Bissau", "Guyana", "Haiti", "Honduras", "Hungary",
-    "Iceland", "India", "Indonesia", "Iran", "Iraq", "Ireland", "Israel", "Italy", "Ivory Coast",
-    "Jamaica", "Japan", "Jordan", "Kazakhstan", "Kenya", "Kiribati", "Kuwait", "Kyrgyzstan",
-    "Laos", "Latvia", "Lebanon", "Lesotho", "Liberia", "Libya", "Liechtenstein", "Lithuania",
-    "Luxembourg", "Madagascar", "Malawi", "Malaysia", "Maldives", "Mali", "Malta", "Marshall Islands",
-    "Mauritania", "Mauritius", "Mexico", "Micronesia", "Moldova", "Monaco", "Mongolia", "Montenegro",
-    "Morocco", "Mozambique", "Myanmar (Burma)", "Namibia", "Nauru", "Nepal", "Netherlands",
-    "New Zealand", "Nicaragua", "Niger", "Nigeria", "North Korea", "North Macedonia", "Norway",
-    "Oman", "Pakistan", "Palau", "Palestine", "Panama", "Papua New Guinea", "Paraguay", "Peru",
-    "Philippines", "Poland", "Portugal", "Qatar", "Romania", "Russia", "Rwanda", "Saint Kitts and Nevis",
-    "Saint Lucia", "Saint Vincent and the Grenadines", "Samoa", "San Marino", "Sao Tome and Principe",
-    "Saudi Arabia", "Senegal", "Serbia", "Seychelles", "Sierra Leone", "Singapore", "Slovakia",
-    "Slovenia", "Solomon Islands", "Somalia", "South Africa", "South Korea", "South Sudan", "Spain",
-    "Sri Lanka", "Sudan", "Suriname", "Sweden", "Switzerland", "Syria", "Taiwan", "Tajikistan",
-    "Tanzania", "Thailand", "Timor-Leste", "Togo", "Tonga", "Trinidad and Tobago", "Tunisia",
-    "Turkey", "Turkmenistan", "Tuvalu", "Uganda", "Ukraine", "United Arab Emirates", "United Kingdom",
-    "United States", "Uruguay", "Uzbekistan", "Vanuatu", "Vatican City", "Venezuela", "Vietnam",
-    "Yemen", "Zambia", "Zimbabwe"
-  ];
-
+  };
 
   return (
     <div className={`min-h-screen ${themeClass} flex flex-col`}>
       {/* Navigation */}
-      <nav className={`${themeClass} shadow-lg w-full z-50`}>
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex justify-between h-16">
-            <div className="flex items-center">
-              <Image src="/logo.png" alt="Logo" width={60} height={60} className="mr-2" />
-            </div>
-            <div className={`hidden md:flex items-center space-x-8 ${themeClass}`}>
-              <Link className={`${isDarkMode ? 'text-white' : 'text-gray-700'} hover:text-green-700`} href="/">Home</Link>
-              <a href="#" className={`${isDarkMode ? 'text-white' : 'text-gray-700'} hover:text-green-700`}>
-                Services
-              </a>
-              <a href="#" className={`${isDarkMode ? 'text-white' : 'text-gray-700'} hover:text-green-700`}>
-                Support
-              </a>
-              <a href="#" className={`${isDarkMode ? 'text-white' : 'text-gray-700'} hover:text-green-700`}>
-                FAQ
-              </a>
+      <SupporterAuthHeader isDarkMode={isDarkMode} toggleTheme={toggleTheme} />
 
-              {/* Toggle theme switch */}
-              <div className="flex items-center ml-4">
-                <label htmlFor="theme-toggle" className="flex items-center cursor-pointer">
-                  <div className="relative">
-                    <input
-                      id="theme-toggle"
-                      type="checkbox"
-                      checked={isDarkMode}
-                      onChange={toggleTheme}
-                      className="hidden"
-                    />
-                    <div className="block bg-gray-300 w-12 h-6 rounded-full"></div>
-                    <div
-                      className={`dot absolute left-1 top-1 bg-white w-4 h-4 rounded-full transition ${isDarkMode ? "transform translate-x-full" : ""
-                        }`}
-                    ></div>
-                  </div>
-                </label>
-              </div>
-            </div>
-            {/* Mobile menu button */}
-            <div className={`md:hidden ${themeClass} flex items-center`}>
-              <button onClick={() => setIsMenuOpen(!isMenuOpen)} className="text-gray-700">
-                {isMenuOpen ? <X size={24} /> : <Menu size={24} />}
-              </button>
-            </div>
-          </div>
-        </div>
-
-        {/* Mobile Navigation */}
-        {isMenuOpen && (
-          <div className={`md:hidden ${themeClass}`}>
-            <div className="px-2 pt-2 pb-3 space-y-1 sm:px-3">
-              <a href="#" className={`block px-3 py-2 ${isDarkMode ? 'text-white' : 'text-gray-700'} hover:text-green-700`}>
-                Home
-              </a>
-              <a href="#" className={`block px-3 py-2 ${isDarkMode ? 'text-white' : 'text-gray-700'} hover:text-green-700`}>
-                Services
-              </a>
-              <a href="#" className={`block px-3 py-2 ${isDarkMode ? 'text-white' : 'text-gray-700'} hover:text-green-700`}>
-                Support
-              </a>
-              <a href="#" className={`block px-3 py-2 ${isDarkMode ? 'text-white' : 'text-gray-700'} hover:text-green-700`}>
-                FAQ
-              </a>
-            </div>
-          </div>
-        )}
-      </nav>
 
       {/* Main Content */}
       <div className="flex-grow flex items-center justify-center relative py-8">
@@ -474,20 +396,8 @@ export default function SignUpForm() {
         </div>
       </div>
       {/* Footer */}
-      <footer className={`bg-gray-900 text-white py-2 ${themeClass}`}>
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          {/* Bloc centré avec logo et texte */}
-          <div className="flex items-center justify-center space-x-4">
-            <img src="/logo.png" alt="Logo" className="w-20 h-20" />
-            <p className="text-gray-400">Your official World Cup identification system.</p>
-          </div>
+      <ManagementFooter isDarkMode={isDarkMode} />
 
-          {/* Bloc avec texte centré pour le copyright */}
-          <div className="border-t border-gray-800 mt-4 pt-4 text-center text-gray-400">
-            <p>&copy; 2025 FanID. All rights reserved.</p>
-          </div>
-        </div>
-      </footer>
     </div>
   );
 }

@@ -5,7 +5,8 @@ import { Menu, X, Upload, Camera, Edit, User, Mail, Calendar, Globe, Heart, Cred
 import Image from "next/image";
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
-
+import HeaderSupporter from "../Layout/Headers/HeaderSupporter";
+import ManagementFooter from "../Layout/Footers/ManagementFooter";
 export default function SupporterProfile() {
     const router = useRouter();
     const [isMenuOpen, setIsMenuOpen] = useState(false);
@@ -14,6 +15,7 @@ export default function SupporterProfile() {
     const [isEditing, setIsEditing] = useState(false);
     const [profilePhoto, setProfilePhoto] = useState<string | null>("/profile.png");
       const [errorMessage, setErrorMessage] = useState<string | null>(null);
+
     
     const [formData, setFormData] = useState({
         email: "supporter@example.com",
@@ -95,6 +97,17 @@ export default function SupporterProfile() {
         console.log("Profile updated", formData);
         // Here you would typically send the data to your API
     };
+    useEffect(() => {
+        const token = localStorage.getItem("token");
+        const userType = localStorage.getItem("userType");
+        
+        if (!token) {
+          router.push("/auth/login");
+        } else if (userType !== "SUPPORTER") {
+          // Rediriger vers la page appropriée si ce n'est pas un supporter
+          router.push("/");
+        }
+      }, [router]);
 
     const countries = [
         "Afghanistan", "Albania", "Algeria", "Andorra", "Angola", "Antigua and Barbuda", "Argentina",
@@ -130,182 +143,13 @@ export default function SupporterProfile() {
     return (
         <div className={`min-h-screen ${themeClass} flex flex-col bg-gradient-to-b ${isDarkMode ? 'from-gray-900 to-gray-800' : 'from-gray-50 to-white'}`}>
             {/* Header */}
-            <nav className={`${themeClass} shadow-lg w-full z-50`}>
-                <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-                    <div className="flex justify-between h-16">
-                        <div className="flex items-center">
-                            <Image src="/logo.png" alt="Logo" width={60} height={60} className="mr-2" />
-                        </div>
-                        <div className={`hidden md:flex items-center space-x-8 ${themeClass}`}>
-                            <Link className={`${isDarkMode ? 'text-white' : 'text-gray-700'} hover:text-green-700`} href="/">Home</Link>
-                            <a href="#" className={`${isDarkMode ? 'text-white' : 'text-gray-700'} hover:text-green-700`}>
-                                Services
-                            </a>
-                            <a href="#" className={`${isDarkMode ? 'text-white' : 'text-gray-700'} hover:text-green-700`}>
-                                Support
-                            </a>
-                            <a href="#" className={`${isDarkMode ? 'text-white' : 'text-gray-700'} hover:text-green-700`}>
-                                FAQ
-                            </a>
-                            <a href="#" className={`${isDarkMode ? 'text-white' : 'text-gray-700'} hover:text-green-700`}>
-                                Provider Help
-                            </a>
-
-                            {/* Toggle theme switch */}
-                            <div className="flex items-center ml-4">
-                                <label
-                                    htmlFor="theme-toggle"
-                                    className="flex items-center cursor-pointer"
-                                >
-                                    <div className="relative">
-                                        <input
-                                            id="theme-toggle"
-                                            type="checkbox"
-                                            checked={isDarkMode}
-                                            onChange={toggleTheme}
-                                            className="hidden"
-                                        />
-                                        <div className="block bg-gray-300 w-12 h-6 rounded-full"></div>
-                                        <div
-                                            className={`dot absolute left-1 top-1 bg-white w-4 h-4 rounded-full transition ${isDarkMode ? "transform translate-x-full" : ""
-                                                }`}
-                                        ></div>
-                                    </div>
-                                </label>
-                            </div>
-                            
-                            {/* Profile Photo and Menu */}
-                            <div className="relative ml-4">
-                                <div 
-                                    className="w-10 h-10 rounded-full overflow-hidden cursor-pointer border-2 border-green-700"
-                                    onClick={() => setIsProfileMenuOpen(!isProfileMenuOpen)}
-                                >
-                                    {profilePhoto ? (
-                                        <img src={profilePhoto} alt="Profile" className="w-full h-full object-cover" />
-                                    ) : (
-                                        <div className={`w-full h-full flex items-center justify-center ${isDarkMode ? 'bg-gray-700' : 'bg-gray-200'}`}>
-                                            <User size={24} className={isDarkMode ? 'text-gray-500' : 'text-gray-400'} />
-                                        </div>
-                                    )}
-                                </div>
-                                
-                                {/* Profile Dropdown Menu */}
-                                {isProfileMenuOpen && (
-                                    <div 
-                                        className={`absolute right-0 mt-2 w-48 rounded-md shadow-lg py-1 z-50 ${isDarkMode ? 'bg-gray-800' : 'bg-white'} ring-1 ring-black ring-opacity-5`}
-                                        onBlur={() => setTimeout(() => setIsProfileMenuOpen(false), 100)}
-                                    >
-                                        <Link 
-                                            href="" 
-                                            className={`block px-4 py-2 text-sm ${isDarkMode ? 'text-gray-300 hover:bg-gray-700' : 'text-gray-700 hover:bg-gray-100'}`}
-                                            onClick={() => setIsProfileMenuOpen(false)}
-                                        >
-                                            <div className="flex items-center">
-                                                <User size={16} className="mr-2" />
-                                                Profile
-                                            </div>
-                                        </Link>
-                                        <button
-                                            onClick={() => {
-                                                setIsProfileMenuOpen(false);
-                                                handleLogout();
-                                            }}
-                                            className={`block w-full text-left px-4 py-2 text-sm ${isDarkMode ? 'text-gray-300 hover:bg-gray-700' : 'text-gray-700 hover:bg-gray-100'}`}
-                                        >
-                                            <div className="flex items-center">
-                                                <LogOut size={16} className="mr-2" />
-                                                Déconnexion
-                                            </div>
-                                        </button>
-                                    </div>
-                                )}
-                            </div>
-                        </div>
-                        {/* Mobile menu button */}
-                        <div className={`md:hidden ${themeClass} flex items-center`}>
-                            {/* Mobile Profile Photo */}
-                            <div className="relative mr-4">
-                                <div 
-                                    className="w-8 h-8 rounded-full overflow-hidden cursor-pointer border-2 border-green-700"
-                                    onClick={() => setIsProfileMenuOpen(!isProfileMenuOpen)}
-                                >
-                                    {profilePhoto ? (
-                                        <img src={profilePhoto} alt="Profile" className="w-full h-full object-cover" />
-                                    ) : (
-                                        <div className={`w-full h-full flex items-center justify-center ${isDarkMode ? 'bg-gray-700' : 'bg-gray-200'}`}>
-                                            <User size={16} className={isDarkMode ? 'text-gray-500' : 'text-gray-400'} />
-                                        </div>
-                                    )}
-                                </div>
-                                
-                                {/* Mobile Profile Dropdown Menu */}
-                                {isProfileMenuOpen && (
-                                    <div 
-                                        className={`absolute right-0 mt-2 w-48 rounded-md shadow-lg py-1 z-50 ${isDarkMode ? 'bg-gray-800' : 'bg-white'} ring-1 ring-black ring-opacity-5`}
-                                    >
-                                        <Link 
-                                            href="" 
-                                            className={`block px-4 py-2 text-sm ${isDarkMode ? 'text-gray-300 hover:bg-gray-700' : 'text-gray-700 hover:bg-gray-100'}`}
-                                            onClick={() => setIsProfileMenuOpen(false)}
-                                        >
-                                            <div className="flex items-center">
-                                                <User size={16} className="mr-2" />
-                                                Profile
-                                            </div>
-                                        </Link>
-                                        <button
-                                            onClick={() => {
-                                                setIsProfileMenuOpen(false);
-                                                handleLogout();
-                                            }}
-                                            className={`block w-full text-left px-4 py-2 text-sm ${isDarkMode ? 'text-gray-300 hover:bg-gray-700' : 'text-gray-700 hover:bg-gray-100'}`}
-                                        >
-                                            <div className="flex items-center">
-                                                <Link href="/auth/login">
-                                                <LogOut size={16} className="mr-2" />
-                                                Déconnexion
-                                                </Link>
-                                            </div>
-                                        </button>
-                                    </div>
-                                )}
-                            </div>
-                            
-                            <button onClick={() => setIsMenuOpen(!isMenuOpen)} className="text-gray-700">
-                                {isMenuOpen ? <X size={24} /> : <Menu size={24} />}
-                            </button>
-                        </div>
-                    </div>
-                </div>
-
-                {/* Mobile Navigation */}
-                {isMenuOpen && (
-                    <div className={`md:hidden ${themeClass}`}>
-                        <div className={`md:hidden ${themeClass} fixed inset-0 z-40 pt-16`}>
-                            <div className="p-4 space-y-4">
-                                <a href="#" className="block py-2 px-4 text-lg hover:bg-gray-100 dark:hover:bg-gray-800 rounded">
-                                    Home
-                                </a>
-                                <a href="#" className="block py-2 px-4 text-lg hover:bg-gray-100 dark:hover:bg-gray-800 rounded">
-                                    Services
-                                </a>
-                                <a href="#" className="block py-2 px-4 text-lg hover:bg-gray-100 dark:hover:bg-gray-800 rounded">
-                                    Support
-                                </a>
-                                <a href="#" className="block py-2 px-4 text-lg hover:bg-gray-100 dark:hover:bg-gray-800 rounded">
-                                    FAQ
-                                </a>
-                                <a href="#" className="block py-2 px-4 text-lg hover:bg-gray-100 dark:hover:bg-gray-800 rounded">
-                                    Provider Help
-                                </a>
-                                <button className="w-full bg-green-700 text-white py-2 px-4 rounded-full hover:bg-green-800 transition">
-                                    <Link href="/login">Login</Link>
-                                </button>
-                            </div>
-                        </div>
-                    </div>
-                )}
-            </nav>
+            <div className={`min-h-screen ${themeClass} flex flex-col bg-gradient-to-b ${isDarkMode ? 'from-gray-900 to-gray-800' : 'from-gray-50 to-white'}`}>
+            {/* Header Component */}
+            <HeaderSupporter 
+                isDarkMode={isDarkMode} 
+                toggleTheme={toggleTheme} 
+                profilePhoto={profilePhoto} 
+            />
 
             {/* Main Content */}
             <div className="flex-grow flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8">
@@ -550,22 +394,9 @@ export default function SupporterProfile() {
 
 
             {/* Footer */}
-            <footer className={`bg-gray-900 text-white py-2 ${themeClass}`}>
-                <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-                    {/* Center block with logo and text */}
-                    <div className="flex items-center justify-center space-x-4">
-                        <img src="/logo.png" alt="Logo" className="w-20 h-20" />
-                        <div>
-                            <p className="text-gray-400">Your official World Cup identification system.</p>
-                        </div>
-                    </div>
+            <ManagementFooter isDarkMode={isDarkMode} />
 
-                    {/* Center block with copyright text */}
-                    <div className="border-t border-gray-800 mt-4 pt-4 text-center text-gray-400">
-                        <p>&copy; 2025 FanID. All rights reserved.</p>
-                    </div>
-                </div>
-            </footer>
+        </div>
         </div>
     );
 }
