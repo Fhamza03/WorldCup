@@ -158,6 +158,12 @@ public class AuthService {
     }
 
     private AuthResponse registerProvider(SignupRequest request, String encodedPassword, String profilePicturePath) {
+        // Save the ServiceType instance first
+        ServiceType serviceType = new ServiceType();
+        serviceType.setServiceTypeName(request.getServiceType());
+        serviceType = serviceTypeRepository.save(serviceType); // Save the ServiceType
+
+        // Create and set up the Provider instance
         Provider provider = new Provider();
         provider.setEmail(request.getEmail());
         provider.setPassword(encodedPassword);
@@ -168,16 +174,11 @@ public class AuthService {
         provider.setNationalCode(request.getNationalCode());
         provider.setProfilePicture(profilePicturePath);
 
-        // Création d'un seul service à partir du nom du service
-        ServiceType serviceType = new ServiceType();
-        serviceType.setServiceTypeName(request.getServiceType());
-        serviceType.setProvider(provider); // Associer ce service au provider
+        // Associate the saved ServiceType with the Provider
+        provider.setServiceTypes(List.of(serviceType));
 
-        provider.setServiceTypes(List.of(serviceType)); // Liste contenant le service
-
-        // Sauvegarde du provider et de son service
+        // Save the Provider instance
         Provider savedProvider = providerRepository.save(provider);
-        serviceTypeRepository.save(serviceType); // Sauvegarde du service
 
         String token = jwtUtil.generateToken(savedProvider.getEmail(), "PROVIDER", savedProvider.getUserId());
 
