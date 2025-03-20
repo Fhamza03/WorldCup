@@ -32,7 +32,7 @@ public class CorsConfig {
         config.setAllowCredentials(true);
 
         // Appliquer cette configuration à tous les chemins
-        source.registerCorsConfiguration("/**", config);
+        source.registerCorsConfiguration("/", config);
 
         return new CorsFilter(source);
     }

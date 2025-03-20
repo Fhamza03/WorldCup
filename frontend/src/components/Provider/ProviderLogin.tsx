@@ -82,7 +82,6 @@ export default function ProviderLogin() {
             <HeaderProvider 
                 isDarkMode={isDarkMode} 
                 toggleTheme={toggleTheme} 
-                toggleSidebar={toggleSidebar} 
             />
 
 

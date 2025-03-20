@@ -8,10 +8,9 @@ import Link from 'next/link';
 interface HeaderProviderProps {
     isDarkMode: boolean;
     toggleTheme: () => void;
-    toggleSidebar: () => void;
 }
 
-export default function HeaderProvider({ isDarkMode, toggleTheme, toggleSidebar }: HeaderProviderProps) {
+export default function HeaderProvider({ isDarkMode, toggleTheme }: HeaderProviderProps) {
     const [isMenuOpen, setIsMenuOpen] = useState(false);
 
     return (
@@ -20,7 +19,7 @@ export default function HeaderProvider({ isDarkMode, toggleTheme, toggleSidebar 
                 <div className="flex justify-between h-16">
                     <div className="flex items-center">
                         <button
-                            onClick={toggleSidebar}
+                            
                             className={`mr-4 ${isDarkMode ? 'text-white' : 'text-gray-700'} hover:opacity-75 transition-opacity`}
                         >
                             <Menu size={24} />

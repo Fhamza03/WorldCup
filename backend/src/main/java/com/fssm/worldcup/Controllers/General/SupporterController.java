@@ -10,6 +10,8 @@ import java.util.List;
 
 @RestController
 @RequestMapping("/supporter")
+@CrossOrigin(origins = "http://localhost:3000") // Assuming your frontend runs on port 3000
+
 public class SupporterController {
 
     @Autowired

@@ -42,9 +42,7 @@ export default function ProviderProfile() {
         });
     };
 
-    const toggleSidebar = () => {
-        setIsSidebarOpen(!isSidebarOpen);
-    };
+
 
     const themeClass = isDarkMode ? "bg-gray-900 text-white" : "bg-white text-gray-700";
     const inputBgClass = isDarkMode ? "bg-gray-800 text-white" : "bg-white text-gray-700";
@@ -108,22 +106,12 @@ export default function ProviderProfile() {
 
     return (
         <div className={`min-h-screen ${themeClass} flex flex-col bg-gradient-to-b ${isDarkMode ? 'from-gray-900 to-gray-800' : 'from-gray-50 to-white'}`}>
-            {/* Sidebar - Now passing isDarkMode prop */}
-            {isSidebarOpen && (
-                <SidebarPr 
-                    isDarkMode={isDarkMode} 
-                    firstName={formData.firstName} 
-                    lastName={formData.lastName}
-                    isLoggedIn={true}
-                    onCategoryClick={() => setIsSidebarOpen(false)}
-                />
-            )}
+       
             
             {/* Header */}
             <HeaderProvider 
                 isDarkMode={isDarkMode} 
                 toggleTheme={toggleTheme} 
-                toggleSidebar={toggleSidebar} 
             />
 
             {/* Main Content - Adjust padding when sidebar is open */}
