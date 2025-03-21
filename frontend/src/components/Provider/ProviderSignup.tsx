@@ -8,7 +8,7 @@ import Image from "next/image";
 import Link from 'next/link';
 import ManagementFooter from "../Layout/Footers/ManagementFooter";
 import HeaderProvider from "../Layout/Headers/HeaderProvider";
-
+import ProviderAuthHeader from "../Layout/Headers/ProviderAuthHeader";
 export default function ProviderSignUp() {
     const [isMenuOpen, setIsMenuOpen] = useState(false);
     const [isDarkMode, setIsDarkMode] = useState(false);
@@ -155,7 +155,7 @@ const handleSubmit = async (e: FormEvent) => {
 
     return (
         <div className={`min-h-screen ${themeClass} flex flex-col`}>
-            <HeaderProvider
+            <ProviderAuthHeader
                 isDarkMode={isDarkMode}
                 toggleTheme={toggleTheme}
             />

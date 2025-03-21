@@ -8,7 +8,7 @@ import { FcGoogle } from "react-icons/fc";
 import Image from "next/image";
 import Link from 'next/link';
 import ManagementFooter from "../Layout/Footers/ManagementFooter";
-import HeaderProvider from "../Layout/Headers/HeaderProvider";
+import ProviderAuthHeader from "../Layout/Headers/ProviderAuthHeader";
 export default function ProviderLogin() {
     const [isMenuOpen, setIsMenuOpen] = useState(false);
     const [email, setEmail] = useState("");
@@ -79,7 +79,7 @@ export default function ProviderLogin() {
     return (
         <div className={`min-h-screen ${themeClass} flex flex-col`}>
             {/* Navigation */}
-            <HeaderProvider 
+            <ProviderAuthHeader 
                 isDarkMode={isDarkMode} 
                 toggleTheme={toggleTheme} 
             />

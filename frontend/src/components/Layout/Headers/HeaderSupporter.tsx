@@ -24,29 +24,30 @@ export default function HeaderSupporter({
 
     const handleLogout = async () => {
         try {
-            const response = await fetch("http://localhost:8080/api/auth/signout", {
-                method: "POST",
-                headers: {
-                    "Content-Type": "application/json",
-                },
-            });
-
-            const data = await response.json();
-
-            if (data.success) {
-                localStorage.removeItem("token");
-                localStorage.removeItem("userType");
-                localStorage.removeItem("userId");
-
-                window.location.href = "/auth/login";
-            } else {
-                setErrorMessage(data.message || "Logout failed. Please try again.");
-            }
+          const response = await fetch("http://localhost:8080/api/auth/signout", {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+            },
+          });
+    
+          const data = await response.json();
+    
+          if (data.success) {
+            localStorage.removeItem("token");
+            localStorage.removeItem("userType");
+            localStorage.removeItem("userId");
+    
+            window.location.href = "/auth/login";
+          } else {
+            setErrorMessage(data.message || "Logout failed. Please try again.");
+          }
         } catch (error) {
-            console.error("Error during logout:", error);
-            setErrorMessage("An error occurred during logout. Please try again.");
+          console.error("Error during logout:", error);
+          setErrorMessage("An error occurred during logout. Please try again.");
         }
-    };
+      };
+
 
     return (
         <nav className={`${themeClass} shadow-lg w-full z-50`}>
