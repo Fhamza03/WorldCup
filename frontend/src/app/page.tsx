@@ -2,13 +2,13 @@
 
 import { useState, useEffect } from "react";
 // import { FormEvent } from "react";
-import NavBar from "@/components/loading page/navBar";
-import Hero from "@/components/loading page/hero";
-import Services from "@/components/loading page/services";
-import AppSteps from "@/components/loading page/appSteps";
-import Cta from "@/components/loading page/cta";
-import Help from "@/components/loading page/help";
-import Footer from "@/components/loading page/footer";
+import NavBar from "@/components/lunding page/navBar";
+import Hero from "@/components/lunding page/hero";
+import Services from "@/components/lunding page/services";
+import AppSteps from "@/components/lunding page/appSteps";
+import Cta from "@/components/lunding page/cta";
+import Help from "@/components/lunding page/help";
+import Footer from "@/components/lunding page/footer";
 export default function Home() {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   // const [isAuthOpen, setIsAuthOpen] = useState<boolean>(false);
