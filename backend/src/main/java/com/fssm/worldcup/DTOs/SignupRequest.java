@@ -20,14 +20,14 @@ public class SignupRequest {
 
     // Pour Admin
     private String accessStatistics;
-    private String serviceType;
+    private int serviceTypeId;
 
-    public void setServiceType(String serviceType) {
-        this.serviceType = serviceType;
+    public int getServiceTypeId() {
+        return serviceTypeId;
     }
 
-    public String getServiceType() {
-        return serviceType;
+    public void setServiceTypeId(int serviceTypeId) {
+        this.serviceTypeId = serviceTypeId;
     }
 
     // Getters and Setters

@@ -159,9 +159,7 @@ public class AuthService {
 
     private AuthResponse registerProvider(SignupRequest request, String encodedPassword, String profilePicturePath) {
         // Save the ServiceType instance first
-        ServiceType serviceType = new ServiceType();
-        serviceType.setServiceTypeName(request.getServiceType());
-        serviceType = serviceTypeRepository.save(serviceType); // Save the ServiceType
+        Optional<ServiceType> serviceType = serviceTypeRepository.findById(request.getServiceTypeId());
 
         // Create and set up the Provider instance
         Provider provider = new Provider();
@@ -175,7 +173,7 @@ public class AuthService {
         provider.setProfilePicture(profilePicturePath);
 
         // Associate the saved ServiceType with the Provider
-        provider.setServiceTypes(List.of(serviceType));
+        provider.setServiceTypes(List.of(serviceType.orElse(null)));
 
         // Save the Provider instance
         Provider savedProvider = providerRepository.save(provider);

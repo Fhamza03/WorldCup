@@ -1,6 +1,6 @@
-// src/main/java/com/fssm/worldcup/Models/General/Provider.java
 package com.fssm.worldcup.Models.General;
 
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -20,6 +20,7 @@ public class Provider extends User {
             joinColumns = @JoinColumn(name = "provider_id"),
             inverseJoinColumns = @JoinColumn(name = "service_type_id")
     )
+    @JsonManagedReference  // This marks the forward part of the reference
     private List<ServiceType> serviceTypes;
 
     // Getters and Setters

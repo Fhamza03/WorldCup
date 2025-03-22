@@ -29,7 +29,7 @@ import { FormEvent } from "react";
 import { signIn } from "next-auth/react";
 import { Mail, Lock } from "lucide-react";
 import { FcGoogle } from "react-icons/fc";
-import LoginPage from "./auth/login/page";
+import LoginPage from "./auth/supporter/login/page";
 import MainHeader from "@/components/Layout/Headers/MainHeader";
 export default function Home() {
   const [isMenuOpen, setIsMenuOpen] = useState(false);

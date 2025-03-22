@@ -1,5 +1,5 @@
 
-import LoginForm from "../../../components/Supporter/LoginForm";
+import LoginForm from "../../../../components/Supporter/LoginForm";
 
 const LoginPage = () => {
   return (
