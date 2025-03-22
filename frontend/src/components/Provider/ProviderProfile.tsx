@@ -4,7 +4,7 @@ import { useState, useEffect, FormEvent, ChangeEvent } from "react";
 import { Menu, X, Upload, Camera, Edit, User, Mail, Calendar, Globe, Briefcase, CreditCard, Save, Phone, Shield } from "lucide-react";
 import Image from "next/image";
 import Link from 'next/link';
-import SidebarPr from "../Layout/Provider/SidebarPr";// Import the SidebarPr component
+import SidebarPr from "../Layout/Provider/SidebarPr";
 import HeaderProvider from "../Layout/Headers/HeaderProvider";
 import ManagementFooter from "../Layout/Footers/ManagementFooter";
 
@@ -15,16 +15,19 @@ export default function ProviderProfile() {
     const [isEditing, setIsEditing] = useState(false);
     const [profilePhoto, setProfilePhoto] = useState<string | null>("/profile.png");
     const [countries, setCountries] = useState<string[]>([]);
+    const [serviceTypes, setServiceTypes] = useState<any[]>([]);
+    const [isLoading, setIsLoading] = useState(true);
+    const [error, setError] = useState<string | null>(null);
 
     const [formData, setFormData] = useState({
-        email: "provider@example.com",
-        firstName: "John",
-        lastName: "Doe",
-        birthDate: "1985-05-15",
-        countryOfOrigin: "United States",
-        typeOfService: "Transportation",
-        nationalId: "AB123456789",
-        phoneNumber: "+1 234 567 8900",
+        id: 0,
+        email: "",
+        firstName: "",
+        lastName: "",
+        birthDate: "",
+        nationality: "",
+        nationalCode: "",
+        typeOfService: ""
     });
 
     useEffect(() => {
@@ -34,21 +37,99 @@ export default function ProviderProfile() {
         } else {
             setIsDarkMode(false);
         }
-        fetchCountries();
 
+        // Fetch all required data in parallel
+        Promise.all([
+            fetchCountries(),
+            fetchServiceTypes(),
+            fetchProviderData()
+        ]).then(() => {
+            setIsLoading(false);
+        }).catch(err => {
+            console.error("Error loading data:", err);
+            setError("Failed to load all required data. Please refresh and try again.");
+            setIsLoading(false);
+        });
     }, []);
+
+    const fetchServiceTypes = async () => {
+        try {
+            const response = await fetch("http://localhost:8080/serviceType/getAllServiceTypes");
+            if (!response.ok) throw new Error("Failed to fetch service types.");
+
+            const data = await response.json();
+            setServiceTypes(data.map((service: any) => ({
+                serviceTypeId: service.serviceTypeId,
+                serviceTypeName: service.serviceTypeName
+            })));
+            console.log(data);
+        } catch (error) {
+            console.error("Error fetching service types:", error);
+        }
+    };
+
+    const fetchProviderData = async () => {
+        try {
+            const token = localStorage.getItem("token");
+            const providerId = localStorage.getItem("userId");
+
+            if (!token || !providerId) {
+                throw new Error("Authentication information missing. Please login again.");
+            }
+
+            const response = await fetch(`http://localhost:8080/provider/getProvider/${providerId}`, {
+                headers: {
+                    "Authorization": `Bearer ${token}`
+                }
+            });
+
+            if (!response.ok) {
+                throw new Error(`Failed to fetch provider data: ${response.status}`);
+            }
+
+            const providerData = await response.json();
+
+            // Update form data with provider information
+            setFormData({
+                id: providerData.userId || 0,
+                email: providerData.email || "",
+                firstName: providerData.firstName || "",
+                lastName: providerData.lastName || "",
+                birthDate: providerData.birthDate || "",
+                nationality: providerData.nationality || "",
+                nationalCode: providerData.nationalCode || "",
+                typeOfService: providerData.serviceTypes && providerData.serviceTypes.length > 0 
+                    ? providerData.serviceTypes[0].serviceTypeName 
+                    : ""
+            });
+
+            // Set profile photo if available - CORRECTED HERE
+            if (providerData.profilePicture) {
+                setProfilePhoto(`http://localhost:8080/${providerData.profilePicture}`);
+            }
+
+            return providerData;
+        } catch (error) {
+            console.error("Error fetching provider data:", error);
+            setError(error instanceof Error ? error.message : "Unknown error occurred");
+            return null;
+        }
+    };
+
 
     const fetchCountries = async () => {
         try {
             const response = await fetch('/countries.json');
             const data = await response.json();
             setCountries(data);
+            return data;
         } catch (error) {
             console.error("Error fetching countries:", error);
-            // Fallback in case the file cannot be loaded
             setCountries(["Error loading countries"]);
+            return [];
         }
     };
+
     const toggleTheme = () => {
         setIsDarkMode((prevMode) => {
             const newMode = !prevMode;
@@ -56,8 +137,6 @@ export default function ProviderProfile() {
             return newMode;
         });
     };
-
-
 
     const themeClass = isDarkMode ? "bg-gray-900 text-white" : "bg-white text-gray-700";
     const inputBgClass = isDarkMode ? "bg-gray-800 text-white" : "bg-white text-gray-700";
@@ -80,28 +159,103 @@ export default function ProviderProfile() {
         }
     };
 
-    const handleSubmit = (e: FormEvent) => {
+    const handleSubmit = async (e: FormEvent) => {
         e.preventDefault();
-        setIsEditing(false);
-        console.log("Profile updated", formData);
-        // Here you would typically send the data to your API
+
+        try {
+            const token = localStorage.getItem("token");
+
+            if (!token) {
+                throw new Error("Authentication information missing. Please login again.");
+            }
+
+            // Changed from createProvider to updateProvider as this is an update operation
+            const response = await fetch(`http://localhost:8080/provider/updateProvider/${formData.id}`, {
+                method: "PUT", // Changed from POST to PUT for update operation
+                headers: {
+                    "Content-Type": "application/json",
+                    "Authorization": `Bearer ${token}`
+                },
+                body: JSON.stringify({
+                    ...formData,
+                    profilePicture: profilePhoto // Changed to match the API field name
+                })
+            });
+
+            if (!response.ok) {
+                throw new Error(`Failed to update provider: ${response.status}`);
+            }
+
+            console.log("Profile updated successfully");
+            setIsEditing(false);
+
+        } catch (error) {
+            console.error("Error updating profile:", error);
+            alert("Failed to update profile. Please try again.");
+        }
     };
 
+    if (isLoading) {
+        return (
+            <div className={`min-h-screen ${themeClass} flex items-center justify-center`}>
+                <div className="text-center">
+                    <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-green-500 mx-auto mb-4"></div>
+                    <p>Loading provider data...</p>
+                </div>
+            </div>
+        );
+    }
 
-
-    const services = ["Transportation", "Restauration", "Accommodation"];
+    if (error) {
+        return (
+            <div className={`min-h-screen ${themeClass} flex items-center justify-center`}>
+                <div className="text-center max-w-md p-6 rounded-lg shadow-lg bg-red-100 border border-red-300">
+                    <div className="text-red-600 mb-4">
+                        <svg xmlns="http://www.w3.org/2000/svg" className="h-12 w-12 mx-auto" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                        </svg>
+                    </div>
+                    <h2 className="text-lg font-semibold text-gray-800 mb-2">Error Loading Provider Data</h2>
+                    <p className="text-gray-700 mb-4">{error}</p>
+                    <button
+                        onClick={() => {
+                            setError(null);
+                            setIsLoading(true);
+                            Promise.all([
+                                fetchCountries(),
+                                fetchServiceTypes(),
+                                fetchProviderData()
+                            ]).then(() => {
+                                setIsLoading(false);
+                            }).catch(err => {
+                                console.error("Error loading data:", err);
+                                setError("Failed to load all required data. Please refresh and try again.");
+                                setIsLoading(false);
+                            });
+                        }}
+                        className="px-4 py-2 bg-green-600 text-white rounded hover:bg-green-700 transition-colors"
+                    >
+                        Try Again
+                    </button>
+                    <Link href="/provider/login" className="block mt-4 text-blue-600 hover:underline">
+                        Return to Login
+                    </Link>
+                </div>
+            </div>
+        );
+    }
 
     return (
         <div className={`min-h-screen ${themeClass} flex flex-col bg-gradient-to-b ${isDarkMode ? 'from-gray-900 to-gray-800' : 'from-gray-50 to-white'}`}>
-       
-            
             {/* Header */}
-            <HeaderProvider 
-               isDarkMode={isDarkMode} 
-               toggleTheme={toggleTheme} 
-               profilePhoto={profilePhoto} 
-
+            <HeaderProvider
+                isDarkMode={isDarkMode}
+                toggleTheme={toggleTheme}
+                profilePhoto={profilePhoto}
             />
+
+            {/* Sidebar - Render it always but hide on small screens */}
+
 
             {/* Main Content - Adjust padding when sidebar is open */}
             <div className={`flex-grow flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8 ${isSidebarOpen ? 'md:ml-64' : ''}`}>
@@ -113,7 +267,15 @@ export default function ProviderProfile() {
                                 <div className="relative">
                                     <div className={`w-24 h-24 rounded-full border-4 ${isDarkMode ? 'border-gray-800' : 'border-white'} overflow-hidden`}>
                                         {profilePhoto ? (
-                                            <img src={profilePhoto} alt="Profile" className="w-full h-full object-cover" />
+                                            <Image
+                                            src={profilePhoto}
+                                            alt="Profile"
+                                            width={96}
+                                            height={96}
+                                            className="w-full h-full object-cover"
+                                            onError={() => setProfilePhoto("/profile.png")}
+                                            unoptimized
+                                          />
                                         ) : (
                                             <div className={`w-full h-full flex items-center justify-center ${isDarkMode ? 'bg-gray-700' : 'bg-gray-200'}`}>
                                                 <User size={40} className={isDarkMode ? 'text-gray-500' : 'text-gray-400'} />
@@ -142,8 +304,8 @@ export default function ProviderProfile() {
                                 <button
                                     onClick={() => setIsEditing(!isEditing)}
                                     className={`flex items-center gap-2 px-4 py-2 rounded-md ${isEditing
-                                        ? "bg-red-600 hover:bg-green-700"
-                                        : "bg-red-900 hover:bg-blue-700"
+                                        ? "bg-green-600 hover:bg-green-700" // Changed from red-600 to green-600 for save button
+                                        : "bg-blue-600 hover:bg-blue-700" // Changed from red-900 to blue-600 for edit button
                                         } text-white transition-colors shadow-md`}
                                 >
                                     {isEditing ? <Save size={16} /> : <Edit size={16} />}
@@ -169,9 +331,7 @@ export default function ProviderProfile() {
                                 </div>
                             </div>
 
-                     
-                            
-                            {/* Form content continues here */}
+                            {/* Form Content */}
                             <form onSubmit={handleSubmit} className="space-y-6">
                                 {/* First Name and Last Name */}
                                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -234,25 +394,7 @@ export default function ProviderProfile() {
                                     </div>
                                 </div>
 
-                                {/* Phone Number */}
-                                <div className="space-y-1">
-                                    <label className={`block text-sm font-medium ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}>
-                                        Phone Number
-                                    </label>
-                                    <div className="relative">
-                                        <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                                            <Phone size={16} className={isDarkMode ? 'text-gray-500' : 'text-gray-400'} />
-                                        </div>
-                                        <input
-                                            type="tel"
-                                            name="phoneNumber"
-                                            value={formData.phoneNumber}
-                                            onChange={handleChange}
-                                            className={`w-full ${inputBgClass} border ${isDarkMode ? 'border-gray-700 focus:border-gray-600' : 'border-gray-300 focus:border-gray-400'} rounded-lg pl-10 pr-3 py-2 focus:outline-none focus:ring-2 focus:ring-green-500/20 transition-all duration-200`}
-                                            disabled={!isEditing}
-                                        />
-                                    </div>
-                                </div>
+
 
                                 {/* Date of Birth and National ID */}
                                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -285,8 +427,8 @@ export default function ProviderProfile() {
                                             </div>
                                             <input
                                                 type="text"
-                                                name="nationalId"
-                                                value={formData.nationalId}
+                                                name="nationalCode"
+                                                value={formData.nationalCode}
                                                 onChange={handleChange}
                                                 className={`w-full ${inputBgClass} border ${isDarkMode ? 'border-gray-700 focus:border-gray-600' : 'border-gray-300 focus:border-gray-400'} rounded-lg pl-10 pr-3 py-2 focus:outline-none focus:ring-2 focus:ring-green-500/20 transition-all duration-200`}
                                                 disabled={!isEditing}
@@ -296,7 +438,6 @@ export default function ProviderProfile() {
                                 </div>
 
                                 {/* Country and Service Type */}
-                                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                                     <div className="space-y-1">
                                         <label className={`block text-sm font-medium ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}>
                                             Country of Origin
@@ -306,43 +447,24 @@ export default function ProviderProfile() {
                                                 <Globe size={16} className={isDarkMode ? 'text-gray-500' : 'text-gray-400'} />
                                             </div>
                                             <select
-                                                name="countryOfOrigin"
-                                                value={formData.countryOfOrigin}
+                                                name="nationality"
+                                                value={formData.nationality}
                                                 onChange={handleChange}
                                                 className={`w-full ${inputBgClass} border ${isDarkMode ? 'border-gray-700 focus:border-gray-600' : 'border-gray-300 focus:border-gray-400'} rounded-lg pl-10 pr-3 py-2 focus:outline-none focus:ring-2 focus:ring-green-500/20 transition-all duration-200`}
                                                 disabled={!isEditing}
                                             >
                                                 <option value="">Select your country</option>
                                                 {countries.map(country => (
-                                                    <option key={country} value={country}>{country}</option>
+                                                    <option
+                                                        key={country}
+                                                        value={country}
+                                                    >
+                                                        {country}
+                                                    </option>
                                                 ))}
                                             </select>
                                         </div>
                                     </div>
-
-                                    <div className="space-y-1">
-                                        <label className={`block text-sm font-medium ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}>
-                                            Type of Service
-                                        </label>
-                                        <div className="relative">
-                                            <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                                                <Briefcase size={16} className={isDarkMode ? 'text-gray-500' : 'text-gray-400'} />
-                                            </div>
-                                            <select
-                                                name="typeOfService"
-                                                value={formData.typeOfService}
-                                                onChange={handleChange}
-                                                className={`w-full ${inputBgClass} border ${isDarkMode ? 'border-gray-700 focus:border-gray-600' : 'border-gray-300 focus:border-gray-400'} rounded-lg pl-10 pr-3 py-2 focus:outline-none focus:ring-2 focus:ring-green-500/20 transition-all duration-200`}
-                                                disabled={!isEditing}
-                                            >
-                                                <option value="">Select your service</option>
-                                                {services.map(service => (
-                                                    <option key={service} value={service}>{service}</option>
-                                                ))}
-                                            </select>
-                                        </div>
-                                    </div>
-                                </div>
 
                                 {/* Submit Button - Only visible when editing */}
                                 {isEditing && (
@@ -355,33 +477,14 @@ export default function ProviderProfile() {
                                 )}
                             </form>
 
-                            {/* Account Actions */}
-                            <div className={`mt-8 pt-6 border-t ${isDarkMode ? 'border-gray-700' : 'border-gray-200'}`}>
-                                <h3 className={`text-lg font-medium mb-4 text-center ${isDarkMode ? 'text-gray-200' : 'text-gray-800'}`}>
-                                    Account Actions
-                                </h3>
 
-                                <div className="flex flex-wrap justify-center items-center gap-4">
-                                    <button className="flex items-center gap-2 px-4 py-2 bg-yellow-600 text-white rounded-md hover:bg-yellow-700 transition-colors shadow-sm">
-                                        <Shield size={16} />
-                                        Reset Password
-                                    </button>
-                                    <button className="flex items-center gap-2 px-4 py-2 bg-red-600 text-white rounded-md hover:bg-red-700 transition-colors shadow-sm">
-                                        <X size={16} />
-                                        Delete Account
-                                    </button>
-                                </div>
-
-                            </div>
                         </div>
                     </div>
                 </div>
             </div>
 
-
             {/* Footer */}
             <ManagementFooter isDarkMode={isDarkMode} />
-
         </div>
     );
 }

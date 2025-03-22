@@ -9,6 +9,13 @@ import Link from 'next/link';
 import ManagementFooter from "../Layout/Footers/ManagementFooter";
 import HeaderProvider from "../Layout/Headers/HeaderProvider";
 import ProviderAuthHeader from "../Layout/Headers/ProviderAuthHeader";
+
+// Ensure consistent interface definition
+interface ServiceType {
+    serviceTypeId: number;
+    serviceTypeName: string;
+}
+
 export default function ProviderSignUp() {
     const [isMenuOpen, setIsMenuOpen] = useState(false);
     const [isDarkMode, setIsDarkMode] = useState(false);
@@ -29,17 +36,17 @@ export default function ProviderSignUp() {
     const [isSidebarOpen, setIsSidebarOpen] = useState(true);
     const [countries, setCountries] = useState<string[]>([]);
     const [isSubmitting, setIsSubmitting] = useState(false);
+    const [serviceTypes, setServiceTypes] = useState<ServiceType[]>([]);
 
     useEffect(() => {
         const savedTheme = localStorage.getItem("theme");
-        if (savedTheme === "dark") {
-            setIsDarkMode(true);
-        } else {
-            setIsDarkMode(false);
-        }
+        setIsDarkMode(savedTheme === "dark");
 
         // Fetch countries from the JSON file
         fetchCountries();
+
+        // Fetch service types from the backend
+        fetchServiceTypes();
     }, []);
 
     const fetchCountries = async () => {
@@ -51,6 +58,29 @@ export default function ProviderSignUp() {
             console.error("Error fetching countries:", error);
             // Fallback in case the file cannot be loaded
             setCountries(["Error loading countries"]);
+        }
+    };
+
+    const fetchServiceTypes = async () => {
+        try {
+            const response = await fetch('http://localhost:8080/serviceType/getAllServiceTypes', {
+                method: 'GET',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                credentials: 'include'
+            });
+ 
+            if (!response.ok) {
+                throw new Error(`HTTP error! Status: ${response.status}`);
+            }
+
+            const data = await response.json();
+            console.log("Service types received:", data);
+            setServiceTypes(data);
+        } catch (error) {
+            console.error("Error fetching service types:", error);
+            setServiceTypes([]);
         }
     };
 
@@ -85,73 +115,57 @@ export default function ProviderSignUp() {
         }
     };
 
-// Remplacez la fonction handleSubmit actuelle par celle-ci:
+    const handleSubmit = async (e: FormEvent) => {
+        e.preventDefault();
+        if (!passwordMatch) return;
+    
+        setIsSubmitting(true);
+    
+        try {
+            const formDataObj = new FormData();
+    
+            // Ajouter tous les champs de formulaire
+            formDataObj.append("email", formData.email);
+            formDataObj.append("password", formData.password);
+            formDataObj.append("firstName", formData.firstName);
+            formDataObj.append("lastName", formData.lastName);
+            formDataObj.append("birthDate", formData.birthDate);
+            formDataObj.append("nationality", formData.nationality);
+            formDataObj.append("nationalCode", formData.nationalId);
+            formDataObj.append("userType", formData.userType);
+            formDataObj.append("serviceTypeId", formData.typeOfService);
 
-const handleSubmit = async (e: FormEvent) => {
-    e.preventDefault();
-    if (!passwordMatch) return;
-
-    try {
-        // Create FormData object for multipart/form-data submission
-        const formDataObj = new FormData();
-
-        // Add all form fields to FormData
-        formDataObj.append("email", formData.email);
-        formDataObj.append("password", formData.password);
-        formDataObj.append("firstName", formData.firstName);
-        formDataObj.append("lastName", formData.lastName);
-        formDataObj.append("birthDate", formData.birthDate);
-        formDataObj.append("nationality", formData.nationality);
-        formDataObj.append("nationalCode", formData.nationalId);
-        formDataObj.append("userType", formData.userType);
-        formDataObj.append("typeOfService", formData.typeOfService);
-
-        // Add profile picture if exists
-        if (profilePhoto) {
-            // Convert base64 string back to file
-            const response = await fetch(profilePhoto);
-            const blob = await response.blob();
-            const file = new File([blob], "profile-picture.jpg", { type: "image/jpeg" });
-            formDataObj.append("profilePicture", file);
+            
+    
+            // Ajouter une image de profil si elle existe
+            if (profilePhoto) {
+                const response = await fetch(profilePhoto);
+                const blob = await response.blob();
+                const file = new File([blob], "profile-picture.jpg", { type: "image/jpeg" });
+                formDataObj.append("profilePicture", file);
+            }
+    
+            // Envoi de la requête au backend
+            const response = await fetch("http://localhost:8080/api/auth/signup", {
+                method: "POST",
+                body: formDataObj,
+            });
+    
+            if (response.ok) {
+                localStorage.setItem("userType", "PROVIDER");
+                alert("Registration successful! Redirecting to console...");
+                window.location.href = "/provider/console";
+            } else {
+                throw new Error(`Registration failed: ${response.status}`);
+            }
+        } catch (error) {
+            console.error("Error during registration process:", error);
+            alert("Registration failed. Please try again.");
+        } finally {
+            setIsSubmitting(false);
         }
-
-        // Send request to backend
-        fetch("http://localhost:8080/api/auth/signup", {
-            method: "POST",
-            body: formDataObj,
-        })
-        .then(response => {
-            console.log("Response status:", response.status);
-            // Si nous obtenons une réponse, nous considérons l'inscription comme réussie
-            // indépendamment du statut de la réponse, puisque nous savons que les données sont insérées
-            
-            // Stockage minimal d'informations utilisateur
-            localStorage.setItem("userType", "PROVIDER");
-            
-            // Alerte de succès et redirection
-            window.location.href = "/provider/console";
-        })
-        .catch(error => {
-            console.error("Fetch error:", error);
-            // Même en cas d'erreur de fetch, nous allons rediriger car nous savons que les données sont insérées
-            localStorage.setItem("userType", "PROVIDER");
-            alert("Registration no! Redirecting to console...");
-            window.location.href = "/provider/console";
-        });
-
-    } catch (error) {
-        console.error("Error during registration process:", error);
-        // Même ici, nous redirigeons car le problème est probablement juste avec la gestion de la réponse
-        localStorage.setItem("userType", "PROVIDER");
-        alert("Registration completed! Redirecting to console...");
-        window.location.href = "/provider/console";
-    }
-};
-    const toggleSidebar = () => {
-        setIsSidebarOpen(!isSidebarOpen);
     };
-
-    const services = ["Transportation", "Restauration", "Accommondation"];
+    
 
     return (
         <div className={`min-h-screen ${themeClass} flex flex-col`}>
@@ -221,7 +235,6 @@ const handleSubmit = async (e: FormEvent) => {
                                 required
                             />
                         </div>
-
 
                         {/* First Name and Last Name (on same line) */}
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -297,7 +310,6 @@ const handleSubmit = async (e: FormEvent) => {
                             <p className="text-red-500 text-sm -mt-4">Passwords do not match</p>
                         )}
 
-
                         {/* Email */}
                         <div className="relative">
                             <label className={`block text-sm font-medium ${isDarkMode ? 'text-gray-300' : 'text-gray-700'} mb-1`}>
@@ -345,6 +357,7 @@ const handleSubmit = async (e: FormEvent) => {
                                 />
                             </div>
                         </div>
+                        
                         {/* Country of Origin and Type of Service (on same line) */}
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                             <div className="relative">
@@ -377,14 +390,21 @@ const handleSubmit = async (e: FormEvent) => {
                                     required
                                 >
                                     <option value="">Select your service</option>
-                                    {services.map(service => (
-                                        <option key={service} value={service}>{service}</option>
-                                    ))}
+                                    {serviceTypes.length > 0 ? (
+                                        serviceTypes.map(service => (
+                                            <option 
+                                                key={service.serviceTypeId} 
+                                                value={service.serviceTypeId.toString()}
+                                            >
+                                                {service.serviceTypeName}
+                                            </option>
+                                        ))
+                                    ) : (
+                                        <option value="" disabled>Loading services...</option>
+                                    )}
                                 </select>
                             </div>
                         </div>
-
-
 
                         {/* Submit Button */}
                         <button
@@ -401,6 +421,7 @@ const handleSubmit = async (e: FormEvent) => {
                     </div>
                 </div>
             </div>
+            
             {/* Footer */}
             <ManagementFooter isDarkMode={isDarkMode} />
         </div>
