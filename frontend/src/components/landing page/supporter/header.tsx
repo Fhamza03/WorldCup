@@ -54,7 +54,7 @@ const Header = ({ isDarkMode, toggleTheme }: MainHeaderProps) => {
               <button
                 className="bg-red-700 text-white px-6 py-2 rounded-full hover:bg-red-800 transition"
               >
-                <Link href="/auth/login">Apply Now</Link>
+                <Link href="/auth/supporter/login">Apply Now</Link>
               </button>
               
               {/* Switcher de mode provider créatif */}
@@ -168,7 +168,7 @@ const Header = ({ isDarkMode, toggleTheme }: MainHeaderProps) => {
             <a href="#" className="text-gray-700 hover:text-green-700 py-2">
               FAQ
             </a>
-            <Link href="/auth/login" className="bg-red-700 text-white px-6 py-2 rounded-full hover:bg-red-800 transition text-center">
+            <Link href="/auth/supporter/login" className="bg-red-700 text-white px-6 py-2 rounded-full hover:bg-red-800 transition text-center">
               Apply Now
             </Link>
             

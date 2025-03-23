@@ -1,5 +1,6 @@
 package com.fssm.worldcup.Controllers.General;
 
+import com.fssm.worldcup.DTOs.SupporterDTO;
 import com.fssm.worldcup.Models.General.Supporter;
 import com.fssm.worldcup.Services.General.SupporterService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -10,6 +11,8 @@ import java.util.List;
 
 @RestController
 @RequestMapping("/supporter")
+@CrossOrigin(origins = "http://localhost:3000") // Assuming your frontend runs on port 3000
+
 public class SupporterController {
 
     @Autowired
@@ -23,8 +26,9 @@ public class SupporterController {
 
     @GetMapping("/getSupporter/{id}")
     @ResponseStatus(HttpStatus.OK)
-    public Supporter getSupporter(@PathVariable Integer id) {
-        return supporterService.findSupporterById(id);
+    public SupporterDTO getSupporter(@PathVariable Integer id) {
+        Supporter supporter = supporterService.findSupporterById(id);
+        return SupporterDTO.fromEntity(supporter);
     }
 
     @GetMapping("/getAllSupporters")
@@ -43,5 +47,25 @@ public class SupporterController {
     @ResponseStatus(HttpStatus.OK)
     public boolean supporterExists(@PathVariable Integer id) {
         return supporterService.existsById(id);
+    }
+    @PutMapping("/updateSupporter/{id}")
+    @ResponseStatus(HttpStatus.OK)
+    public Supporter updateSupporter(@PathVariable Integer id, @RequestBody Supporter updatedSupporter) {
+        Supporter existingSupporter = supporterService.findSupporterById(id);
+
+        // Update fields
+        existingSupporter.setFirstName(updatedSupporter.getFirstName());
+        existingSupporter.setLastName(updatedSupporter.getLastName());
+        existingSupporter.setEmail(updatedSupporter.getEmail());
+        existingSupporter.setBirthDate(updatedSupporter.getBirthDate());
+        existingSupporter.setNationality(updatedSupporter.getNationality());
+        existingSupporter.setNationalCode(updatedSupporter.getNationalCode());
+
+        // Handle profile picture if needed
+        if (updatedSupporter.getProfilePicture() != null) {
+            existingSupporter.setProfilePicture(updatedSupporter.getProfilePicture());
+        }
+
+        return supporterService.saveSupporter(existingSupporter);
     }
 }

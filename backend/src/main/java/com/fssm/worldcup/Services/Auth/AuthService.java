@@ -2,19 +2,26 @@ package com.fssm.worldcup.Services.Auth;
 import com.fssm.worldcup.DTOs.AuthResponse;
 import com.fssm.worldcup.DTOs.SigninRequest;
 import com.fssm.worldcup.DTOs.SignupRequest;
-import com.fssm.worldcup.Models.General.Administrator;
-import com.fssm.worldcup.Models.General.Card;
-import com.fssm.worldcup.Models.General.Provider;
-import com.fssm.worldcup.Models.General.Supporter;
+import com.fssm.worldcup.Models.General.*;
 
 import com.fssm.worldcup.Repositories.General.AdministratorRepository;
 import com.fssm.worldcup.Repositories.General.ProviderRepository;
+import com.fssm.worldcup.Repositories.General.ServiceTypeRepository;
 import com.fssm.worldcup.Repositories.General.SupporterRepository;
 import com.fssm.worldcup.Utils.JwtUtil;
 import com.fssm.worldcup.Utils.PasswordEncoder;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
 
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.Date;
+import java.util.List;
 import java.util.Optional;
 
 @Service
@@ -35,24 +42,53 @@ public class AuthService {
     @Autowired
     private JwtUtil jwtUtil;
 
+    @Autowired
+    private ServiceTypeRepository serviceTypeRepository;
+
+
+    public Date convertStringToDate(String birthDateStr) throws ParseException {
+        SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd");
+        return formatter.parse(birthDateStr);
+    }
+
     public AuthResponse signup(SignupRequest request) {
-        // Vérifier si l'email est déjà utilisé
         if (isEmailTaken(request.getEmail())) {
             return new AuthResponse(null, null, null, "Email déjà utilisé", false);
         }
 
-        // Encoder le mot de passe
         String encodedPassword = passwordEncoder.encode(request.getPassword());
+        String profilePicturePath = saveProfilePicture(request.getProfilePicture(), request.getEmail());
 
         switch (request.getUserType()) {
             case "ADMIN":
-                return registerAdmin(request, encodedPassword);
+                return registerAdmin(request, encodedPassword, profilePicturePath);
             case "SUPPORTER":
-                return registerSupporter(request, encodedPassword);
+                return registerSupporter(request, encodedPassword, profilePicturePath);
             case "PROVIDER":
-                return registerProvider(request, encodedPassword);
+                return registerProvider(request, encodedPassword, profilePicturePath);
             default:
                 return new AuthResponse(null, null, null, "Type d'utilisateur invalide", false);
+        }
+    }
+
+    // Fonction pour enregistrer l'image dans un dossier local
+    private String saveProfilePicture(MultipartFile file, String email) {
+        if (file == null || file.isEmpty()) {
+            return null;
+        }
+
+        try {
+            String folder = "uploads/profile_pictures/";
+            Files.createDirectories(Paths.get(folder)); // Créer le dossier s'il n'existe pas
+
+            String fileName = email + "_" + file.getOriginalFilename();
+            Path filePath = Paths.get(folder + fileName);
+            Files.write(filePath, file.getBytes());
+
+            return filePath.toString(); // Retourner le chemin enregistré
+        } catch (IOException e) {
+            e.printStackTrace();
+            return null;
         }
     }
 
@@ -77,7 +113,7 @@ public class AuthService {
                 providerRepository.existsByEmail(email);
     }
 
-    private AuthResponse registerAdmin(SignupRequest request, String encodedPassword) {
+    private AuthResponse registerAdmin(SignupRequest request, String encodedPassword, String profilePicturePath) {
         Administrator admin = new Administrator();
         admin.setEmail(request.getEmail());
         admin.setPassword(encodedPassword);
@@ -87,6 +123,7 @@ public class AuthService {
         admin.setNationality(request.getNationality());
         admin.setNationalCode(request.getNationalCode());
         admin.setAccessStatistics(request.getAccessStatistics());
+        admin.setProfilePicture(profilePicturePath);
 
         Administrator savedAdmin = administratorRepository.save(admin);
 
@@ -95,7 +132,7 @@ public class AuthService {
         return new AuthResponse(token, "ADMIN", savedAdmin.getUserId(), "Inscription réussie", true);
     }
 
-    private AuthResponse registerSupporter(SignupRequest request, String encodedPassword) {
+    private AuthResponse registerSupporter(SignupRequest request, String encodedPassword, String profilePicturePath) {
         Supporter supporter = new Supporter();
         supporter.setEmail(request.getEmail());
         supporter.setPassword(encodedPassword);
@@ -105,6 +142,8 @@ public class AuthService {
         supporter.setNationality(request.getNationality());
         supporter.setNationalCode(request.getNationalCode());
         supporter.setIsFanIdValid(request.getIsFanIdValid());
+        supporter.setProfilePicture(profilePicturePath);
+
 
         // Créer une carte par défaut pour le supporter
         Card card = new Card();
@@ -118,7 +157,11 @@ public class AuthService {
         return new AuthResponse(token, "SUPPORTER", savedSupporter.getUserId(), "Inscription réussie", true);
     }
 
-    private AuthResponse registerProvider(SignupRequest request, String encodedPassword) {
+    private AuthResponse registerProvider(SignupRequest request, String encodedPassword, String profilePicturePath) {
+        // Save the ServiceType instance first
+        Optional<ServiceType> serviceType = serviceTypeRepository.findById(request.getServiceTypeId());
+
+        // Create and set up the Provider instance
         Provider provider = new Provider();
         provider.setEmail(request.getEmail());
         provider.setPassword(encodedPassword);
@@ -127,7 +170,12 @@ public class AuthService {
         provider.setBirthDate(request.getBirthDate());
         provider.setNationality(request.getNationality());
         provider.setNationalCode(request.getNationalCode());
+        provider.setProfilePicture(profilePicturePath);
 
+        // Associate the saved ServiceType with the Provider
+        provider.setServiceTypes(List.of(serviceType.orElse(null)));
+
+        // Save the Provider instance
         Provider savedProvider = providerRepository.save(provider);
 
         String token = jwtUtil.generateToken(savedProvider.getEmail(), "PROVIDER", savedProvider.getUserId());

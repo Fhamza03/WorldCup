@@ -8,6 +8,7 @@ import com.fssm.worldcup.Services.Auth.AuthService;
 import com.fssm.worldcup.Utils.CurrentUser;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -16,6 +17,8 @@ import java.util.Map;
 
 @RestController
 @RequestMapping("/api/auth")
+@CrossOrigin(origins = "http://localhost:3000") // Assuming your frontend runs on port 3000
+
 public class AuthController {
 
     @Autowired
@@ -24,10 +27,10 @@ public class AuthController {
     @Autowired
     private CurrentUser currentUser;
 
-    @PostMapping("/signup")
-    public ResponseEntity<AuthResponse> signup(@RequestBody SignupRequest request) {
+    @PostMapping(value = "/signup", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    public ResponseEntity<AuthResponse> signup(@ModelAttribute SignupRequest request) {
         AuthResponse response = authService.signup(request);
-
+        System.out.println(response);
         if (response.isSuccess()) {
             return ResponseEntity.ok(response);
         } else {

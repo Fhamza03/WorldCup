@@ -57,7 +57,7 @@ const Header = ({ isDarkMode, toggleTheme } :ConsoleHeaderProps) => {
               FAQ
             </a>
             <button className="bg-red-700 text-white px-6 py-2 rounded-full hover:bg-red-800 transition">
-              <Link href="/provider/console/login">Login</Link>
+              <Link href="/auth/provider/login">Login</Link>
             </button>
 
             {/* Mode switcher */}
@@ -188,7 +188,7 @@ const Header = ({ isDarkMode, toggleTheme } :ConsoleHeaderProps) => {
             <a href="#" className="block px-3 py-2 rounded-md text-base font-medium text-gray-700 hover:text-green-700 dark:text-gray-300 dark:hover:text-green-500">
               FAQ
             </a>
-            <Link href="/provider/console/login">
+            <Link href="/auth/provider/login">
               <span className="block px-3 py-2 rounded-md text-base font-medium bg-red-700 text-white hover:bg-red-800 transition">
                 Login
               </span>
@@ -213,7 +213,7 @@ const Header = ({ isDarkMode, toggleTheme } :ConsoleHeaderProps) => {
               FAQ
             </a>
             <button className="w-full bg-red-700 text-white py-2 px-4 rounded-full hover:bg-red-800 transition">
-              <Link href="/login">Login</Link>
+              <Link href="/auth/provider/login">Login</Link>
             </button>
           </div>
         </div>

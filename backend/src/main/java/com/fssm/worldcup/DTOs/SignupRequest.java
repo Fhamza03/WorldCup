@@ -1,5 +1,7 @@
 package com.fssm.worldcup.DTOs;
 
+import org.springframework.web.multipart.MultipartFile;
+
 import java.util.Date;
 
 public class SignupRequest {
@@ -7,16 +9,26 @@ public class SignupRequest {
     private String password;
     private String firstName;
     private String lastName;
-    private Date birthDate;
+    private String birthDate;
     private String nationality;
     private String nationalCode;
     private String userType; // "ADMIN", "SUPPORTER", "PROVIDER"
+    private MultipartFile profilePicture;
 
     // Pour Supporter
     private Boolean isFanIdValid;
 
     // Pour Admin
     private String accessStatistics;
+    private int serviceTypeId;
+
+    public int getServiceTypeId() {
+        return serviceTypeId;
+    }
+
+    public void setServiceTypeId(int serviceTypeId) {
+        this.serviceTypeId = serviceTypeId;
+    }
 
     // Getters and Setters
     public String getEmail() {
@@ -51,11 +63,11 @@ public class SignupRequest {
         this.lastName = lastName;
     }
 
-    public Date getBirthDate() {
+    public String getBirthDate() {
         return birthDate;
     }
 
-    public void setBirthDate(Date birthDate) {
+    public void setBirthDate(String birthDate) {
         this.birthDate = birthDate;
     }
 
@@ -97,5 +109,12 @@ public class SignupRequest {
 
     public void setAccessStatistics(String accessStatistics) {
         this.accessStatistics = accessStatistics;
+    }
+    public MultipartFile getProfilePicture() {
+        return profilePicture;
+    }
+
+    public void setProfilePicture(MultipartFile profilePicture) {
+        this.profilePicture = profilePicture;
     }
 }

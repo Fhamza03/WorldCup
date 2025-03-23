@@ -1,5 +1,6 @@
 package com.fssm.worldcup.Models.General;
 
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -13,10 +14,16 @@ import java.util.List;
 @Builder
 public class Provider extends User {
 
-    @OneToMany(mappedBy = "provider")
+    @ManyToMany
+    @JoinTable(
+            name = "provider_service_type",
+            joinColumns = @JoinColumn(name = "provider_id"),
+            inverseJoinColumns = @JoinColumn(name = "service_type_id")
+    )
+    @JsonManagedReference  // This marks the forward part of the reference
     private List<ServiceType> serviceTypes;
 
-    // Getters et Setters
+    // Getters and Setters
     public List<ServiceType> getServiceTypes() {
         return serviceTypes;
     }

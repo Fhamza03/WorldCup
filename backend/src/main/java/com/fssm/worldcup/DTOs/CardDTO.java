@@ -1,32 +1,15 @@
-package com.fssm.worldcup.Models.General;
+package com.fssm.worldcup.DTOs;
 
-import com.fasterxml.jackson.annotation.JsonBackReference;
-import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
-import jakarta.persistence.*;
-import lombok.*;
+import com.fssm.worldcup.Models.General.Card;
 
-@Entity
-@AllArgsConstructor
-@NoArgsConstructor
-@Getter
-@Setter
-@Builder
-public class Card {
+public class CardDTO {
+    private Integer cardId;
+    private String cardNumber;
+    private String cardType;
+    private String issueDate;
+    private String expiryDate;
 
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    Integer cardId;
-
-    String cardNumber;
-    String cardType;
-    String issueDate;
-    String expiryDate;
-
-
-
-    @OneToOne(mappedBy = "card")
-    @JsonIgnoreProperties("card") // Use this instead of @JsonBackReference
-    private Supporter supporter;
+    // Getters and setters
 
     public Integer getCardId() {
         return cardId;
@@ -66,5 +49,15 @@ public class Card {
 
     public void setExpiryDate(String expiryDate) {
         this.expiryDate = expiryDate;
+    }
+
+    public static CardDTO fromEntity(Card card) {
+        CardDTO dto = new CardDTO();
+        dto.setCardId(card.getCardId());
+        dto.setCardNumber(card.getCardNumber());
+        dto.setCardType(card.getCardType());
+        dto.setIssueDate(card.getIssueDate());
+        dto.setExpiryDate(card.getExpiryDate());
+        return dto;
     }
 }

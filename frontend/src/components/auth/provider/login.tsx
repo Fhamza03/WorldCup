@@ -1,103 +1,189 @@
+"use client";
+
+import { useState, useEffect } from "react";
+import { Menu, X, HelpCircle, Briefcase } from "lucide-react";
+import { FormEvent } from "react";
+import { signIn } from "next-auth/react";
+import { FcGoogle } from "react-icons/fc";
 import Image from "next/image";
+import Link from 'next/link';
+import Header from "./header";
+import Footer from "../footer";
+export default function ProviderLogin() {
+    const [isMenuOpen, setIsMenuOpen] = useState(false);
+    const [email, setEmail] = useState("");
+    const [password, setPassword] = useState("");
+    const [isDarkMode, setIsDarkMode] = useState(false);
+    const [rememberMe, setRememberMe] = useState(false);
+    const [errorMessage, setErrorMessage] = useState<string | null>(null);
+    const [isSidebarOpen, setIsSidebarOpen] = useState(true);
 
-export default function Home() {
-  return (
-    <div className="grid grid-rows-[20px_1fr_20px] items-center justify-items-center min-h-screen p-8 pb-20 gap-16 sm:p-20 font-[family-name:var(--font-geist-sans)]">
-      <main className="flex flex-col gap-[32px] row-start-2 items-center sm:items-start">
-        <Image
-          className="dark:invert"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={180}
-          height={38}
-          priority
-        />
-        <ol className="list-inside list-decimal text-sm/6 text-center sm:text-left font-[family-name:var(--font-geist-mono)]">
-          <li className="mb-2 tracking-[-.01em]">
-            Get started by editing{" "}
-            <code className="bg-black/[.05] dark:bg-white/[.06] px-1 py-0.5 rounded font-[family-name:var(--font-geist-mono)] font-semibold">
-              src/app/page.tsx
-            </code>
-            .
-          </li>
-          <li className="tracking-[-.01em]">
-            Save and see your changes instantly.
-          </li>
-        </ol>
 
-        <div className="flex gap-4 items-center flex-col sm:flex-row">
-          <a
-            className="rounded-full border border-solid border-transparent transition-colors flex items-center justify-center bg-foreground text-background gap-2 hover:bg-[#383838] dark:hover:bg-[#ccc] font-medium text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5 sm:w-auto"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              className="dark:invert"
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={20}
-              height={20}
+    useEffect(() => {
+        const savedTheme = localStorage.getItem("theme");
+        if (savedTheme === "dark") {
+            setIsDarkMode(true);
+        } else {
+            setIsDarkMode(false);
+        }
+    }, []);
+    const toggleSidebar = () => {
+        setIsSidebarOpen(!isSidebarOpen);
+    };
+
+    // Handle theme change
+    const toggleTheme = () => {
+        setIsDarkMode((prevMode) => {
+            const newMode = !prevMode;
+            localStorage.setItem("theme", newMode ? "dark" : "light");
+            return newMode;
+        });
+    };
+
+    const themeClass = isDarkMode
+        ? "bg-gray-900 text-white"
+        : "bg-white text-gray-700";
+
+    const handleSubmit = async (e: FormEvent) => {
+        e.preventDefault();
+        setErrorMessage(null);
+
+        try {
+            const response = await fetch("http://localhost:8080/api/auth/signin", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                },
+                body: JSON.stringify({ email, password, userType: "PROVIDER" }),
+            });
+
+            const data = await response.json();
+
+            if (data.success) {
+                // Stocker les informations d'authentification
+                localStorage.setItem("token", data.token);
+                localStorage.setItem("userType", data.userType);
+                localStorage.setItem("userId", data.userId);
+
+                // Redirection vers la page de profil
+                // In login.tsx, adjust the redirect path:
+                window.location.href = "/dashboard/provider/profile";
+            } else {
+                setErrorMessage(data.message || "Login failed. Please try again.");
+            }
+        } catch (error) {
+            console.error("Error during login:", error);
+            setErrorMessage("An error occurred during login. Please try again.");
+        }
+    };
+
+    return (
+        <div className={`min-h-screen ${themeClass} flex flex-col`}>
+            {/* Navigation */}
+            <Header
+                isDarkMode={isDarkMode}
+                toggleTheme={toggleTheme}
             />
-            Deploy now
-          </a>
-          <a
-            className="rounded-full border border-solid border-black/[.08] dark:border-white/[.145] transition-colors flex items-center justify-center hover:bg-[#f2f2f2] dark:hover:bg-[#1a1a1a] hover:border-transparent font-medium text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5 w-full sm:w-auto md:w-[158px]"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Read our docs
-          </a>
+
+
+            {/* Main Content */}
+            <div className="flex-grow flex items-center justify-center relative py-8">
+                {/* Background Image */}
+                <div
+                    className="absolute inset-0 z-0 bg-cover bg-center"
+                    style={{
+                        backgroundImage:
+                            'url("https://images.unsplash.com/photo-1508997449629-303059a039c0?ixlib=rb-1.2.1&auto=format&fit=crop&w=2070&q=80")',
+                        opacity: "0.2",
+                    }}
+                ></div>
+
+                {/* Auth Form Container */}
+                <div
+                    className={`${themeClass} p-6 rounded-lg shadow-2xl shadow-gray-500/40 w-full max-w-lg sm:max-w-xl relative z-10`}
+                >
+                    {/* Logo */}
+                    <div className="flex justify-center mb-4">
+                        <Image src="/logo.png" alt="Logo" width={90} height={90} />
+                    </div>
+
+                    {/* Form Title */}
+                    <h2 className={`text-2xl font-bold text-center ${isDarkMode ? 'text-white' : 'text-gray-700'} mb-2`}>
+                        Provider Portal
+                    </h2>
+                    <p className={`text-center ${isDarkMode ? 'text-gray-300' : 'text-gray-600'} mb-6`}>
+                        Access your Yalla Fan ID provider dashboard
+                    </p>
+
+                    {/* Login Form */}
+                    <form onSubmit={handleSubmit} className="space-y-6">
+                        <div className="relative">
+                            <label className={`block text-sm font-medium mb-1 ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}>
+                                Provider Email
+                            </label>
+                            <input
+                                type="email"
+                                placeholder="company@example.com"
+                                value={email}
+                                onChange={(e) => setEmail(e.target.value)}
+                                className="w-full bg-transparent placeholder:text-slate-400 text-slate-700 text-sm border border-slate-200 rounded-md px-3 py-2 transition duration-300 ease focus:outline-none focus:border-green-400 hover:border-slate-300 shadow-sm focus:shadow"
+                                required
+                            />
+                        </div>
+
+                        <div className="relative">
+                            <label className={`block text-sm font-medium mb-1 ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}>
+                                Password
+                            </label>
+                            <input
+                                type="password"
+                                placeholder="••••••••"
+                                value={password}
+                                onChange={(e) => setPassword(e.target.value)}
+                                className="w-full bg-transparent placeholder:text-slate-400 text-slate-700 text-sm border border-slate-200 rounded-md px-3 py-2 transition duration-300 ease focus:outline-none focus:border-green-400 hover:border-slate-300 shadow-sm focus:shadow"
+                                required
+                            />
+                        </div>
+
+
+
+                        <button
+                            type="submit"
+                            className="mt-4 w-full rounded-md bg-gradient-to-r from-green-700 to-red-700 py-2 px-4 border border-transparent text-center text-sm text-white transition-all shadow-md hover:shadow-lg focus:shadow-none active:shadow-none disabled:pointer-events-none disabled:opacity-50 disabled:shadow-none"
+                        >
+                            Provider Login
+                        </button>
+                    </form>
+
+                    {/* Account application */}
+                    <div className="mt-4 text-center">
+                        <p className={`text-sm ${isDarkMode ? 'text-gray-300' : 'text-gray-600'}`}>
+                            Need a provider account?{' '}
+                            <Link href="/auth/provider/signup" className="text-green-700 hover:text-green-600 font-semibold">
+                                Apply Here
+                            </Link>
+                        </p>
+                    </div>
+
+                    {/* Google Sign-In Button */}
+                    <button
+                        onClick={() =>
+                            signIn("google", { callbackUrl: window.location.href })
+                        }
+                        className={`w-full flex items-center justify-center space-x-3 text-black py-3 rounded-md mt-4 transition border ${isDarkMode ? "bg-gray-800 text-white border-gray-700" : "border-gray-200"
+                            }`}
+                    >
+                        <FcGoogle size={24} />
+                        <span>Sign in with Google</span>
+                    </button>
+
+                    {/* Provider support section */}
+
+                </div>
+            </div>
+            {/* Footer */}
+            <Footer isDarkMode={isDarkMode} />
+
         </div>
-      </main>
-      <footer className="row-start-3 flex gap-[24px] flex-wrap items-center justify-center">
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/file.svg"
-            alt="File icon"
-            width={16}
-            height={16}
-          />
-          Learn
-        </a>
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/window.svg"
-            alt="Window icon"
-            width={16}
-            height={16}
-          />
-          Examples
-        </a>
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://nextjs.org?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/globe.svg"
-            alt="Globe icon"
-            width={16}
-            height={16}
-          />
-          Go to nextjs.org →
-        </a>
-      </footer>
-    </div>
-  );
+    );
 }

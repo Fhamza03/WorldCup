@@ -30,4 +30,3 @@ public class SigninRequest {
         this.userType = userType;
     }
 }
-
