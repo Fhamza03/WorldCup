@@ -181,6 +181,7 @@ public class AuthService {
         Provider savedProvider = providerRepository.save(provider);
 
         String token = jwtUtil.generateToken(savedProvider.getEmail(), "PROVIDER", savedProvider.getUserId());
+        System.out.println(token);
 
         return new AuthResponse(token, "PROVIDER", savedProvider.getUserId(), "Inscription réussie", true);
     }
