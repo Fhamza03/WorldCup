@@ -108,7 +108,7 @@ export default function Header({
                                     onBlur={() => setTimeout(() => setIsProfileMenuOpen(false), 100)}
                                 >
                                     <Link
-                                        href=""
+                                        href="/dashboard/provider/profile"
                                         className={`block px-4 py-2 text-sm ${isDarkMode ? 'text-gray-300 hover:bg-gray-700' : 'text-gray-700 hover:bg-gray-100'}`}
                                         onClick={() => setIsProfileMenuOpen(false)}
                                     >
@@ -156,7 +156,7 @@ export default function Header({
                                     className={`absolute right-0 mt-2 w-48 rounded-md shadow-lg py-1 z-50 ${isDarkMode ? 'bg-gray-800' : 'bg-white'} ring-1 ring-black ring-opacity-5`}
                                 >
                                     <Link
-                                        href=""
+                                        href="/dashboard/provider/profile"
                                         className={`block px-4 py-2 text-sm ${isDarkMode ? 'text-gray-300 hover:bg-gray-700' : 'text-gray-700 hover:bg-gray-100'}`}
                                         onClick={() => setIsProfileMenuOpen(false)}
                                     >
