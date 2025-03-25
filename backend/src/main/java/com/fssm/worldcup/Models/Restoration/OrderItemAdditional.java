@@ -4,23 +4,26 @@ import jakarta.persistence.*;
 import lombok.*;
 
 @Entity
+@Table(name = "order_item_additionals")
 @AllArgsConstructor
 @NoArgsConstructor
 @Getter
 @Setter
 @Builder
-public class ProductMenu {
+public class OrderItemAdditional {
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
 
-    @ManyToOne
-    @JoinColumn(name = "product_id")
-    private Product product;
+    private String name;
+    private Double price;
 
     @ManyToOne
-    @JoinColumn(name = "menu_id")
-    private Menu menu;
+    @JoinColumn(name = "order_item_id")
+    private OrderItem orderItem;
 
-    private Integer displayOrder; // Ordre d'affichage dans le menu
+    public Double getAdditionalPrice() {
+        return this.price;
+    }
 }
