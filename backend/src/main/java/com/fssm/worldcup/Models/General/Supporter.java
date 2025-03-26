@@ -1,5 +1,6 @@
 package com.fssm.worldcup.Models.General;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fssm.worldcup.Models.Transportation.Journey;
 import jakarta.persistence.*;
 import lombok.*;
@@ -17,9 +18,10 @@ public class Supporter extends User {
     private Boolean isFanIdValid;
 
     @OneToMany(mappedBy = "supporter", cascade = CascadeType.ALL, orphanRemoval = true)
+    @JsonIgnore
     private List<Journey> journeys;
 
-    @OneToOne(cascade = CascadeType.ALL, orphanRemoval = true)
+    @OneToOne(cascade = {CascadeType.MERGE, CascadeType.REMOVE, CascadeType.REFRESH, CascadeType.DETACH})
     @JoinColumn(name = "card_id", unique = true, nullable = false)
     private Card card;
 

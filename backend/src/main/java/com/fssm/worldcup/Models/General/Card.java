@@ -1,5 +1,6 @@
 package com.fssm.worldcup.Models.General;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -21,5 +22,6 @@ public class Card {
     String expiryDate;
 
     @OneToOne(mappedBy = "card")
+    @JsonIgnore
     Supporter supporter;
 }

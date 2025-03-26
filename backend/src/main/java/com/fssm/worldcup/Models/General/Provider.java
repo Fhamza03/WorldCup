@@ -1,5 +1,6 @@
 package com.fssm.worldcup.Models.General;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -14,6 +15,7 @@ import java.util.List;
 public class Provider extends User {
 
     @OneToMany(mappedBy = "provider")
+    @JsonIgnore
     private List<ServiceType> serviceTypes;
 
     // Getters et Setters
