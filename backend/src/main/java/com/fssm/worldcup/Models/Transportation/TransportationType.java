@@ -1,5 +1,6 @@
 package com.fssm.worldcup.Models.Transportation;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -17,7 +18,7 @@ public class TransportationType {
     private Integer transportationTypeId;
     private String transportationTypeName;
     private String description;
-    @ManyToOne
-    @JoinColumn(name = "transportation_id", nullable = false)
-    private Transportation transportation;
+    @OneToMany(mappedBy = "transportationType")
+    @JsonIgnore
+    private List<Transportation> transportations;
 }

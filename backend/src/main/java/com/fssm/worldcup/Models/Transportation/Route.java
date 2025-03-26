@@ -1,5 +1,6 @@
 package com.fssm.worldcup.Models.Transportation;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -18,5 +19,6 @@ public class Route {
     private String routeName;
     private String estimatedTime;
     @OneToMany(mappedBy = "route", cascade = CascadeType.ALL, orphanRemoval = true)
+    @JsonIgnore
     private List<VehicleRoute> vehicleRoutes;
 }
