@@ -16,4 +16,9 @@ public class ServiceType {
     private String serviceTypeName;
     @ManyToOne
     private Provider provider;
+
+    public void setServiceTypeName(String serviceTypeName) {
+        this.serviceTypeName = serviceTypeName;
+    }
+
 }
