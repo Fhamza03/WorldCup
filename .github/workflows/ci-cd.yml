@@ -1,32 +1,33 @@
-name: Simple CI/CD Simulation
+name: Simple CI/CD Pipeline
 
 on:
   push:
     branches: [main]
-  pull_request:
-    branches: [main]
 
 jobs:
-  frontend:
-    name: Frontend
+  build-and-test:
     runs-on: ubuntu-latest
     steps:
-      - run: echo "Frontend: Installing dependencies..."
-      - run: echo "Frontend: test done"
-      - run: echo "Frontend: Building..."
-
-  backend:
-    name: Backend
-    runs-on: ubuntu-latest
-    steps:
-      - run: echo "Backend: Installing Java and Maven..."
-      - run: echo "Backend: test done"
-      - run: echo "Backend: Building JAR..."
+    - name: Checkout code
+      uses: actions/checkout@v4
+    
+    - name: Frontend steps
+      run: |
+        echo "Installing frontend dependencies..."
+        echo "Running frontend tests..."
+        echo "Frontend build complete..."
+    
+    - name: Backend steps
+      run: |
+        echo "Installing Java and Maven..."
+        echo "Running backend tests..."
+        echo "Backend build complete..."
 
   deploy:
-    name: Deploy
-    needs: [frontend, backend]
+    needs: build-and-test
     runs-on: ubuntu-latest
     steps:
-      - run: echo "Deploy: deploy done"
-      - run: echo "Deploy: Frontend and backend deployed successfully!"
+    - name: Deployment
+      run: |
+        echo "Deploying application..."
+        echo "Deployment successful!"
