@@ -50,7 +50,7 @@ const Sidebar = () => {
 
   return (
     <aside
-      className={`bg-white shadow p-4 flex flex-col h-dvh transition-all duration-300 ease-in-out ${
+      className={`bg-white shadow p-4 flex flex-col h-dvh transition-all duration-300 ease-in-out   ${
         isExpanded ? "w-64" : "w-20"
       }`}
     >

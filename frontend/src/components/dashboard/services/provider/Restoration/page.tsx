@@ -8,11 +8,11 @@ import {
 import Image from "next/image";
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
-import Header from "../../profile/provider/header";
+import Header from "../../../profile/provider/header";
 import Footer from "@/components/auth/footer";
 import { Stepper, Step, StepLabel } from "@mui/material";
 import { MdRestaurantMenu, MdList, MdCheckCircle } from "react-icons/md";
-import Sidebar from "../../layout/sidebar";
+import Sidebar from "../../../layout/sidebar";
 
 
 export default function RestaurantProviderProfile() {

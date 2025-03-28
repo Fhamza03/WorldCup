@@ -1,12 +1,12 @@
 
-import RestaurantBrowse from "@/components/dashboard/services/supporter/Restoration/page";
+import RestaurantOrder from "@/components/dashboard/services/supporter/Restoration/order/page";
 const RestorationProvidePage = () => {
   return (
     <div >
       
       <div >
     
-        <RestaurantBrowse />
+        <RestaurantOrder />
         
       </div>
 
