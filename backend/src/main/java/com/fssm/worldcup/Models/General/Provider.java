@@ -1,13 +1,11 @@
-// src/main/java/com/fssm/worldcup/Models/General/Provider.java
 package com.fssm.worldcup.Models.General;
 
-import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fssm.worldcup.Models.Restoration.Restaurant;
 import jakarta.persistence.*;
-import lombok.*;
+        import lombok.*;
 
-import java.util.List;
+        import java.util.List;
 
 @Entity
 @AllArgsConstructor
@@ -17,20 +15,15 @@ import java.util.List;
 @Builder
 public class Provider extends User {
 
-    @ManyToMany
-    @JoinTable(
-            name = "provider_service_type",
-            joinColumns = @JoinColumn(name = "provider_id"),
-            inverseJoinColumns = @JoinColumn(name = "service_type_id")
-    )
+    @OneToMany(mappedBy = "provider")
+    @JsonIgnore
     private List<ServiceType> serviceTypes;
-
 
     @OneToMany
     @JsonIgnore
     private List<Restaurant> restaurants;
 
-    // Getters and Setters
+    // Getters et Setters
     public List<ServiceType> getServiceTypes() {
         return serviceTypes;
     }
@@ -39,3 +32,4 @@ public class Provider extends User {
         this.serviceTypes = serviceTypes;
     }
 }
+

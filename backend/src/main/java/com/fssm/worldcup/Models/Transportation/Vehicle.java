@@ -1,5 +1,6 @@
 package com.fssm.worldcup.Models.Transportation;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -17,8 +18,10 @@ public class Vehicle {
     private Integer vehicleId;
     private String registrationNumber;
     private Integer seatsNumber;
+    @ManyToOne
+    @JoinColumn(name = "transportation_id", nullable = false)
+    private Transportation transportation;
     @OneToMany(mappedBy = "vehicle", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<Transportation> transportations;
-    @OneToMany(mappedBy = "vehicle", cascade = CascadeType.ALL, orphanRemoval = true)
+    @JsonIgnore
     private List<VehicleRoute> vehicleRoutes;
 }
