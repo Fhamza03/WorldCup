@@ -18,7 +18,7 @@ export default function SupporterProfile() {
     const [errorMessage, setErrorMessage] = useState<string | null>(null);
     const [isLoading, setIsLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
-    
+
     const [formData, setFormData] = useState({
         id: 0,
         email: "",
@@ -27,7 +27,7 @@ export default function SupporterProfile() {
         birthDate: "",
         nationality: "",
         nationalCode: "",
-     
+
     });
 
     useEffect(() => {
@@ -37,7 +37,7 @@ export default function SupporterProfile() {
         } else {
             setIsDarkMode(false);
         }
-        
+
         // Fetch all required data in parallel
         Promise.all([
             fetchCountries(),
@@ -83,9 +83,24 @@ export default function SupporterProfile() {
                 nationalCode: supporterData.nationalCode || "",
             });
 
-            // Set profile photo if available
+            // Dans fetchProviderData()
             if (supporterData.profilePicture) {
-                setProfilePhoto(`http://localhost:8080/${supporterData.profilePicture}`);
+                // Vérifiez si le chemin est absolu ou relatif
+                const profilePicPath = supporterData.profilePicture;
+
+                // Si le chemin contient déjà le protocole http://, utilisez-le tel quel
+                if (profilePicPath.startsWith('http')) {
+                    setProfilePhoto(profilePicPath);
+                }
+                // Si c'est un chemin relatif, ajoutez l'URL de base
+                else {
+                    // Extraire le chemin relatif si nécessaire
+                    const relativePath = profilePicPath.includes('uploads')
+                        ? profilePicPath.substring(profilePicPath.indexOf('uploads'))
+                        : profilePicPath;
+
+                    setProfilePhoto(`http://localhost:8080/${relativePath}`);
+                }
             }
 
             return supporterData;
@@ -121,27 +136,27 @@ export default function SupporterProfile() {
 
     const handleLogout = async () => {
         try {
-          const response = await fetch("http://localhost:8080/api/auth/signout", {
-            method: "POST",
-            headers: {
-              "Content-Type": "application/json",
-            },
-          });
-    
-          const data = await response.json();
-    
-          if (data.success) {
-            localStorage.removeItem("token");
-            localStorage.removeItem("userType");
-            localStorage.removeItem("userId");
-    
-            window.location.href = "/auth/supporter/login";
-          } else {
-            setErrorMessage(data.message || "Logout failed. Please try again.");
-          }
+            const response = await fetch("http://localhost:8080/api/auth/signout", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                },
+            });
+
+            const data = await response.json();
+
+            if (data.success) {
+                localStorage.removeItem("token");
+                localStorage.removeItem("userType");
+                localStorage.removeItem("userId");
+
+                window.location.href = "/auth/supporter/login";
+            } else {
+                setErrorMessage(data.message || "Logout failed. Please try again.");
+            }
         } catch (error) {
-          console.error("Error during logout:", error);
-          setErrorMessage("An error occurred during logout. Please try again.");
+            console.error("Error during logout:", error);
+            setErrorMessage("An error occurred during logout. Please try again.");
         }
     };
 
@@ -168,7 +183,7 @@ export default function SupporterProfile() {
 
     const handleSubmit = async (e: FormEvent) => {
         e.preventDefault();
-        
+
         try {
             const token = localStorage.getItem("token");
 
@@ -205,12 +220,12 @@ export default function SupporterProfile() {
     useEffect(() => {
         const token = localStorage.getItem("token");
         const userType = localStorage.getItem("userType");
-        
+
         if (!token) {
-          router.push("/auth/spporter/login");
+            router.push("/auth/spporter/login");
         } else if (userType !== "SUPPORTER") {
-          // Redirect to appropriate page if not a supporter
-          router.push("/");
+            // Redirect to appropriate page if not a supporter
+            router.push("/");
         }
     }, [router]);
 
@@ -266,10 +281,10 @@ export default function SupporterProfile() {
     return (
         <div className={`min-h-screen ${themeClass} flex flex-col bg-gradient-to-b ${isDarkMode ? 'from-gray-900 to-gray-800' : 'from-gray-50 to-white'}`}>
             {/* Header Component */}
-            <Header 
-                isDarkMode={isDarkMode} 
-                toggleTheme={toggleTheme} 
-                profilePhoto={profilePhoto} 
+            <Header
+                isDarkMode={isDarkMode}
+                toggleTheme={toggleTheme}
+                profilePhoto={profilePhoto}
             />
 
             {/* Main Content */}
@@ -288,7 +303,7 @@ export default function SupporterProfile() {
                                                 width={96}
                                                 height={96}
                                                 className="w-full h-full object-cover"
-                                                onError={() => setProfilePhoto("/logo.png")}
+                                                onError={() => setProfilePhoto("/logo.png")} // Fallback image
                                                 unoptimized
                                             />
                                         ) : (

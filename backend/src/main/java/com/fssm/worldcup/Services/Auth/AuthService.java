@@ -78,14 +78,14 @@ public class AuthService {
         }
 
         try {
-            String folder = "uploads/profile_pictures/";
-            Files.createDirectories(Paths.get(folder)); // Créer le dossier s'il n'existe pas
+            String folder = "uploads/profile_pictures/"; // Supprimez "backend/" du début
+            Files.createDirectories(Paths.get(folder));
 
             String fileName = email + "_" + file.getOriginalFilename();
             Path filePath = Paths.get(folder + fileName);
             Files.write(filePath, file.getBytes());
 
-            return filePath.toString(); // Retourner le chemin enregistré
+            return folder + fileName; // Retournez un chemin relatif
         } catch (IOException e) {
             e.printStackTrace();
             return null;

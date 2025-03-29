@@ -1,6 +1,7 @@
 // src/main/java/com/fssm/worldcup/Models/General/ServiceType.java
 package com.fssm.worldcup.Models.General;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.*;
@@ -20,7 +21,7 @@ public class ServiceType {
     private String serviceTypeName;
 
     @ManyToMany(mappedBy = "serviceTypes")
-    @JsonIgnore  // This will prevent the providers field from being serialized
+    @JsonBackReference
     private List<Provider> providers;
 
     // Getters and Setters

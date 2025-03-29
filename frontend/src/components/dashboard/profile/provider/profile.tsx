@@ -96,14 +96,28 @@ export default function ProviderProfile() {
                 birthDate: providerData.birthDate || "",
                 nationality: providerData.nationality || "",
                 nationalCode: providerData.nationalCode || "",
-                typeOfService: providerData.serviceTypes && providerData.serviceTypes.length > 0 
-                    ? providerData.serviceTypes[0].serviceTypeName 
+                typeOfService: providerData.serviceTypes && providerData.serviceTypes.length > 0
+                    ? providerData.serviceTypes[0].serviceTypeName
                     : ""
             });
-
-            // Set profile photo if available - CORRECTED HERE
+            // Dans fetchProviderData()
             if (providerData.profilePicture) {
-                setProfilePhoto(`http://localhost:8080/${providerData.profilePicture}`);
+                // Vérifiez si le chemin est absolu ou relatif
+                const profilePicPath = providerData.profilePicture;
+
+                // Si le chemin contient déjà le protocole http://, utilisez-le tel quel
+                if (profilePicPath.startsWith('http')) {
+                    setProfilePhoto(profilePicPath);
+                }
+                // Si c'est un chemin relatif, ajoutez l'URL de base
+                else {
+                    // Extraire le chemin relatif si nécessaire
+                    const relativePath = profilePicPath.includes('uploads')
+                        ? profilePicPath.substring(profilePicPath.indexOf('uploads'))
+                        : profilePicPath;
+
+                    setProfilePhoto(`http://localhost:8080/${relativePath}`);
+                }
             }
 
             return providerData;
@@ -157,36 +171,48 @@ export default function ProviderProfile() {
         }
     };
 
-    const handleSubmit = async (e: FormEvent) => {
+    const handleSubmit = async (e:any) => {
         e.preventDefault();
-
+    
         try {
             const token = localStorage.getItem("token");
-
+    
             if (!token) {
                 throw new Error("Authentication information missing. Please login again.");
             }
-
-            // Changed from createProvider to updateProvider as this is an update operation
+    
+            // Create a simplified payload without complex objects
+            const payload = {
+                userId: formData.id,
+                email: formData.email,
+                firstName: formData.firstName,
+                lastName: formData.lastName,
+                birthDate: formData.birthDate,
+                nationality: formData.nationality, 
+                nationalCode: formData.nationalCode,
+                profilePicture: profilePhoto
+                // We're not sending serviceTypeIds in this example, but you could add them if needed
+            };
+    
             const response = await fetch(`http://localhost:8080/provider/updateProvider/${formData.id}`, {
-                method: "PUT", // Changed from POST to PUT for update operation
+                method: "PUT",
                 headers: {
                     "Content-Type": "application/json",
                     "Authorization": `Bearer ${token}`
                 },
-                body: JSON.stringify({
-                    ...formData,
-                    profilePicture: profilePhoto // Changed to match the API field name
-                })
+                body: JSON.stringify(payload)
             });
-
+    
             if (!response.ok) {
                 throw new Error(`Failed to update provider: ${response.status}`);
             }
-
+    
             console.log("Profile updated successfully");
             setIsEditing(false);
-
+            
+            // Refresh the provider data
+            fetchProviderData();
+    
         } catch (error) {
             console.error("Error updating profile:", error);
             alert("Failed to update profile. Please try again.");
@@ -266,14 +292,14 @@ export default function ProviderProfile() {
                                     <div className={`w-24 h-24 rounded-full border-4 ${isDarkMode ? 'border-gray-800' : 'border-white'} overflow-hidden`}>
                                         {profilePhoto ? (
                                             <Image
-                                            src={profilePhoto}
-                                            alt="Profile"
-                                            width={96}
-                                            height={96}
-                                            className="w-full h-full object-cover"
-                                            onError={() => setProfilePhoto("/logo.png")}
-                                            unoptimized
-                                          />
+                                                src={profilePhoto}
+                                                alt="Profile"
+                                                width={96}
+                                                height={96}
+                                                className="w-full h-full object-cover"
+                                                onError={() => setProfilePhoto("/logo.png")} // Fallback image
+                                                unoptimized
+                                            />
                                         ) : (
                                             <div className={`w-full h-full flex items-center justify-center ${isDarkMode ? 'bg-gray-700' : 'bg-gray-200'}`}>
                                                 <User size={40} className={isDarkMode ? 'text-gray-500' : 'text-gray-400'} />
@@ -436,33 +462,33 @@ export default function ProviderProfile() {
                                 </div>
 
                                 {/* Country and Service Type */}
-                                    <div className="space-y-1">
-                                        <label className={`block text-sm font-medium ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}>
-                                            Country of Origin
-                                        </label>
-                                        <div className="relative">
-                                            <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                                                <Globe size={16} className={isDarkMode ? 'text-gray-500' : 'text-gray-400'} />
-                                            </div>
-                                            <select
-                                                name="nationality"
-                                                value={formData.nationality}
-                                                onChange={handleChange}
-                                                className={`w-full ${inputBgClass} border ${isDarkMode ? 'border-gray-700 focus:border-gray-600' : 'border-gray-300 focus:border-gray-400'} rounded-lg pl-10 pr-3 py-2 focus:outline-none focus:ring-2 focus:ring-green-500/20 transition-all duration-200`}
-                                                disabled={!isEditing}
-                                            >
-                                                <option value="">Select your country</option>
-                                                {countries.map(country => (
-                                                    <option
-                                                        key={country}
-                                                        value={country}
-                                                    >
-                                                        {country}
-                                                    </option>
-                                                ))}
-                                            </select>
+                                <div className="space-y-1">
+                                    <label className={`block text-sm font-medium ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}>
+                                        Country of Origin
+                                    </label>
+                                    <div className="relative">
+                                        <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                                            <Globe size={16} className={isDarkMode ? 'text-gray-500' : 'text-gray-400'} />
                                         </div>
+                                        <select
+                                            name="nationality"
+                                            value={formData.nationality}
+                                            onChange={handleChange}
+                                            className={`w-full ${inputBgClass} border ${isDarkMode ? 'border-gray-700 focus:border-gray-600' : 'border-gray-300 focus:border-gray-400'} rounded-lg pl-10 pr-3 py-2 focus:outline-none focus:ring-2 focus:ring-green-500/20 transition-all duration-200`}
+                                            disabled={!isEditing}
+                                        >
+                                            <option value="">Select your country</option>
+                                            {countries.map(country => (
+                                                <option
+                                                    key={country}
+                                                    value={country}
+                                                >
+                                                    {country}
+                                                </option>
+                                            ))}
+                                        </select>
                                     </div>
+                                </div>
 
                                 {/* Submit Button - Only visible when editing */}
                                 {isEditing && (
