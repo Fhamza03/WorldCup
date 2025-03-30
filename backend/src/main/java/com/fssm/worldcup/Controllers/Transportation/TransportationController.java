@@ -39,6 +39,12 @@ public class TransportationController {
         transportationService.deleteTransportationById(id);
     }
 
+    @PutMapping("/updateTransportation")
+    @ResponseStatus(HttpStatus.OK)
+    public Transportation updateTransportation(@RequestBody Transportation transportation) {
+        return transportationService.updateTransportation(transportation);
+    }
+
     @GetMapping("/transportationExists/{id}")
     @ResponseStatus(HttpStatus.OK)
     public boolean transportationExists(@PathVariable Integer id) {

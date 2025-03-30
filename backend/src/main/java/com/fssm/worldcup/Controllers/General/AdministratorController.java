@@ -39,6 +39,12 @@ public class AdministratorController {
         administratorService.deleteAdministratorById(id);
     }
 
+    @PutMapping("/updateAdministrator")
+    @ResponseStatus(HttpStatus.OK)
+    public Administrator updateAdministrator(@RequestBody Administrator administrator) {
+        return administratorService.updateAdministrator(administrator);
+    }
+
     @GetMapping("/administratorExists/{id}")
     @ResponseStatus(HttpStatus.OK)
     public boolean administratorExists(@PathVariable Integer id) {

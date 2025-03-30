@@ -39,6 +39,12 @@ public class JourneyController {
         journeyService.deleteJourneyById(id);
     }
 
+    @PutMapping("/updateJourney")
+    @ResponseStatus(HttpStatus.OK)
+    public Journey updateJourney(@RequestBody Journey journey) {
+        return journeyService.updateJourney(journey);
+    }
+
     @GetMapping("/journeyExists/{id}")
     @ResponseStatus(HttpStatus.OK)
     public boolean journeyExists(@PathVariable Integer id) {

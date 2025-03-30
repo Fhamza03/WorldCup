@@ -15,7 +15,7 @@ import jakarta.persistence.*;
 @Builder
 public class Provider extends User {
 
-    @OneToMany(mappedBy = "provider")
+    @OneToMany(mappedBy = "provider", cascade = CascadeType.ALL)
     @JsonIgnore
     private List<ServiceType> serviceTypes;
 

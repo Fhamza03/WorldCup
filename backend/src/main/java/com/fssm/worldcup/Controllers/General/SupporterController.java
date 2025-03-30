@@ -39,6 +39,12 @@ public class SupporterController {
         supporterService.deleteSupporterById(id);
     }
 
+    @PutMapping("/updateSupporter")
+    @ResponseStatus(HttpStatus.OK)
+    public Supporter updateSupporter(@RequestBody Supporter supporter) {
+        return supporterService.updateSupporter(supporter);
+    }
+
     @GetMapping("/supporterExists/{id}")
     @ResponseStatus(HttpStatus.OK)
     public boolean supporterExists(@PathVariable Integer id) {

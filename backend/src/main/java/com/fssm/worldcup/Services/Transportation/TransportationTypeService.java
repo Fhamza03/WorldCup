@@ -42,6 +42,13 @@ public class TransportationTypeService {
         transportationTypeRepository.deleteById(id);
     }
 
+    public TransportationType updateTransportationType(TransportationType transportationType) {
+        if (!transportationTypeRepository.existsById(transportationType.getTransportationTypeId())) {
+            throw new ResourceNotFoundException("Transportation type not found with id " + transportationType.getTransportationTypeId());
+        }
+        return transportationTypeRepository.save(transportationType);
+    }
+
     public boolean existsById(Integer id) {
         return transportationTypeRepository.existsById(id);
     }

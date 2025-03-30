@@ -39,6 +39,12 @@ public class ServiceTypeController {
         serviceTypeService.deleteServiceTypeById(id);
     }
 
+    @PutMapping("/updateServiceType")
+    @ResponseStatus(HttpStatus.OK)
+    public ServiceType updateServiceType(@RequestBody ServiceType serviceType) {
+        return serviceTypeService.updateServiceType(serviceType);
+    }
+
     @GetMapping("/serviceTypeExists/{id}")
     @ResponseStatus(HttpStatus.OK)
     public boolean serviceTypeExists(@PathVariable Integer id) {

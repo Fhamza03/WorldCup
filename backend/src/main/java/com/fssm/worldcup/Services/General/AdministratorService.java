@@ -35,6 +35,13 @@ public class AdministratorService {
         administratorRepository.deleteById(id);
     }
 
+    public Administrator updateAdministrator(Administrator administrator) {
+        if(!administratorRepository.existsById(administrator.getUserId())){
+            throw new ResourceNotFoundException("Administrator not found with id " + administrator.getUserId());
+        }
+        return administratorRepository.save(administrator);
+    }
+
     public boolean existsById(Integer id) {
         return administratorRepository.existsById(id);
     }

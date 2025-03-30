@@ -42,6 +42,13 @@ public class RouteService {
         routeRepository.deleteById(id);
     }
 
+    public Route updateRoute(Route route) {
+        if (!routeRepository.existsById(route.getRouteId())) {
+            throw new ResourceNotFoundException("Route not found with id " + route.getRouteId());
+        }
+        return routeRepository.save(route);
+    }
+
     public boolean existsById(Integer id) {
         return routeRepository.existsById(id);
     }

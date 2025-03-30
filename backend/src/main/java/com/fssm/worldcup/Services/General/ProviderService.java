@@ -34,6 +34,13 @@ public class ProviderService {
         providerRepository.deleteById(id);
     }
 
+    public Provider updateProvider(Provider provider) {
+        if(!providerRepository.existsById(provider.getUserId())){
+            throw new ResourceNotFoundException("Provider not found with id " + provider.getUserId());
+        }
+        return providerRepository.save(provider);
+    }
+
     public boolean existsById(Integer id) {
         return providerRepository.existsById(id);
     }

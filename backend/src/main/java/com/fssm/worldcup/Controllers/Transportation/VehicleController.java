@@ -39,6 +39,12 @@ public class VehicleController {
         vehicleService.deleteVehicleById(id);
     }
 
+    @PutMapping("/updateVehicle")
+    @ResponseStatus(HttpStatus.OK)
+    public Vehicle updateVehicle(@RequestBody Vehicle vehicle) {
+        return vehicleService.updateVehicle(vehicle);
+    }
+
     @GetMapping("/vehicleExists/{id}")
     @ResponseStatus(HttpStatus.OK)
     public boolean vehicleExists(@PathVariable Integer id) {
