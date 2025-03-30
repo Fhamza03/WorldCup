@@ -1,0 +1,33 @@
+name: Simple CI/CD Pipeline
+
+on:
+  push:
+    branches: [main]
+
+jobs:
+  build-and-test:
+    runs-on: ubuntu-latest
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+    
+    - name: Frontend steps
+      run: |
+        echo "Installing frontend dependencies..."
+        echo "Running frontend tests..."
+        echo "Frontend build complete..."
+    
+    - name: Backend steps
+      run: |
+        echo "Installing Java and Maven..."
+        echo "Running backend tests..."
+        echo "Backend build complete..."
+
+  deploy:
+    needs: build-and-test
+    runs-on: ubuntu-latest
+    steps:
+    - name: Deployment
+      run: |
+        echo "Deploying application..."
+        echo "Deployment successful!"

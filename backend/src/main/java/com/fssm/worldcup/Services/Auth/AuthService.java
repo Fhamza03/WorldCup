@@ -78,8 +78,8 @@ public class AuthService {
         }
 
         try {
-            String folder = "uploads/profile_pictures/";
-            Files.createDirectories(Paths.get(folder)); // Créer le dossier s'il n'existe pas
+            String folder = System.getProperty("user.dir") + "/uploads/profile_pictures/";
+            Files.createDirectories(Paths.get(folder));
 
             String fileName = email + "_" + file.getOriginalFilename();
             Path filePath = Paths.get(folder + fileName);
