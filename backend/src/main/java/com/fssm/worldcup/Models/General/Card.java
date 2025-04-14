@@ -21,7 +21,13 @@ public class Card {
     String issueDate;
     String expiryDate;
 
-    @OneToOne(mappedBy = "card")
+//    @OneToOne(mappedBy = "card")
+//    @JoinColumn(name = "supporter_id", unique = true, nullable = false)
+//    Supporter supporter;
+
+    @OneToOne
+    @JoinColumn(name = "supporter_id", unique = true)
     @JsonIgnore
-    Supporter supporter;
+    private Supporter supporter;
+
 }

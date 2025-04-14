@@ -109,7 +109,7 @@ public class AuthService {
         // Créer une carte par défaut pour le supporter
         Card card = new Card();
         // Initialiser les attributs de la carte si nécessaire
-        supporter.setCard(card);
+//        supporter.setCard(card);
 
         Supporter savedSupporter = supporterRepository.save(supporter);
 
