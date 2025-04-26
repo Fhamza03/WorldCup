@@ -182,25 +182,25 @@ const sidebarItems = [
   {
     id: 1,
     icon: <Bus color="#27ae60" size={24} strokeWidth={1.5} />,
-    to: "/dashboard/transport/bus",
+    to: "/dashboard/supporter/services/transportation/bus",
     text: "Bus",
   },
   {
     id: 2,
     icon: <Train color="#e74c3c" size={24} strokeWidth={1.5} />,
-    to: "/dashboard/transport/tram",
+    to: "/dashboard/supporter/services/transportation/tram",
     text: "Tram",
   },
   {
     id: 3,
     icon: <Users color="#27ae60" size={24} strokeWidth={1.5} />,
-    to: "/dashboard/transport/co-voiturage",
+    to: "/dashboard/supporter/services/transportation/co-voiturage",
     text: "Co-Voiturage",
   },
   {
     id: 4,
     icon: <MapPin color="#e74c3c" size={24} strokeWidth={1.5} />,
-    to: "/dashboard/transport/destinations",
+    to: "/dashboard/supporter/services/transportation/destinations",
     text: "Destinations",
   },
 ];

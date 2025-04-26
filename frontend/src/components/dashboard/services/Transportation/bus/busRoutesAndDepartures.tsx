@@ -50,7 +50,10 @@ export default function BusRoutesAndDepartures() {
       {/* Routes grid */}
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
         {busRoutes.map((route) => (
-          <div key={route.id} className="bg-white p-6 rounded-lg shadow">
+          <div
+            key={route.id}
+            className="bg-white p-6 rounded-lg border border-gray-200"
+          >
             <div className="flex flex-col sm:flex-row justify-between items-start mb-4">
               <div className="flex items-center mb-4 sm:mb-0">
                 <div className="bg-gradient-to-r from-green-600 to-red-600 text-white text-lg font-bold rounded-lg px-3 py-1 mr-4">
@@ -90,7 +93,7 @@ export default function BusRoutesAndDepartures() {
               ))}
             </div>
 
-            <button className="w-full py-2 text-center border border-gray-200 rounded-lg hover:bg-gradient-to-r from-green-500/10 to-red-500/10">
+            <button className="w-full py-2 text-center  rounded-lg hover:bg-gradient-to-r from-green-500/10 to-red-500/10">
               View Details
             </button>
           </div>
