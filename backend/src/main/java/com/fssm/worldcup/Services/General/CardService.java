@@ -34,6 +34,13 @@ public class CardService {
         cardRepository.deleteById(id);
     }
 
+    public Card updateCard(Card card) {
+        if (!cardRepository.existsById(card.getCardId())) {
+            throw new ResourceNotFoundException("Card not found with id " + card.getCardId());
+        }
+        return cardRepository.save(card);
+    }
+
     public boolean existsById(Integer id) {
         return cardRepository.existsById(id);
     }

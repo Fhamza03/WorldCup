@@ -42,6 +42,13 @@ public class VehicleService {
         vehicleRepository.deleteById(id);
     }
 
+    public Vehicle updateVehicle(Vehicle vehicle) {
+        if (!vehicleRepository.existsById(vehicle.getVehicleId())) {
+            throw new ResourceNotFoundException("Vehicle not found with id " + vehicle.getVehicleId());
+        }
+        return vehicleRepository.save(vehicle);
+    }
+
     public boolean existsById(Integer id) {
         return vehicleRepository.existsById(id);
     }

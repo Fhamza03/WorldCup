@@ -34,6 +34,13 @@ public class SupporterService {
         supporterRepository.deleteById(id);
     }
 
+    public Supporter updateSupporter(Supporter supporter) {
+        if (!supporterRepository.existsById(supporter.getUserId())) {
+            throw new ResourceNotFoundException("Supporter not found with id " + supporter.getUserId());
+        }
+        return supporterRepository.save(supporter);
+    }
+
     public boolean existsById(Integer id) {
         return supporterRepository.existsById(id);
     }

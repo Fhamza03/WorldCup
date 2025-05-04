@@ -39,6 +39,12 @@ public class CardController {
         cardService.deleteCardById(id);
     }
 
+    @PutMapping("/updateCard")
+    @ResponseStatus(HttpStatus.OK)
+    public Card updateCard(@RequestBody Card card) {
+        return cardService.updateCard(card);
+    }
+
     @GetMapping("/cardExists/{id}")
     @ResponseStatus(HttpStatus.OK)
     public boolean cardExists(@PathVariable Integer id) {

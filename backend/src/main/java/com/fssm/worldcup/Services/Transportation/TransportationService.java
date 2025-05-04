@@ -42,6 +42,13 @@ public class TransportationService {
         transportationRepository.deleteById(id);
     }
 
+    public Transportation updateTransportation(Transportation transportation) {
+        if (!transportationRepository.existsById(transportation.getTransportationId())) {
+            throw new ResourceNotFoundException("Transportation not found with id " + transportation.getTransportationId());
+        }
+        return transportationRepository.save(transportation);
+    }
+
     public boolean existsById(Integer id) {
         return transportationRepository.existsById(id);
     }

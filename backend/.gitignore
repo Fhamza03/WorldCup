@@ -31,3 +31,8 @@ build/
 
 ### VS Code ###
 .vscode/
+uploads/
+!**/src/main/**/uploads/
+!**/src/test/**/uploads/
+.idea/
+

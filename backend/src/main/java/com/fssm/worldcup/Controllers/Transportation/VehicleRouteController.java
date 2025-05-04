@@ -39,6 +39,12 @@ public class VehicleRouteController {
         vehicleRouteService.deleteVehicleRouteById(id);
     }
 
+    @PutMapping("/updateVehicleRoute")
+    @ResponseStatus(HttpStatus.OK)
+    public VehicleRoute updateVehicleRoute(@RequestBody VehicleRoute vehicleRoute) {
+        return vehicleRouteService.updateVehicleRoute(vehicleRoute);
+    }
+
     @GetMapping("/vehicleRouteExists/{id}")
     @ResponseStatus(HttpStatus.OK)
     public boolean vehicleRouteExists(@PathVariable Integer id) {

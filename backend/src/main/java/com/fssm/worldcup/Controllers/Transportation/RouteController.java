@@ -39,6 +39,12 @@ public class RouteController {
         routeService.deleteRouteById(id);
     }
 
+    @PutMapping("/updateRoute")
+    @ResponseStatus(HttpStatus.OK)
+    public Route updateRoute(@RequestBody Route route) {
+        return routeService.updateRoute(route);
+    }
+
     @GetMapping("/routeExists/{id}")
     @ResponseStatus(HttpStatus.OK)
     public boolean routeExists(@PathVariable Integer id) {

@@ -78,8 +78,13 @@ public class AuthService {
         }
 
         try {
+<<<<<<< HEAD
             String folder = "uploads/profile_pictures/";
             Files.createDirectories(Paths.get(folder)); // Créer le dossier s'il n'existe pas
+=======
+            String folder = System.getProperty("user.dir") + "/uploads/profile_pictures/";
+            Files.createDirectories(Paths.get(folder));
+>>>>>>> origin/main
 
             String fileName = email + "_" + file.getOriginalFilename();
             Path filePath = Paths.get(folder + fileName);
@@ -159,7 +164,13 @@ public class AuthService {
 
     private AuthResponse registerProvider(SignupRequest request, String encodedPassword, String profilePicturePath) {
         // Save the ServiceType instance first
+<<<<<<< HEAD
         Optional<ServiceType> serviceType = serviceTypeRepository.findById(request.getServiceTypeId());
+=======
+        ServiceType serviceType = new ServiceType();
+        serviceType.setServiceTypeName(request.getServiceType());
+        serviceType = serviceTypeRepository.save(serviceType); // Save the ServiceType
+>>>>>>> origin/main
 
         // Create and set up the Provider instance
         Provider provider = new Provider();
@@ -173,12 +184,17 @@ public class AuthService {
         provider.setProfilePicture(profilePicturePath);
 
         // Associate the saved ServiceType with the Provider
+<<<<<<< HEAD
         provider.setServiceTypes(List.of(serviceType.orElse(null)));
+=======
+        provider.setServiceTypes(List.of(serviceType));
+>>>>>>> origin/main
 
         // Save the Provider instance
         Provider savedProvider = providerRepository.save(provider);
 
         String token = jwtUtil.generateToken(savedProvider.getEmail(), "PROVIDER", savedProvider.getUserId());
+        System.out.println(token);
 
         return new AuthResponse(token, "PROVIDER", savedProvider.getUserId(), "Inscription réussie", true);
     }

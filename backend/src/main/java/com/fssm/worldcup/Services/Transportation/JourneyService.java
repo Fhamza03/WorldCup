@@ -42,6 +42,13 @@ public class JourneyService {
         journeyRepository.deleteById(id);
     }
 
+    public Journey updateJourney(Journey journey) {
+        if (!journeyRepository.existsById(journey.getJourneyId())) {
+            throw new ResourceNotFoundException("Journey not found with id " + journey.getJourneyId());
+        }
+        return journeyRepository.save(journey);
+    }
+
     public boolean existsById(Integer id) {
         return journeyRepository.existsById(id);
     }

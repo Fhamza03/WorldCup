@@ -1,7 +1,11 @@
 package com.fssm.worldcup.Models.General;
 
+<<<<<<< HEAD
 import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+=======
+import com.fasterxml.jackson.annotation.JsonIgnore;
+>>>>>>> origin/main
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -25,6 +29,7 @@ public class Card {
 
 
     @OneToOne(mappedBy = "card")
+<<<<<<< HEAD
     @JsonIgnoreProperties("card") // Use this instead of @JsonBackReference
     private Supporter supporter;
 
@@ -67,4 +72,8 @@ public class Card {
     public void setExpiryDate(String expiryDate) {
         this.expiryDate = expiryDate;
     }
+=======
+    @JsonIgnore
+    Supporter supporter;
+>>>>>>> origin/main
 }

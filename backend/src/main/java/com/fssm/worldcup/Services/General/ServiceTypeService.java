@@ -34,6 +34,13 @@ public class ServiceTypeService {
         serviceTypeRepository.deleteById(id);
     }
 
+    public ServiceType updateServiceType(ServiceType serviceType) {
+        if (!serviceTypeRepository.existsById(serviceType.getServiceTypeId())) {
+            throw new ResourceNotFoundException("ServiceType not found with id " + serviceType.getServiceTypeId());
+        }
+        return serviceTypeRepository.save(serviceType);
+    }
+
     public boolean existsById(Integer id) {
         return serviceTypeRepository.existsById(id);
     }

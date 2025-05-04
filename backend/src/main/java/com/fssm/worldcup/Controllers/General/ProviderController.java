@@ -41,6 +41,12 @@ public class ProviderController {
         providerService.deleteProviderById(id);
     }
 
+    @PutMapping("/updateProvider")
+    @ResponseStatus(HttpStatus.OK)
+    public Provider updateProvider(@RequestBody Provider provider) {
+        return providerService.updateProvider(provider);
+    }
+
     @GetMapping("/providerExists/{id}")
     @ResponseStatus(HttpStatus.OK)
     public boolean providerExists(@PathVariable Integer id) {

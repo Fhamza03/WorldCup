@@ -18,6 +18,7 @@ public class ServiceType {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer serviceTypeId;
     private String serviceTypeName;
+<<<<<<< HEAD
 
     @ManyToMany(mappedBy = "serviceTypes")
     @JsonIgnore  // This will prevent the providers field from being serialized
@@ -35,11 +36,16 @@ public class ServiceType {
     public String getServiceTypeName() {
         return serviceTypeName;
     }
+=======
+    @ManyToOne
+    private Provider provider;
+>>>>>>> origin/main
 
     public void setServiceTypeName(String serviceTypeName) {
         this.serviceTypeName = serviceTypeName;
     }
 
+<<<<<<< HEAD
     public List<Provider> getProviders() {
         return providers;
     }
@@ -48,3 +54,6 @@ public class ServiceType {
         this.providers = providers;
     }
 }
+=======
+}
+>>>>>>> origin/main

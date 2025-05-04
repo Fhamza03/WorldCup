@@ -42,6 +42,13 @@ public class VehicleRouteService {
         vehicleRouteRepository.deleteById(id);
     }
 
+    public VehicleRoute updateVehicleRoute(VehicleRoute vehicleRoute) {
+        if (!vehicleRouteRepository.existsById(vehicleRoute.getVehicleRouteId())) {
+            throw new ResourceNotFoundException("Vehicle route not found with id " + vehicleRoute.getVehicleRouteId());
+        }
+        return vehicleRouteRepository.save(vehicleRoute);
+    }
+
     public boolean existsById(Integer id) {
         return vehicleRouteRepository.existsById(id);
     }
