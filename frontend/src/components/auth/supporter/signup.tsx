@@ -119,7 +119,7 @@ export default function SignUpForm() {
         }
 
         // Send request to backend
-        const response = await fetch("http://localhost:8080/api/auth/signup", {
+        const response = await fetch("http://localhost:8082/api/auth/signup", {
             method: "POST",
             body: formDataObj,
         });

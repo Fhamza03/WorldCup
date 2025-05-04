@@ -1,5 +1,4 @@
 "use client";
-
 import { useState, useEffect, FormEvent, ChangeEvent } from "react";
 import {
     Menu, X, Upload, Camera, Edit, User, Mail, Calendar, Save,
@@ -10,53 +9,44 @@ import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import Header from "../../../profile/provider/header";
 import Footer from "@/components/auth/footer";
+import axios from "axios"; // Added missing import
 import { Stepper, Step, StepLabel } from "@mui/material";
 import { MdRestaurantMenu, MdList, MdCheckCircle } from "react-icons/md";
 import Sidebar from "../../../layout/sidebar";
 
-
 export default function RestaurantProviderProfile() {
     const router = useRouter();
     const [isDarkMode, setIsDarkMode] = useState(false);
-    const [isMenuOpen, setIsMenuOpen] = useState(false);
     const [isEditing, setIsEditing] = useState(false);
     const [currentStep, setCurrentStep] = useState(1);
+    const [activeStep, setActiveStep] = useState(0); // Added missing state
     const [profilePhoto, setProfilePhoto] = useState<string | null>("/logo.png");
-    const [errorMessage, setErrorMessage] = useState<string | null>(null);
     const [isLoading, setIsLoading] = useState(true);
-    const [error, setError] = useState<string | null>(null);
-    const [activeStep, setActiveStep] = useState(0);
+    const [menuTypes, setMenuTypes] = useState<any[]>([]);
 
+    interface OpeningHours {
+        [key: string]: string;
+    }
 
+    interface Restaurant {
 
-    // Restaurant Form Data
-    const [restaurantData, setRestaurantData] = useState({
-        id: 0,
-        name: "",
-        description: "",
-        address: "",
-        phone: "",
-        cuisine: "",
-        openingHours: "",
-        email: "",
-        website: "",
-        features: {
-            delivery: false,
-            takeaway: false,
-            dineIn: false,
-            outdoor: false,
-            parking: false,
-            wifi: false,
-        },
-    });
+        name: string;
+        description: string;
+        cuisineType: string;
+        location: string;
+        address: string;
+        contactPhone: string;
+        email: string;
+        isPartner: boolean;
+        openingHours: OpeningHours;
+    }
+
     interface Supplement {
-        id: number;
         name: string;
         price: number;
     }
 
     interface Product {
-        id: number;
         name: string;
         price: number;
         description: string;
@@ -66,10 +56,15 @@ export default function RestaurantProviderProfile() {
     }
 
     interface Menu {
-        id: number;
         name: string;
         description: string;
         orderNumber: number;
+        menuTypeId?: number;
+        isSpecialOffer?: boolean;
+        requiresFanId?: boolean;
+        originalPrice?: number;
+        discountedPrice?: number;
+        promotionDetails?: string;
         products: Product[];
     }
 
@@ -79,37 +74,95 @@ export default function RestaurantProviderProfile() {
         { darkLabel: "Confirmation", lightLabel: "Confirmation", icon: <MdCheckCircle /> },
     ];
 
-    // Menus Array
-    const [menus, setMenus] = useState<any[]>([
-        {
-            id: 1,
-            name: "Breakfast Menu",
-            description: "Morning delights to start your day",
-            orderNumber: 1,
-            products: [
-                {
-                    id: 1,
-                    name: "Classic Breakfast",
-                    price: 12.99,
-                    description: "Eggs, bacon, toast, and potatoes",
-                    image: null,
-                    hasSupplements: true,
-                    supplements: [
-                        { id: 1, name: "Extra Bacon", price: 2.5 },
-                        { id: 2, name: "Add Cheese", price: 1.5 }
-                    ]
-                }
-            ]
+    const [restaurantData, setRestaurantData] = useState<Restaurant>({
+
+        name: "",
+        description: "",
+        cuisineType: "",
+        location: "",
+        address: "",
+        contactPhone: "",
+        email: "",
+        isPartner: false,
+        openingHours: {
+            MONDAY: "09:00-22:00",
+            TUESDAY: "09:00-22:00",
+            WEDNESDAY: "09:00-22:00",
+            THURSDAY: "09:00-22:00",
+            FRIDAY: "09:00-23:00",
+            SATURDAY: "10:00-23:00",
+            SUNDAY: "10:00-21:00"
         }
-    ]);
+    });
+
+    const [menus, setMenus] = useState<Menu[]>([]);
+
+    useEffect(() => {
+        const fetchData = async () => {
+            try {
+                const restaurantId = localStorage.getItem("restaurantId");
+                const res = await fetch(`/api/restaurants/${restaurantId}`);
+                const restaurant = await res.json();
+                setRestaurantData(restaurant);
+
+                const menuRes = await fetch(`/api/menus/restaurant/${restaurantId}`);
+                const menuList = await menuRes.json();
+
+                const completeMenus = await Promise.all(menuList.map(async (menu: any) => {
+                    const productsRes = await fetch(`/api/products/menu/${menu.id}`);
+                    const products = await productsRes.json();
+
+                    const enrichedProducts = await Promise.all(products.map(async (product: any) => {
+                        if (product.hasSupplements) {
+                            const suppRes = await fetch(`/api/products/${product.id}/supplements`);
+                            const supplements = await suppRes.json();
+                            return { ...product, supplements };
+                        }
+                        return { ...product, supplements: [] };
+                    }));
+
+                    return { ...menu, products: enrichedProducts };
+                }));
+
+                setMenus(completeMenus);
+            } catch (error) {
+                console.error("Erreur lors du chargement :", error);
+            } finally {
+                setIsLoading(false);
+            }
+        };
+
+        fetchData();
+    }, []);
+
+    // Fetch menu types
+    useEffect(() => {
+        const fetchMenuTypes = async () => {
+            try {
+                const response = await axios.get('http://localhost:8082/api/menu-types');
+                setMenuTypes(response.data);
+            } catch (error) {
+                console.error("Error fetching menu types:", error);
+            }
+        };
+
+        fetchMenuTypes();
+    }, []);
+
+
+
 
     // Handle next/previous step
     const handleNextStep = () => {
-        setCurrentStep(prev => Math.min(prev + 1, 3));
+        const nextStep = Math.min(currentStep + 1, 3);
+        setCurrentStep(nextStep);
+        setActiveStep(nextStep - 1);
     };
 
     const handlePreviousStep = () => {
-        setCurrentStep(prev => Math.max(prev - 1, 1));
+        const prevStep = Math.max(currentStep - 1, 1);
+        setCurrentStep(prevStep);
+        setActiveStep(prevStep - 1);
     };
 
     useEffect(() => {
@@ -143,7 +196,6 @@ export default function RestaurantProviderProfile() {
             router.push("/auth/restaurant/login");
         } catch (error) {
             console.error("Error during logout:", error);
-            setErrorMessage("An error occurred during logout. Please try again.");
         }
     };
 
@@ -152,20 +204,8 @@ export default function RestaurantProviderProfile() {
     const cardBgClass = isDarkMode ? "bg-gray-800" : "bg-white";
 
     const handleRestaurantChange = (e: ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
-        const { name, value, type } = e.target;
-
-        if (name.startsWith('features.')) {
-            const featureName = name.split('.')[1];
-            setRestaurantData(prev => ({
-                ...prev,
-                features: {
-                    ...prev.features,
-                    [featureName]: (e.target as HTMLInputElement).checked
-                }
-            }));
-        } else {
-            setRestaurantData(prev => ({ ...prev, [name]: value }));
-        }
+        const { name, value } = e.target;
+        setRestaurantData(prev => ({ ...prev, [name]: value }));
     };
 
     const handleProfilePhotoChange = (e: ChangeEvent<HTMLInputElement>) => {
@@ -181,71 +221,77 @@ export default function RestaurantProviderProfile() {
     };
 
     const handleAddMenu = () => {
-        const newMenuId = menus.length > 0 ? Math.max(...menus.map(menu => menu.id)) + 1 : 1;
         setMenus([...menus, {
-            id: newMenuId,
-            name: `New Menu ${newMenuId}`,
+            name: `New Menu ${menus.length + 1}`,
             description: "",
             orderNumber: menus.length + 1,
             products: []
         }]);
     };
 
-    const handleRemoveMenu = (menuId: number) => {
-        setMenus(menus.filter(menu => menu.id !== menuId));
+    const handleRemoveMenu = (menuIndex: number) => {
+        setMenus(menus.filter((_, index) => index !== menuIndex));
     };
-
-    const handleMenuChange = (menuId: number, field: string, value: any) => {
-        setMenus(menus.map(menu =>
-            menu.id === menuId ? { ...menu, [field]: value } : menu
+    const handleMenuChange = (menuIndex: number, field: string, value: any) => {
+        setMenus(menus.map((menu, index) =>
+            index === menuIndex ? { ...menu, [field]: value } : menu
         ));
     };
 
-    const handleAddProduct = (menuId: number) => {
-        const targetMenu = menus.find(menu => menu.id === menuId);
-        if (!targetMenu) return;
+    const handleAddProduct = (menuIndex: number) => {
+        const newProduct = {
+            name: `New Product ${menus[menuIndex].products.length + 1}`,
+            price: 0,
+            description: "",
+            image: null,
+            hasSupplements: false,
+            supplements: []
+        };
 
-        const newProductId = targetMenu.products.length > 0
-            ? Math.max(...targetMenu.products.map((product: any) => product.id)) + 1
-            : 1;
+        setMenus(menus.map((menu, index) =>
+            index === menuIndex
+                ? { ...menu, products: [...menu.products, newProduct] }
+                : menu
+        ));
+    };
 
-        setMenus(menus.map(menu =>
-            menu.id === menuId
+    const handleRemoveProduct = (menuIndex: number, productIndex: number) => {
+        setMenus(menus.map((menu, index) =>
+            index === menuIndex
                 ? {
                     ...menu,
-                    products: [...menu.products, {
-                        id: newProductId,
-                        name: `New Product ${newProductId}`,
-                        price: 0,
-                        description: "",
-                        image: null,
-                        hasSupplements: false,
-                        supplements: []
-                    }]
+                    products: menu.products.filter((_, idx) => idx !== productIndex)
                 }
                 : menu
         ));
     };
 
-    const handleRemoveProduct = (menuId: number, productId: number) => {
-        setMenus(menus.map(menu =>
-            menu.id === menuId
+    const handleProductChange = (menuIndex: number, productIndex: number, field: string, value: any) => {
+        setMenus(menus.map((menu, index) =>
+            index === menuIndex
                 ? {
                     ...menu,
-                    products: menu.products.filter((product: any) => product.id !== productId)
+                    products: menu.products.map((product, idx) =>
+                        idx === productIndex ? { ...product, [field]: value } : product
+                    )
                 }
                 : menu
         ));
     };
 
-    const handleProductChange = (menuId: number, productId: number, field: string, value: any) => {
-        setMenus(menus.map(menu =>
-            menu.id === menuId
+    const handleAddSupplement = (menuIndex: number, productIndex: number) => {
+        const newSupplement = {
+            name: `New Supplement ${menus[menuIndex].products[productIndex].supplements.length + 1}`,
+            price: 0
+        };
+
+        setMenus(menus.map((menu, index) =>
+            index === menuIndex
                 ? {
                     ...menu,
-                    products: menu.products.map((product: any) =>
-                        product.id === productId
-                            ? { ...product, [field]: value }
+                    products: menu.products.map((product, idx) =>
+                        idx === productIndex
+                            ? { ...product, supplements: [...product.supplements, newSupplement] }
                             : product
                     )
                 }
@@ -253,30 +299,16 @@ export default function RestaurantProviderProfile() {
         ));
     };
 
-    const handleAddSupplement = (menuId: number, productId: number) => {
-        const targetMenu = menus.find(menu => menu.id === menuId);
-        if (!targetMenu) return;
-
-        const targetProduct = targetMenu.products.find((product: any) => product.id === productId);
-        if (!targetProduct) return;
-
-        const newSupplementId = targetProduct.supplements.length > 0
-            ? Math.max(...targetProduct.supplements.map((supp: any) => supp.id)) + 1
-            : 1;
-
-        setMenus(menus.map(menu =>
-            menu.id === menuId
+    const handleRemoveSupplement = (menuIndex: number, productIndex: number, supplementIndex: number) => {
+        setMenus(menus.map((menu, index) =>
+            index === menuIndex
                 ? {
                     ...menu,
-                    products: menu.products.map((product: any) =>
-                        product.id === productId
+                    products: menu.products.map((product, idx) =>
+                        idx === productIndex
                             ? {
                                 ...product,
-                                supplements: [...product.supplements, {
-                                    id: newSupplementId,
-                                    name: `New Supplement ${newSupplementId}`,
-                                    price: 0
-                                }]
+                                supplements: product.supplements.filter((_, suppIdx) => suppIdx !== supplementIndex)
                             }
                             : product
                     )
@@ -285,37 +317,17 @@ export default function RestaurantProviderProfile() {
         ));
     };
 
-    const handleRemoveSupplement = (menuId: number, productId: number, supplementId: number) => {
-        setMenus(menus.map(menu =>
-            menu.id === menuId
+    const handleSupplementChange = (menuIndex: number, productIndex: number, supplementIndex: number, field: string, value: any) => {
+        setMenus(menus.map((menu, index) =>
+            index === menuIndex
                 ? {
                     ...menu,
-                    products: menu.products.map((product: any) =>
-                        product.id === productId
+                    products: menu.products.map((product, idx) =>
+                        idx === productIndex
                             ? {
                                 ...product,
-                                supplements: product.supplements.filter((supp: any) => supp.id !== supplementId)
-                            }
-                            : product
-                    )
-                }
-                : menu
-        ));
-    };
-
-    const handleSupplementChange = (menuId: number, productId: number, supplementId: number, field: string, value: any) => {
-        setMenus(menus.map(menu =>
-            menu.id === menuId
-                ? {
-                    ...menu,
-                    products: menu.products.map((product: any) =>
-                        product.id === productId
-                            ? {
-                                ...product,
-                                supplements: product.supplements.map((supp: any) =>
-                                    supp.id === supplementId
-                                        ? { ...supp, [field]: value }
-                                        : supp
+                                supplements: product.supplements.map((supp, suppIdx) =>
+                                    suppIdx === supplementIndex ? { ...supp, [field]: value } : supp
                                 )
                             }
                             : product
@@ -324,46 +336,85 @@ export default function RestaurantProviderProfile() {
                 : menu
         ));
     };
+    const handleMoveMenu = (menuIndex: number, direction: 'up' | 'down') => {
+        if (menuIndex < 0 || menuIndex >= menus.length) return;
 
-    const handleMoveMenu = (menuId: number, direction: 'up' | 'down') => {
-        const menuIndex = menus.findIndex(menu => menu.id === menuId);
-        if (menuIndex === -1) return;
+        const newMenus = [...menus];
 
         if (direction === 'up' && menuIndex > 0) {
-            const newMenus = [...menus];
+            // Échange les positions avec le menu précédent
             [newMenus[menuIndex - 1], newMenus[menuIndex]] = [newMenus[menuIndex], newMenus[menuIndex - 1]];
-            // Update order numbers
-            newMenus.forEach((menu, idx) => {
-                menu.orderNumber = idx + 1;
-            });
-            setMenus(newMenus);
         } else if (direction === 'down' && menuIndex < menus.length - 1) {
-            const newMenus = [...menus];
+            // Échange les positions avec le menu suivant
             [newMenus[menuIndex], newMenus[menuIndex + 1]] = [newMenus[menuIndex + 1], newMenus[menuIndex]];
-            // Update order numbers
-            newMenus.forEach((menu, idx) => {
-                menu.orderNumber = idx + 1;
-            });
-            setMenus(newMenus);
         }
+
+        // Met à jour les numéros d'ordre
+        newMenus.forEach((menu, idx) => {
+            menu.orderNumber = idx + 1;
+        });
+
+        setMenus(newMenus);
     };
-
-    const handleSubmit = async (e: FormEvent) => {
-        e.preventDefault();
-
+    const handleSubmit = async () => {
         try {
-            // Here you would submit the data to your backend
-            console.log("Restaurant data:", restaurantData);
-            console.log("Menus data:", menus);
+            // Étape 1 : Ajouter le restaurant
+            const restaurantResponse = await axios.post('http://localhost:8082/api/restaurants/provider/1', restaurantData);
+            const createdRestaurant = restaurantResponse.data;
+            console.log("Restaurant created:", createdRestaurant);
 
-            alert("Restaurant details successfully saved!");
-            setIsEditing(false);
+            if (!createdRestaurant.id) {
+                throw new Error("Failed to retrieve the restaurant ID.");
+            }
+
+            // Étape 2 : Ajouter les menus
+            for (const menu of menus) {
+                // Vérifiez que menuTypeId est un nombre
+                if (!menu.menuTypeId || typeof menu.menuTypeId !== 'number') {
+                    throw new Error(`Invalid menuTypeId for menu: ${menu.name}`);
+                }
+
+                console.log("Sending menu:", menu);
+
+                const menuResponse = await axios.post(
+                    `http://localhost:8082/api/menus/restaurant/${createdRestaurant.id}/type/${menu.menuTypeId}`,
+                    menu
+                );
+                const createdMenu = menuResponse.data;
+                console.log("Menu created:", createdMenu);
+
+                // Étape 3 : Ajouter les produits
+                for (const product of menu.products) {
+                    // Étape 3.1 : Créer le produit
+                    const productResponse = await axios.post(
+                        `http://localhost:8082/api/products/without-add`,
+                        {
+                            name: product.name,
+                            price: product.price,
+                            description: product.description,
+                            image: product.image || null,
+                            hasSupplements: product.hasSupplements || false,
+                            supplements: product.supplements || []
+                        }
+                    );
+                    const createdProduct = productResponse.data;
+                    console.log("Product created:", createdProduct);
+
+                    // Étape 3.2 : Associer le produit au menu
+                    const associationResponse = await axios.post(
+                        `http://localhost:8082/api/products/${createdProduct.id}/menu/${createdMenu.id}`,
+                        null // Pas de corps requis pour cette requête
+                    );
+                    console.log("Product associated with menu:", associationResponse.data);
+                }
+            }
+
+            alert("All data saved successfully!");
         } catch (error) {
-            console.error("Error saving restaurant data:", error);
-            alert("Failed to save restaurant data. Please try again.");
+            console.error("Error saving data:", error);
+            alert("Failed to save data.");
         }
     };
-
     if (isLoading) {
         return (
             <div className={`min-h-screen ${themeClass} flex items-center justify-center`}>
@@ -377,14 +428,14 @@ export default function RestaurantProviderProfile() {
 
     const renderBasicInfoStep = () => (
         <div className="space-y-6">
-            <h3 className={`text-xl font-bold pt-5 ${isDarkMode ? 'text-white' : 'text-gray-800'}`}>Restaurant Basic Information</h3>
+            <h3 className={`text-xl font-bold pt-5 ${isDarkMode ? 'text-white' : 'text-gray-800'}`}>
+                Restaurant Basic Information
+            </h3>
 
             <div className="space-y-4">
-                {/* Restaurant Name */}
+                {/* Name */}
                 <div className="space-y-1">
-                    <label className={`block text-sm font-medium  ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}>
-                        Restaurant Name*
-                    </label>
+                    <label className={`block text-sm font-medium ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}>Restaurant Name*</label>
                     <input
                         type="text"
                         name="name"
@@ -395,11 +446,9 @@ export default function RestaurantProviderProfile() {
                     />
                 </div>
 
-                {/* Restaurant Description */}
+                {/* Description */}
                 <div className="space-y-1">
-                    <label className={`block text-sm font-medium ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}>
-                        Description
-                    </label>
+                    <label className={`block text-sm font-medium ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}>Description</label>
                     <textarea
                         name="description"
                         value={restaurantData.description}
@@ -409,12 +458,10 @@ export default function RestaurantProviderProfile() {
                     />
                 </div>
 
-                {/* Contact Information */}
+                {/* Contact */}
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <div className="space-y-1">
-                        <label className={`block text-sm font-medium ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}>
-                            Email Address*
-                        </label>
+                        <label className={`block text-sm font-medium ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}>Email*</label>
                         <input
                             type="email"
                             name="email"
@@ -425,13 +472,11 @@ export default function RestaurantProviderProfile() {
                         />
                     </div>
                     <div className="space-y-1">
-                        <label className={`block text-sm font-medium ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}>
-                            Phone Number*
-                        </label>
+                        <label className={`block text-sm font-medium ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}>Phone Number*</label>
                         <input
                             type="tel"
-                            name="phone"
-                            value={restaurantData.phone}
+                            name="contactPhone"
+                            value={restaurantData.contactPhone}
                             onChange={handleRestaurantChange}
                             className={`w-full ${inputBgClass} border ${isDarkMode ? 'border-gray-700' : 'border-gray-300'} rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-green-500/20`}
                             required
@@ -441,9 +486,7 @@ export default function RestaurantProviderProfile() {
 
                 {/* Address */}
                 <div className="space-y-1">
-                    <label className={`block text-sm font-medium ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}>
-                        Address*
-                    </label>
+                    <label className={`block text-sm font-medium ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}>Address*</label>
                     <input
                         type="text"
                         name="address"
@@ -454,15 +497,13 @@ export default function RestaurantProviderProfile() {
                     />
                 </div>
 
-                {/* Cuisine and Website */}
+                {/* Cuisine and Location */}
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <div className="space-y-1">
-                        <label className={`block text-sm font-medium ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}>
-                            Cuisine Type*
-                        </label>
+                        <label className={`block text-sm font-medium ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}>Cuisine Type*</label>
                         <select
-                            name="cuisine"
-                            value={restaurantData.cuisine}
+                            name="cuisineType"
+                            value={restaurantData.cuisineType}
                             onChange={handleRestaurantChange}
                             className={`w-full ${inputBgClass} border ${isDarkMode ? 'border-gray-700' : 'border-gray-300'} rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-green-500/20`}
                             required
@@ -481,441 +522,293 @@ export default function RestaurantProviderProfile() {
                         </select>
                     </div>
                     <div className="space-y-1">
-                        <label className={`block text-sm font-medium ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}>
-                            Website
-                        </label>
+                        <label className={`block text-sm font-medium ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}>Location*</label>
                         <input
-                            type="url"
-                            name="website"
-                            value={restaurantData.website}
+                            type="text"
+                            name="location"
+                            value={restaurantData.location}
                             onChange={handleRestaurantChange}
                             className={`w-full ${inputBgClass} border ${isDarkMode ? 'border-gray-700' : 'border-gray-300'} rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-green-500/20`}
+                            required
                         />
                     </div>
                 </div>
 
                 {/* Opening Hours */}
+                {/* Restyled Opening Hours */}
                 <div className="space-y-1">
-                    <label className={`block text-sm font-medium ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}>
-                        Opening Hours
-                    </label>
-                    <input
-                        type="text"
-                        name="openingHours"
-                        value={restaurantData.openingHours}
-                        onChange={handleRestaurantChange}
-                        placeholder="e.g. Mon-Fri: 9AM-10PM, Sat-Sun: 10AM-11PM"
-                        className={`w-full ${inputBgClass} border ${isDarkMode ? 'border-gray-700' : 'border-gray-300'} rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-green-500/20`}
-                    />
-                </div>
-
-                {/* Features */}
-                <div className="space-y-2">
-                    <label className={`block text-sm font-medium ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}>
-                        Features
-                    </label>
-                    <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
-                        <div className="flex items-center">
-                            <input
-                                type="checkbox"
-                                name="features.delivery"
-                                checked={restaurantData.features.delivery}
-                                onChange={handleRestaurantChange}
-                                className="h-4 w-4 text-green-600 focus:ring-green-500 border-gray-300 rounded"
-                            />
-                            <label className={`ml-2 block text-sm ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}>
-                                Delivery
-                            </label>
-                        </div>
-                        <div className="flex items-center">
-                            <input
-                                type="checkbox"
-                                name="features.takeaway"
-                                checked={restaurantData.features.takeaway}
-                                onChange={handleRestaurantChange}
-                                className="h-4 w-4 text-green-600 focus:ring-green-500 border-gray-300 rounded"
-                            />
-                            <label className={`ml-2 block text-sm ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}>
-                                Takeaway
-                            </label>
-                        </div>
-                        <div className="flex items-center">
-                            <input
-                                type="checkbox"
-                                name="features.dineIn"
-                                checked={restaurantData.features.dineIn}
-                                onChange={handleRestaurantChange}
-                                className="h-4 w-4 text-green-600 focus:ring-green-500 border-gray-300 rounded"
-                            />
-                            <label className={`ml-2 block text-sm ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}>
-                                Dine-in
-                            </label>
-                        </div>
-                        <div className="flex items-center">
-                            <input
-                                type="checkbox"
-                                name="features.outdoor"
-                                checked={restaurantData.features.outdoor}
-                                onChange={handleRestaurantChange}
-                                className="h-4 w-4 text-green-600 focus:ring-green-500 border-gray-300 rounded"
-                            />
-                            <label className={`ml-2 block text-sm ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}>
-                                Outdoor Seating
-                            </label>
-                        </div>
-                        <div className="flex items-center">
-                            <input
-                                type="checkbox"
-                                name="features.parking"
-                                checked={restaurantData.features.parking}
-                                onChange={handleRestaurantChange}
-                                className="h-4 w-4 text-green-600 focus:ring-green-500 border-gray-300 rounded"
-                            />
-                            <label className={`ml-2 block text-sm ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}>
-                                Parking
-                            </label>
-                        </div>
-                        <div className="flex items-center">
-                            <input
-                                type="checkbox"
-                                name="features.wifi"
-                                checked={restaurantData.features.wifi}
-                                onChange={handleRestaurantChange}
-                                className="h-4 w-4 text-green-600 focus:ring-green-500 border-gray-300 rounded"
-                            />
-                            <label className={`ml-2 block text-sm ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}>
-                                Free Wi-Fi
-                            </label>
-                        </div>
-                    </div>
-                </div>
-
-                {/* Restaurant Logo/Photo */}
-                <div className="space-y-2">
-                    <label className={`block text-sm font-medium ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}>
-                        Restaurant Logo/Photo
-                    </label>
-                    <div className="flex items-center">
-                        <div className="w-24 h-24 overflow-hidden rounded-lg mr-4 border-2 border-dashed border-gray-400 flex items-center justify-center">
-                            {profilePhoto ? (
-                                <Image
-                                    src={profilePhoto}
-                                    alt="Restaurant"
-                                    width={96}
-                                    height={96}
-                                    className="w-full h-full object-cover"
-                                    unoptimized
+                    <label className={`block text-sm font-medium ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}>Opening Hours</label>
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        {Object.entries(restaurantData.openingHours).map(([day, hours]) => (
+                            <div key={day} className="flex items-center gap-2">
+                                <label className="w-24 capitalize text-sm font-medium">{day.toLowerCase()}</label>
+                                <input
+                                    type="text"
+                                    name={`openingHours.${day}`}
+                                    value={hours}
+                                    onChange={(e) => {
+                                        const { value } = e.target;
+                                        setRestaurantData(prev => ({
+                                            ...prev,
+                                            openingHours: {
+                                                ...prev.openingHours,
+                                                [day]: value
+                                            }
+                                        }));
+                                    }}
+                                    className={`flex-1 ${inputBgClass} border ${isDarkMode ? 'border-gray-700' : 'border-gray-300'} rounded-lg px-3 py-1 focus:outline-none focus:ring-1 focus:ring-green-500/20`}
+                                    placeholder="e.g., 09:00-22:00"
                                 />
-                            ) : (
-                                <Upload size={32} className="text-gray-400" />
-                            )}
-                        </div>
-                        <label className="flex items-center justify-center px-4 py-2 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 cursor-pointer">
-                            <Upload size={16} className="mr-2" />
-                            Upload Photo
-                            <input
-                                type="file"
-                                onChange={handleProfilePhotoChange}
-                                className="hidden"
-                                accept="image/*"
-                            />
-                        </label>
+                            </div>
+                        ))}
                     </div>
                 </div>
             </div>
         </div>
     );
 
+
     const renderMenusStep = () => (
         <div className="space-y-6">
-            <h3 className={`text-xl font-bold  pt-5 ${isDarkMode ? 'text-white' : 'text-gray-800'}`}>Menus</h3>
-
-            {menus.map((menu) => (
-                <div key={menu.id} className={`p-6 ${cardBgClass} border ${isDarkMode ? 'border-gray-700' : 'border-gray-300'} shadow-md rounded-lg space-y-5 relative`}>
+            <h3 className={`text-xl font-bold pt-5 ${isDarkMode ? 'text-white' : 'text-gray-800'}`}>Menus</h3>
+    
+            {menus.map((menu, menuIndex) => (
+                <div
+                    key={menuIndex}
+                    className={`p-6 ${cardBgClass} border ${isDarkMode ? 'border-gray-700' : 'border-gray-300'} shadow-md rounded-lg space-y-5 relative`}
+                >
                     <div className="flex justify-between items-center">
                         <h4 className={`font-medium ${isDarkMode ? 'text-white' : 'text-gray-800'}`}>Menu #{menu.orderNumber}</h4>
                         <div className="flex space-x-2">
                             <button
-                                onClick={() => handleMoveMenu(menu.id, 'up')}
+                                onClick={() => handleMoveMenu(menuIndex, 'up')}
                                 className={`p-1 rounded-full ${isDarkMode ? 'hover:bg-gray-700' : 'hover:bg-gray-200'}`}
-                                disabled={menu.orderNumber === 1}
+                                disabled={menuIndex === 0}
                             >
-                                <ChevronUp size={18} className={menu.orderNumber === 1 ? 'text-gray-400' : `${isDarkMode ? 'text-gray-300' : 'text-gray-600'}`} />
+                                <ChevronUp size={18} className={menuIndex === 0 ? 'text-gray-400' : `${isDarkMode ? 'text-gray-300' : 'text-gray-600'}`} />
                             </button>
                             <button
-                                onClick={() => handleMoveMenu(menu.id, 'down')}
+                                onClick={() => handleMoveMenu(menuIndex, 'down')}
                                 className={`p-1 rounded-full ${isDarkMode ? 'hover:bg-gray-700' : 'hover:bg-gray-200'}`}
-                                disabled={menu.orderNumber === menus.length}
+                                disabled={menuIndex === menus.length - 1}
                             >
-                                <ChevronDown size={18} className={menu.orderNumber === menus.length ? 'text-gray-400' : `${isDarkMode ? 'text-gray-300' : 'text-gray-600'}`} />
+                                <ChevronDown size={18} className={menuIndex === menus.length - 1 ? 'text-gray-400' : `${isDarkMode ? 'text-gray-300' : 'text-gray-600'}`} />
                             </button>
                         </div>
                     </div>
-
+    
                     <div className="space-y-4">
                         {/* Menu Name */}
                         <div className="space-y-1">
-                            <label className={`block text-sm font-medium ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}>
-                                Menu Name*
-                            </label>
+                            <label className={`block text-sm font-medium ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}>Menu Name*</label>
                             <input
                                 type="text"
                                 value={menu.name}
-                                onChange={(e) => handleMenuChange(menu.id, 'name', e.target.value)}
-                                className={`w-full ${inputBgClass} border ${isDarkMode ? 'border-gray-700' : 'border-gray-300'} rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-green-500/20`}
+                                onChange={(e) => handleMenuChange(menuIndex, 'name', e.target.value)}
+                                className={`w-full ${inputBgClass} border ${isDarkMode ? 'border-gray-700' : 'border-gray-300'} rounded-lg px-3 py-2`}
                                 placeholder="Menu Name"
                                 required
                             />
                         </div>
-
-                        {/* Menu Description */}
+    
+                        {/* Description */}
                         <div className="space-y-1">
-                            <label className={`block text-sm font-medium ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}>
-                                Description
-                            </label>
+                            <label className={`block text-sm font-medium ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}>Description</label>
                             <textarea
                                 value={menu.description}
-                                onChange={(e) => handleMenuChange(menu.id, 'description', e.target.value)}
-                                className={`w-full ${inputBgClass} border ${isDarkMode ? 'border-gray-700' : 'border-gray-300'} rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-green-500/20`}
-                                placeholder="Menu Description"
+                                onChange={(e) => handleMenuChange(menuIndex, 'description', e.target.value)}
+                                className={`w-full ${inputBgClass} border ${isDarkMode ? 'border-gray-700' : 'border-gray-300'} rounded-lg px-3 py-2`}
                                 rows={2}
                             />
                         </div>
-                    </div>
-
-                    {/* Products Section */}
-                    <div className="space-y-4 mt-6">
-                        <div className="flex justify-between items-center">
-                            <h5 className={`font-medium ${isDarkMode ? 'text-gray-200' : 'text-gray-700'}`}>Products</h5>
-                            <button
-                                onClick={() => handleAddProduct(menu.id)}
-                                className="flex items-center text-sm font-medium text-green-600 hover:text-green-500"
+    
+                        {/* Menu Type */}
+                        <div className="space-y-1">
+                            <label className={`block text-sm font-medium ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}>Menu Type*</label>
+                            <select
+                                value={menu.menuTypeId || ""}
+                                onChange={(e) => handleMenuChange(menuIndex, 'menuTypeId', parseInt(e.target.value, 10))}
+                                className={`w-full ${inputBgClass} border ${isDarkMode ? 'border-gray-700' : 'border-gray-300'} rounded-lg px-3 py-2`}
+                                required
                             >
-                                <Plus size={16} className="mr-1" />
-                                Add Product
-                            </button>
+                                <option value="">Select Type</option>
+                                {menuTypes.map((type) => (
+                                    <option key={type.id} value={type.id}>
+                                        {type.name}
+                                    </option>
+                                ))}
+                            </select>
                         </div>
-
-                        {menu.products.length === 0 ? (
-                            <div className={`p-4 border ${isDarkMode ? 'border-gray-700 bg-gray-800/50' : 'border-gray-200 bg-gray-50'} rounded-lg text-center`}>
-                                <p className={`text-sm ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`}>No products added yet</p>
-                            </div>
-                        ) : (
-                            <div className="space-y-4">
-                                {menu.products.map((product: Product) => (
-                                    <div key={product.id} className={`p-4 border ${isDarkMode ? 'border-gray-700 bg-gray-800/50' : 'border-gray-200 bg-gray-50'} rounded-lg space-y-4`}>
-                                        <div className="flex justify-between items-center">
-                                            <h6 className={`font-medium ${isDarkMode ? 'text-gray-200' : 'text-gray-700'}`}>
-                                                Product #{product.id}
-                                            </h6>
-                                            <button
-                                                onClick={() => handleRemoveProduct(menu.id, product.id)}
-                                                className="text-red-500 hover:text-red-600"
-                                            >
-                                                <Trash2 size={16} />
-                                            </button>
-                                        </div>
-
-                                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                                            {/* Product Name */}
-                                            <div className="space-y-1">
-                                                <label className={`block text-xs font-medium ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}>
-                                                    Product Name*
-                                                </label>
-                                                <input
-                                                    type="text"
-                                                    value={product.name}
-                                                    onChange={(e) => handleProductChange(menu.id, product.id, 'name', e.target.value)}
-                                                    className={`w-full ${inputBgClass} border ${isDarkMode ? 'border-gray-700' : 'border-gray-300'} rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-green-500/20`}
-                                                    placeholder="Product Name"
-                                                    required
-                                                />
-                                            </div>
-
-                                            {/* Product Price */}
-                                            <div className="space-y-1">
-                                                <label className={`block text-xs font-medium ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}>
-                                                    Price*
-                                                </label>
-                                                <div className="relative">
-                                                    <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                                                        <DollarSign size={16} className="text-gray-400" />
-                                                    </div>
+    
+                        {/* Additional Fields */}
+                        <div className="space-y-1">
+                            <label className={`block text-sm font-medium ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}>Special Offer</label>
+                            <input
+                                type="checkbox"
+                                checked={menu.isSpecialOffer || false}
+                                onChange={(e) => handleMenuChange(menuIndex, 'isSpecialOffer', e.target.checked)}
+                                className="rounded"
+                            />
+                        </div>
+    
+                        <div className="space-y-1">
+                            <label className={`block text-sm font-medium ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}>Requires Fan ID</label>
+                            <input
+                                type="checkbox"
+                                checked={menu.requiresFanId || false}
+                                onChange={(e) => handleMenuChange(menuIndex, 'requiresFanId', e.target.checked)}
+                                className="rounded"
+                            />
+                        </div>
+    
+                        <div className="space-y-1">
+                            <label className={`block text-sm font-medium ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}>Original Price</label>
+                            <input
+                                type="number"
+                                value={menu.originalPrice || ""}
+                                onChange={(e) => handleMenuChange(menuIndex, 'originalPrice', parseFloat(e.target.value))}
+                                className={`w-full ${inputBgClass} border ${isDarkMode ? 'border-gray-700' : 'border-gray-300'} rounded-lg px-3 py-2`}
+                                placeholder="0.00"
+                                step="0.01"
+                                min="0"
+                            />
+                        </div>
+    
+                        <div className="space-y-1">
+                            <label className={`block text-sm font-medium ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}>Discounted Price</label>
+                            <input
+                                type="number"
+                                value={menu.discountedPrice || ""}
+                                onChange={(e) => handleMenuChange(menuIndex, 'discountedPrice', parseFloat(e.target.value))}
+                                className={`w-full ${inputBgClass} border ${isDarkMode ? 'border-gray-700' : 'border-gray-300'} rounded-lg px-3 py-2`}
+                                placeholder="0.00"
+                                step="0.01"
+                                min="0"
+                            />
+                        </div>
+    
+                        <div className="space-y-1">
+                            <label className={`block text-sm font-medium ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}>Promotion Details</label>
+                            <textarea
+                                value={menu.promotionDetails || ""}
+                                onChange={(e) => handleMenuChange(menuIndex, 'promotionDetails', e.target.value)}
+                                className={`w-full ${inputBgClass} border ${isDarkMode ? 'border-gray-700' : 'border-gray-300'} rounded-lg px-3 py-2`}
+                                rows={2}
+                            />
+                        </div>
+    
+                        {/* Products Section */}
+                        <div className="space-y-4">
+                            <h5 className={`font-medium ${isDarkMode ? 'text-white' : 'text-gray-800'}`}>Products</h5>
+                            {menu.products.map((product, productIndex) => (
+                                <div
+                                    key={productIndex}
+                                    className={`p-4 ${cardBgClass} border ${isDarkMode ? 'border-gray-700' : 'border-gray-300'} rounded-lg space-y-3`}
+                                >
+                                    {/* Product Name */}
+                                    <div className="space-y-1">
+                                        <label className={`block text-sm font-medium ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}>Product Name*</label>
+                                        <input
+                                            type="text"
+                                            value={product.name}
+                                            onChange={(e) => handleProductChange(menuIndex, productIndex, 'name', e.target.value)}
+                                            className={`w-full ${inputBgClass} border ${isDarkMode ? 'border-gray-700' : 'border-gray-300'} rounded-lg px-3 py-2`}
+                                            placeholder="Product Name"
+                                            required
+                                        />
+                                    </div>
+    
+                                    {/* Product Price */}
+                                    <div className="space-y-1">
+                                        <label className={`block text-sm font-medium ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}>Price*</label>
+                                        <input
+                                            type="number"
+                                            value={product.price}
+                                            onChange={(e) => handleProductChange(menuIndex, productIndex, 'price', parseFloat(e.target.value))}
+                                            className={`w-full ${inputBgClass} border ${isDarkMode ? 'border-gray-700' : 'border-gray-300'} rounded-lg px-3 py-2`}
+                                            placeholder="0.00"
+                                            step="0.01"
+                                            min="0"
+                                            required
+                                        />
+                                    </div>
+    
+                                    {/* Product Description */}
+                                    <div className="space-y-1">
+                                        <label className={`block text-sm font-medium ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}>Description</label>
+                                        <textarea
+                                            value={product.description}
+                                            onChange={(e) => handleProductChange(menuIndex, productIndex, 'description', e.target.value)}
+                                            className={`w-full ${inputBgClass} border ${isDarkMode ? 'border-gray-700' : 'border-gray-300'} rounded-lg px-3 py-2`}
+                                            rows={2}
+                                        />
+                                    </div>
+    
+                                    {/* Product Supplements */}
+                                    {product.hasSupplements && (
+                                        <div className="space-y-1">
+                                            <label className={`block text-sm font-medium ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}>Supplements</label>
+                                            {product.supplements.map((supplement, supplementIndex) => (
+                                                <div key={supplementIndex} className="flex items-center space-x-2">
+                                                    <input
+                                                        type="text"
+                                                        value={supplement.name}
+                                                        onChange={(e) => handleSupplementChange(menuIndex, productIndex, supplementIndex, 'name', e.target.value)}
+                                                        className={`w-full ${inputBgClass} border ${isDarkMode ? 'border-gray-700' : 'border-gray-300'} rounded-lg px-3 py-2`}
+                                                        placeholder="Supplement Name"
+                                                    />
                                                     <input
                                                         type="number"
-                                                        value={product.price}
-                                                        onChange={(e) => handleProductChange(menu.id, product.id, 'price', parseFloat(e.target.value))}
-                                                        className={`w-full ${inputBgClass} border ${isDarkMode ? 'border-gray-700' : 'border-gray-300'} rounded-lg pl-9 pr-3 py-2 focus:outline-none focus:ring-2 focus:ring-green-500/20`}
+                                                        value={supplement.price}
+                                                        onChange={(e) => handleSupplementChange(menuIndex, productIndex, supplementIndex, 'price', parseFloat(e.target.value))}
+                                                        className={`w-24 ${inputBgClass} border ${isDarkMode ? 'border-gray-700' : 'border-gray-300'} rounded-lg px-3 py-2`}
                                                         placeholder="0.00"
                                                         step="0.01"
                                                         min="0"
-                                                        required
                                                     />
-                                                </div>
-                                            </div>
-                                        </div>
-
-                                        {/* Product Description */}
-                                        <div className="space-y-1">
-                                            <label className={`block text-xs font-medium ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}>
-                                                Description
-                                            </label>
-                                            <textarea
-                                                value={product.description}
-                                                onChange={(e) => handleProductChange(menu.id, product.id, 'description', e.target.value)}
-                                                className={`w-full ${inputBgClass} border ${isDarkMode ? 'border-gray-700' : 'border-gray-300'} rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-green-500/20`}
-                                                placeholder="Product Description"
-                                                rows={2}
-                                            />
-                                        </div>
-
-                                        {/* Product Image */}
-                                        <div className="space-y-1">
-                                            <label className={`block text-xs font-medium ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}>
-                                                Product Image
-                                            </label>
-                                            <div className="flex items-center">
-                                                <div className="w-16 h-16 overflow-hidden rounded-lg mr-4 border-2 border-dashed border-gray-400 flex items-center justify-center">
-                                                    {product.image ? (
-                                                        <Image
-                                                            src={product.image}
-                                                            alt={product.name}
-                                                            width={64}
-                                                            height={64}
-                                                            className="w-full h-full object-cover"
-                                                            unoptimized
-                                                        />
-                                                    ) : (
-                                                        <Camera size={24} className="text-gray-400" />
-                                                    )}
-                                                </div>
-                                                <label className="flex items-center justify-center px-3 py-1.5 border border-gray-300 rounded-md shadow-sm text-xs font-medium text-gray-700 bg-white hover:bg-gray-50 cursor-pointer">
-                                                    <Upload size={14} className="mr-1" />
-                                                    Upload Image
-                                                    <input
-                                                        type="file"
-                                                        onChange={(e) => {
-                                                            if (e.target.files && e.target.files[0]) {
-                                                                const reader = new FileReader();
-                                                                reader.onload = (event) => {
-                                                                    if (event.target && event.target.result) {
-                                                                        handleProductChange(menu.id, product.id, 'image', event.target.result as string);
-                                                                    }
-                                                                };
-                                                                reader.readAsDataURL(e.target.files[0]);
-                                                            }
-                                                        }}
-                                                        className="hidden"
-                                                        accept="image/*"
-                                                    />
-                                                </label>
-                                            </div>
-                                        </div>
-
-                                        {/* Supplements Toggle */}
-                                        <div className="flex items-center space-x-2">
-                                            <input
-                                                type="checkbox"
-                                                id={`has-supplements-${menu.id}-${product.id}`}
-                                                checked={product.hasSupplements}
-                                                onChange={(e) => handleProductChange(menu.id, product.id, 'hasSupplements', e.target.checked)}
-                                                className="h-4 w-4 text-green-600 focus:ring-green-500 border-gray-300 rounded"
-                                            />
-                                            <label
-                                                htmlFor={`has-supplements-${menu.id}-${product.id}`}
-                                                className={`text-xs font-medium ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}
-                                            >
-                                                This product has supplements/options
-                                            </label>
-                                        </div>
-
-                                        {/* Supplements Section */}
-                                        {product.hasSupplements && (
-                                            <div className="space-y-3 pl-4 border-l-2 border-green-500">
-                                                <div className="flex justify-between items-center">
-                                                    <h6 className={`text-sm font-medium ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}>
-                                                        Supplements/Options
-                                                    </h6>
                                                     <button
-                                                        onClick={() => handleAddSupplement(menu.id, product.id)}
-                                                        className="flex items-center text-xs font-medium text-green-600 hover:text-green-500"
+                                                        onClick={() => handleRemoveSupplement(menuIndex, productIndex, supplementIndex)}
+                                                        className="text-red-600 hover:text-red-700"
                                                     >
-                                                        <Plus size={14} className="mr-1" />
-                                                        Add Option
+                                                        <Trash2 size={16} />
                                                     </button>
                                                 </div>
-
-                                                {product.supplements.length === 0 ? (
-                                                    <div className={`p-3 border ${isDarkMode ? 'border-gray-700 bg-gray-800/50' : 'border-gray-200 bg-gray-50'} rounded-lg text-center`}>
-                                                        <p className={`text-xs ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`}>No supplements added yet</p>
-                                                    </div>
-                                                ) : (
-                                                    <div className="space-y-2">
-                                                        {product.supplements.map((supplement: Supplement) => (
-                                                            <div key={supplement.id} className={`p-3 border ${isDarkMode ? 'border-gray-700 bg-gray-800/30' : 'border-gray-200 bg-gray-50/80'} rounded-lg`}>
-                                                                <div className="flex justify-between items-center mb-2">
-                                                                    <span className={`text-xs font-medium ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`}>
-                                                                        Option #{supplement.id}
-                                                                    </span>
-                                                                    <button
-                                                                        onClick={() => handleRemoveSupplement(menu.id, product.id, supplement.id)}
-                                                                        className="text-red-500 hover:text-red-600"
-                                                                    >
-                                                                        <Trash2 size={14} />
-                                                                    </button>
-                                                                </div>
-
-                                                                <div className="grid grid-cols-2 gap-2">
-                                                                    <div className="space-y-1">
-                                                                        <label className={`block text-xs font-medium ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}>
-                                                                            Name*
-                                                                        </label>
-                                                                        <input
-                                                                            type="text"
-                                                                            value={supplement.name}
-                                                                            onChange={(e) => handleSupplementChange(menu.id, product.id, supplement.id, 'name', e.target.value)}
-                                                                            className={`w-full ${inputBgClass} border ${isDarkMode ? 'border-gray-700' : 'border-gray-300'} rounded-lg px-3 py-1.5 focus:outline-none focus:ring-2 focus:ring-green-500/20 text-sm`}
-                                                                            placeholder="Option Name"
-                                                                            required
-                                                                        />
-                                                                    </div>
-                                                                    <div className="space-y-1">
-                                                                        <label className={`block text-xs font-medium ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}>
-                                                                            Price*
-                                                                        </label>
-                                                                        <div className="relative">
-                                                                            <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                                                                                <DollarSign size={14} className="text-gray-400" />
-                                                                            </div>
-                                                                            <input
-                                                                                type="number"
-                                                                                value={supplement.price}
-                                                                                onChange={(e) => handleSupplementChange(menu.id, product.id, supplement.id, 'price', parseFloat(e.target.value))}
-                                                                                className={`w-full ${inputBgClass} border ${isDarkMode ? 'border-gray-700' : 'border-gray-300'} rounded-lg pl-8 pr-3 py-1.5 focus:outline-none focus:ring-2 focus:ring-green-500/20 text-sm`}
-                                                                                placeholder="0.00"
-                                                                                step="0.01"
-                                                                                min="0"
-                                                                                required
-                                                                            />
-                                                                        </div>
-                                                                    </div>
-                                                                </div>
-                                                            </div>
-                                                        ))}
-                                                    </div>
-                                                )}
-                                            </div>
-                                        )}
-                                    </div>
-                                ))}
-                            </div>
-                        )}
+                                            ))}
+                                            <button
+                                                onClick={() => handleAddSupplement(menuIndex, productIndex)}
+                                                className="text-sm text-green-600 hover:text-green-700"
+                                            >
+                                                Add Supplement
+                                            </button>
+                                        </div>
+                                    )}
+    
+                                    {/* Remove Product Button */}
+                                    <button
+                                        onClick={() => handleRemoveProduct(menuIndex, productIndex)}
+                                        className="flex items-center text-sm font-medium text-red-600 hover:text-red-700"
+                                    >
+                                        <Trash2 size={16} className="mr-1" />
+                                        Remove Product
+                                    </button>
+                                </div>
+                            ))}
+    
+                            {/* Add Product Button */}
+                            <button
+                                onClick={() => handleAddProduct(menuIndex)}
+                                className={`flex items-center justify-center w-full p-2 border-2 border-dashed ${isDarkMode ? 'border-gray-700 hover:border-gray-600' : 'border-gray-300 hover:border-gray-400'} rounded-lg text-sm font-medium ${isDarkMode ? 'text-gray-400 hover:text-gray-300' : 'text-gray-600 hover:text-gray-700'} transition-colors duration-200`}
+                            >
+                                <Plus size={18} className="mr-2" />
+                                Add New Product
+                            </button>
+                        </div>
                     </div>
-
+    
                     {/* Remove Menu Button */}
                     <div className="mt-4 pt-4 border-t border-gray-200 dark:border-gray-700">
                         <button
-                            onClick={() => handleRemoveMenu(menu.id)}
+                            onClick={() => handleRemoveMenu(menuIndex)}
                             className="flex items-center text-sm font-medium text-red-600 hover:text-red-700"
                         >
                             <Trash2 size={16} className="mr-1" />
@@ -924,13 +817,11 @@ export default function RestaurantProviderProfile() {
                     </div>
                 </div>
             ))}
-
+    
             {/* Add Menu Button */}
             <button
                 onClick={handleAddMenu}
-                className={`flex items-center justify-center w-full p-4 border-2 border-dashed ${isDarkMode ? 'border-gray-700 hover:border-gray-600' : 'border-gray-300 hover:border-gray-400'
-                    } rounded-lg text-sm font-medium ${isDarkMode ? 'text-gray-400 hover:text-gray-300' : 'text-gray-600 hover:text-gray-700'
-                    } transition-colors duration-200`}
+                className={`flex items-center justify-center w-full p-4 border-2 border-dashed ${isDarkMode ? 'border-gray-700 hover:border-gray-600' : 'border-gray-300 hover:border-gray-400'} rounded-lg text-sm font-medium ${isDarkMode ? 'text-gray-400 hover:text-gray-300' : 'text-gray-600 hover:text-gray-700'} transition-colors duration-200`}
             >
                 <Plus size={18} className="mr-2" />
                 Add New Menu

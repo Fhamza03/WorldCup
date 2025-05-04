@@ -3,6 +3,7 @@ package com.fssm.worldcup.Services.Restoration;
 import com.fssm.worldcup.Models.Restoration.*;
 import com.fssm.worldcup.Repositories.Restoration.AdditionalRepository;
 import com.fssm.worldcup.Repositories.Restoration.MenuRepository;
+import com.fssm.worldcup.Repositories.Restoration.ProductMenuRepository;
 import com.fssm.worldcup.Repositories.Restoration.ProductRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -22,6 +23,9 @@ public class ProductService {
 
     @Autowired
     private AdditionalRepository additionalRepository;
+    @Autowired
+    private ProductMenuRepository productMenuRepository;
+
 
     public List<Product> getAllProducts() {
         return productRepository.findAll();
@@ -82,10 +86,12 @@ public class ProductService {
             productMenu.setMenu(menuOpt.get());
             productMenu.setDisplayOrder(displayOrder);
 
-            return productMenu;
+            // 🔥 C'est ici qu'il faut l'enregistrer
+            return productMenuRepository.save(productMenu);
         }
         throw new IllegalArgumentException("Product or Menu not found");
     }
+
 
     @Transactional
     public ProductAdditional addAdditionalToProduct(Integer productId, Integer additionalId, Double additionalPrice) {

@@ -1,148 +1,82 @@
 package com.fssm.worldcup.Services.Restoration;
 
+import com.fssm.worldcup.DTOs.OrderDTO;
+import com.fssm.worldcup.DTOs.OrderItemDTO;
 import com.fssm.worldcup.Models.General.Supporter;
-import com.fssm.worldcup.Models.Restoration.*;
+import com.fssm.worldcup.Models.Restoration.Order;
+import com.fssm.worldcup.Models.Restoration.OrderItem;
+import com.fssm.worldcup.Models.Restoration.Product;
+import com.fssm.worldcup.Models.Restoration.Restaurant;
 import com.fssm.worldcup.Repositories.General.SupporterRepository;
 import com.fssm.worldcup.Repositories.Restoration.OrderRepository;
+import com.fssm.worldcup.Repositories.Restoration.ProductRepository;
 import com.fssm.worldcup.Repositories.Restoration.RestaurantRepository;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
 import java.util.List;
-import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Service
 public class OrderService {
 
-    @Autowired
-    private OrderRepository orderRepository;
+    private final OrderRepository orderRepository;
+    private final RestaurantRepository restaurantRepository;
+    private final SupporterRepository supporterRepository;
+    private final ProductRepository productRepository;
 
-    @Autowired
-    private RestaurantRepository restaurantRepository;
-
-    @Autowired
-    private SupporterRepository supporterRepository;
-
-    public List<Order> getAllOrders() {
-        return orderRepository.findAll();
-    }
-
-    public Optional<Order> getOrderById(Integer id) {
-        return orderRepository.findById(id);
-    }
-
-    public List<Order> getOrdersByRestaurant(Integer restaurantId) {
-        return orderRepository.findByRestaurantId(restaurantId);
-    }
-
-    public List<Order> getOrdersBySupporter(Integer supporterId) {
-        return orderRepository.findBySupporter_UserId(supporterId);
-    }
-
-    public List<Order> getOrdersByRestaurantAndStatus(Integer restaurantId, String status) {
-        return orderRepository.findByRestaurantIdAndStatus(restaurantId, status);
-    }
-
-    public List<Order> getOrdersByPeriod(Integer restaurantId, LocalDateTime start, LocalDateTime end) {
-        return orderRepository.findByRestaurantIdAndOrderDateBetween(restaurantId, start, end);
-    }
-
-    public List<Order> getOrdersWithFanId() {
-        return orderRepository.findByUsedFanId(true);
+    public OrderService(OrderRepository orderRepository,
+                        RestaurantRepository restaurantRepository,
+                        SupporterRepository supporterRepository,
+                        ProductRepository productRepository) {
+        this.orderRepository = orderRepository;
+        this.restaurantRepository = restaurantRepository;
+        this.supporterRepository = supporterRepository;
+        this.productRepository = productRepository;
     }
 
     @Transactional
-    public Order createOrder(Order order, Integer restaurantId, Integer supporterId) {
-        Optional<Restaurant> restaurantOpt = restaurantRepository.findById(restaurantId);
-        Optional<Supporter> supporterOpt = supporterRepository.findById(supporterId);
+    public Order createOrder(OrderDTO orderDTO) {
+        // Retrieve restaurant
+        Restaurant restaurant = restaurantRepository.findById(orderDTO.getRestaurantId())
+                .orElseThrow(() -> new IllegalArgumentException("Restaurant with ID " + orderDTO.getRestaurantId() + " not found"));
 
-        if (restaurantOpt.isPresent() && supporterOpt.isPresent()) {
-            // Vérifier si le supporter a un Fan ID valide s'il utilise des offres Fan ID
-            if (order.getUsedFanId() && !supporterOpt.get().getIsFanIdValid()) {
-                throw new IllegalArgumentException("Cannot use Fan ID discounts with invalid Fan ID");
-            }
+        // Retrieve supporter
+        Supporter supporter = supporterRepository.findById(orderDTO.getSupporterId())
+                .orElseThrow(() -> new IllegalArgumentException("Supporter with ID " + orderDTO.getSupporterId() + " not found"));
 
-            order.setRestaurant(restaurantOpt.get());
-            order.setSupporter(supporterOpt.get());
-            order.setOrderDate(LocalDateTime.now());
-            order.setStatus("PENDING"); // Statut initial
+        // Create the order entity
+        Order order = new Order();
+        order.setRestaurant(restaurant);
+        order.setSupporter(supporter);
+        order.setOrderDate(LocalDateTime.now());
+        order.setStatus(orderDTO.getOrderStatus());
+        order.setTotalAmount(orderDTO.getTotalAmount());
+        order.setPaymentStatus(orderDTO.getPaymentStatus());
+        order.setNotes(orderDTO.getDeliveryAddress());
+        order.setPhoneNumber(orderDTO.getPhoneNumber());
 
-            // Calculer le montant total de la commande
-            double totalAmount = 0.0;
-            for (OrderItem item : order.getOrderItems()) {
-                double itemTotal = item.getProductPrice() * item.getQuantity();
+        // Save order to generate its ID
+        Order savedOrder = orderRepository.save(order);
+        final Order finalOrder = savedOrder; // required for lambda
 
-                // Ajouter le prix des additionnels
-                if (item.getAdditionals() != null) {
-                    for (OrderItemAdditional add : item.getAdditionals()) {
-                        itemTotal += add.getAdditionalPrice() * item.getQuantity();
-                    }
-                }
+        // Create and map each order item
+        List<OrderItem> orderItems = orderDTO.getOrderItems().stream().map(itemDTO -> {
+            Product product = productRepository.findById(itemDTO.getProductId())
+                    .orElseThrow(() -> new IllegalArgumentException("Product with ID " + itemDTO.getProductId() + " not found"));
 
-                item.setTotalPrice(itemTotal);
-                totalAmount += itemTotal;
-            }
+            OrderItem orderItem = new OrderItem();
+            orderItem.setProduct(product);
+            orderItem.setQuantity(itemDTO.getQuantity());
+            orderItem.setPrice(itemDTO.getPrice());
+            orderItem.setOrder(finalOrder); // lambda-safe
 
-            order.setTotalAmount(totalAmount);
+            return orderItem;
+        }).collect(Collectors.toList());
 
-            return orderRepository.save(order);
-        }
-        throw new IllegalArgumentException("Restaurant or Supporter not found");
-    }
-
-    @Transactional
-    public Order updateOrderStatus(Integer id, String status) {
-        Optional<Order> orderOpt = orderRepository.findById(id);
-        if (orderOpt.isPresent()) {
-            Order order = orderOpt.get();
-
-            // Validation du statut
-            if (!isValidStatus(status)) {
-                throw new IllegalArgumentException("Invalid order status: " + status);
-            }
-
-            order.setStatus(status);
-            return orderRepository.save(order);
-        }
-        throw new IllegalArgumentException("Order not found with ID: " + id);
-    }
-
-    @Transactional
-    public Order updatePaymentStatus(Integer id, String paymentStatus) {
-        Optional<Order> orderOpt = orderRepository.findById(id);
-        if (orderOpt.isPresent()) {
-            Order order = orderOpt.get();
-
-            // Validation du statut de paiement
-            if (!isValidPaymentStatus(paymentStatus)) {
-                throw new IllegalArgumentException("Invalid payment status: " + paymentStatus);
-            }
-
-            order.setPaymentStatus(paymentStatus);
-            return orderRepository.save(order);
-        }
-        throw new IllegalArgumentException("Order not found with ID: " + id);
-    }
-
-    private boolean isValidStatus(String status) {
-        return status.equals("PENDING") ||
-                status.equals("CONFIRMED") ||
-                status.equals("PREPARING") ||
-                status.equals("READY") ||
-                status.equals("COMPLETED") ||
-                status.equals("CANCELLED");
-    }
-
-    private boolean isValidPaymentStatus(String status) {
-        return status.equals("PENDING") ||
-                status.equals("PAID") ||
-                status.equals("FAILED");
-    }
-
-    @Transactional
-    public void deleteOrder(Integer id) {
-        orderRepository.deleteById(id);
+        // Attach items and save final order
+        savedOrder.setOrderItems(orderItems);
+        return orderRepository.save(savedOrder);
     }
 }

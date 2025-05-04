@@ -60,7 +60,7 @@ export default function SupporterProfile() {
                 throw new Error("Authentication information missing. Please login again.");
             }
 
-            const response = await fetch(`http://localhost:8080/supporter/getSupporter/${supporterId}`, {
+            const response = await fetch(`http://localhost:8083/supporter/getSupporter/${supporterId}`, {
                 headers: {
                     "Authorization": `Bearer ${token}`
                 }
@@ -99,7 +99,7 @@ export default function SupporterProfile() {
                         ? profilePicPath.substring(profilePicPath.indexOf('uploads'))
                         : profilePicPath;
 
-                    setProfilePhoto(`http://localhost:8080/${relativePath}`);
+                    setProfilePhoto(`http://localhost:8083/${relativePath}`);
                 }
             }
 
@@ -136,7 +136,7 @@ export default function SupporterProfile() {
 
     const handleLogout = async () => {
         try {
-            const response = await fetch("http://localhost:8080/api/auth/signout", {
+            const response = await fetch("http://localhost:8083/api/auth/signout", {
                 method: "POST",
                 headers: {
                     "Content-Type": "application/json",
@@ -192,7 +192,7 @@ export default function SupporterProfile() {
             }
 
             // Create an endpoint in your backend for updating supporter data
-            const response = await fetch(`http://localhost:8080/supporter/updateSupporter/${formData.id}`, {
+            const response = await fetch(`http://localhost:8083/supporter/updateSupporter/${formData.id}`, {
                 method: "PUT",
                 headers: {
                     "Content-Type": "application/json",

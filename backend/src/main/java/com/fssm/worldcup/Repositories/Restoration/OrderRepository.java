@@ -13,5 +13,4 @@ public interface OrderRepository extends JpaRepository<Order, Integer> {
     List<Order> findBySupporter_UserId(Integer supporterId);
     List<Order> findByRestaurantIdAndStatus(Integer restaurantId, String status);
     List<Order> findByRestaurantIdAndOrderDateBetween(Integer restaurantId, LocalDateTime start, LocalDateTime end);
-    List<Order> findByUsedFanId(Boolean usedFanId);
 }

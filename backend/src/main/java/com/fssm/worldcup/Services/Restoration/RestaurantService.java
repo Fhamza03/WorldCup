@@ -92,4 +92,4 @@ public class RestaurantService {
     public void deleteRestaurant(Integer id) {
         restaurantRepository.deleteById(id);
     }
-}
+}   

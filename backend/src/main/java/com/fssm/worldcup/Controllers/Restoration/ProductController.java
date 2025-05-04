@@ -63,10 +63,12 @@ public class ProductController {
 
     @PostMapping("/{productId}/menu/{menuId}")
     public ResponseEntity<ProductMenu> addProductToMenu(@PathVariable Integer productId,
-                                                        @PathVariable Integer menuId,
-                                                        @RequestParam(defaultValue = "0") Integer displayOrder) {
+                                                        @PathVariable Integer menuId) {
+        System.out.println("Received productId: " + productId);
+        System.out.println("Received menuId: " + menuId);
+
         try {
-            ProductMenu productMenu = productService.addProductToMenu(productId, menuId, displayOrder);
+            ProductMenu productMenu = productService.addProductToMenu(productId, menuId, 0); // Ordre par défaut
             return new ResponseEntity<>(productMenu, HttpStatus.CREATED);
         } catch (IllegalArgumentException e) {
             return ResponseEntity.badRequest().build();
@@ -91,4 +93,5 @@ public class ProductController {
         productService.deleteProduct(id);
         return ResponseEntity.noContent().build();
     }
+
 }

@@ -52,7 +52,7 @@ export default function ProviderProfile() {
 
     const fetchServiceTypes = async () => {
         try {
-            const response = await fetch("http://localhost:8080/serviceType/getAllServiceTypes");
+            const response = await fetch("http://localhost:8083/serviceType/getAllServiceTypes");
             if (!response.ok) throw new Error("Failed to fetch service types.");
 
             const data = await response.json();
@@ -75,7 +75,7 @@ export default function ProviderProfile() {
                 throw new Error("Authentication information missing. Please login again.");
             }
 
-            const response = await fetch(`http://localhost:8080/provider/getProvider/${providerId}`, {
+            const response = await fetch(`http://localhost:8083/provider/getProvider/${providerId}`, {
                 headers: {
                     "Authorization": `Bearer ${token}`
                 }
@@ -116,7 +116,7 @@ export default function ProviderProfile() {
                         ? profilePicPath.substring(profilePicPath.indexOf('uploads'))
                         : profilePicPath;
 
-                    setProfilePhoto(`http://localhost:8080/${relativePath}`);
+                    setProfilePhoto(`http://localhost:8083/${relativePath}`);
                 }
             }
 
@@ -194,7 +194,7 @@ export default function ProviderProfile() {
                 // We're not sending serviceTypeIds in this example, but you could add them if needed
             };
     
-            const response = await fetch(`http://localhost:8080/provider/updateProvider/${formData.id}`, {
+            const response = await fetch(`http://localhost:8083/provider/updateProvider/${formData.id}`, {
                 method: "PUT",
                 headers: {
                     "Content-Type": "application/json",

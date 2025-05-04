@@ -24,7 +24,7 @@ export default function Header({
 
     const handleLogout = async () => {
         try {
-          const response = await fetch("http://localhost:8080/api/auth/signout", {
+          const response = await fetch("http://localhost:8083/api/auth/signout", {
             method: "POST",
             headers: {
               "Content-Type": "application/json",
