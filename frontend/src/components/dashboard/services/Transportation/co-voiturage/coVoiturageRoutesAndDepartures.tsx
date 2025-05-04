@@ -11,7 +11,7 @@ function CoVoiturageRoutesAndDepartures() {
       route: "City Center → International Airport",
       duration: "35 min",
       driver: "Ahmed M. (4.8 ★)",
-      departureTimes: ["07:00", "12:30", "17:45"],
+      departureTimes: ["17:45"],
     },
     {
       id: "CV2",
@@ -20,7 +20,7 @@ function CoVoiturageRoutesAndDepartures() {
       route: "Medina District → University Campus",
       duration: "20 min",
       driver: "Fatima K. (4.9 ★)",
-      departureTimes: ["08:15", "13:45", "18:30"],
+      departureTimes: ["08:15"],
     },
   ];
 
@@ -61,7 +61,7 @@ function CoVoiturageRoutesAndDepartures() {
             className="border border-gray-200 rounded-lg p-4 mb-4"
           >
             <div className="flex items-center mb-4">
-              <div className="bg-green-500 text-white font-bold rounded-md px-3 py-1 mr-4">
+              <div className="bg-gradient-to-r from-green-500 to-red-500 text-white font-bold rounded-md px-3 py-1 mr-4">
                 {route.id}
               </div>
               <h3 className="text-xl">{route.name}</h3>
@@ -96,7 +96,7 @@ function CoVoiturageRoutesAndDepartures() {
               {route.departureTimes.map((time, index) => (
                 <div
                   key={index}
-                  className="bg-green-50 text-green-800 px-4 py-2 rounded-md text-center"
+                  className="bg-gradient-to-r from-green-500/10 to-red-500/10 text-green-800 px-4 py-2 rounded-md text-center"
                 >
                   {time}
                 </div>

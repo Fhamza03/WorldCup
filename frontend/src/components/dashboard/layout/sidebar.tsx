@@ -197,12 +197,6 @@ const sidebarItems = [
     to: "/dashboard/supporter/services/transportation/co-voiturage",
     text: "Co-Voiturage",
   },
-  {
-    id: 4,
-    icon: <MapPin color="#e74c3c" size={24} strokeWidth={1.5} />,
-    to: "/dashboard/supporter/services/transportation/destinations",
-    text: "Destinations",
-  },
 ];
 
 const Sidebar = () => {
