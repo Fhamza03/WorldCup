@@ -1,6 +1,7 @@
 package com.fssm.worldcup.Models.General;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fssm.worldcup.Models.Transportation.Journey;
 import jakarta.persistence.*;
 import lombok.*;
