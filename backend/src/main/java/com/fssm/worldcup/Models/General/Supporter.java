@@ -1,11 +1,6 @@
 package com.fssm.worldcup.Models.General;
 
-<<<<<<< HEAD
-import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
-import com.fasterxml.jackson.annotation.JsonManagedReference;
-=======
 import com.fasterxml.jackson.annotation.JsonIgnore;
->>>>>>> origin/main
 import com.fssm.worldcup.Models.Transportation.Journey;
 import jakarta.persistence.*;
 import lombok.*;
@@ -23,11 +18,7 @@ public class Supporter extends User {
     private Boolean isFanIdValid;
 
     @OneToMany(mappedBy = "supporter", cascade = CascadeType.ALL, orphanRemoval = true)
-<<<<<<< HEAD
-    @JsonManagedReference // Move annotation here
-=======
     @JsonIgnore
->>>>>>> origin/main
     private List<Journey> journeys;
 
     @OneToOne(cascade = {CascadeType.MERGE, CascadeType.REMOVE, CascadeType.REFRESH, CascadeType.DETACH})

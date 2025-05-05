@@ -20,16 +20,6 @@ public class SignupRequest {
 
     // Pour Admin
     private String accessStatistics;
-<<<<<<< HEAD
-    private int serviceTypeId;
-
-    public int getServiceTypeId() {
-        return serviceTypeId;
-    }
-
-    public void setServiceTypeId(int serviceTypeId) {
-        this.serviceTypeId = serviceTypeId;
-=======
     private String serviceType;
 
     public void setServiceType(String serviceType) {
@@ -38,7 +28,6 @@ public class SignupRequest {
 
     public String getServiceType() {
         return serviceType;
->>>>>>> origin/main
     }
 
     // Getters and Setters
