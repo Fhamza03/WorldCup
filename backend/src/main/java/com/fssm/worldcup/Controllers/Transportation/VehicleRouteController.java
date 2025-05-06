@@ -50,4 +50,10 @@ public class VehicleRouteController {
     public boolean vehicleRouteExists(@PathVariable Integer id) {
         return vehicleRouteService.existsById(id);
     }
+
+    @GetMapping("/findByStrateAndEndDPoint/{startPoint}/{endPoint}")
+    @ResponseStatus(HttpStatus.OK)
+    public VehicleRoute findVehiculeRouteByStrateAndEndDPoint(@PathVariable String startPoint,@PathVariable String endPoint) {
+        return vehicleRouteService.getVehiculeRouteByStrateAndEndDPoint(startPoint, endPoint);
+    }
 }
