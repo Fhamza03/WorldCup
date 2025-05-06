@@ -6,4 +6,5 @@ import org.springframework.stereotype.Repository;
 
 @Repository
 public interface VehicleRouteRepository extends JpaRepository<VehicleRoute, Integer> {
+    public VehicleRoute findVehicleRouteByStartPointAndEndPoint(String startPoint, String endPoint);
 }
