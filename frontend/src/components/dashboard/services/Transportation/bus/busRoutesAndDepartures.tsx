@@ -1,26 +1,80 @@
 // BusRoutesAndDepartures.jsx
+"use client";
+import React, { useState } from "react";
 import { Calendar, MapPin, Clock, Filter } from "lucide-react";
+import RouteDetailsModal from "../utils/routesDetails";
+
+interface RouteData {
+  id: number;
+  routeNumber: string;
+  destination: string;
+  status: "On Time" | "Delayed" | "Cancelled";
+  route: {
+    from: string;
+    to: string;
+  };
+  duration: string;
+  schedule: string[];
+  capacity: {
+    total: number;
+    available: number;
+  };
+  fare: string;
+  alerts: string;
+}
+
+const busRoutes: RouteData[] = [
+  {
+    id: 101,
+    routeNumber: "101",
+    destination: "Marrakech",
+    status: "On Time",
+    route: {
+      from: "FSSM",
+      to: "Bab Dokkala",
+    },
+    duration: "25 min",
+    schedule: ["06:30", "07:15", "08:00", "08:45"],
+    capacity: {
+      total: 50,
+      available: 32,
+    },
+    fare: "10 MAD",
+    alerts: "No current alerts",
+  },
+  {
+    id: 202,
+    routeNumber: "202",
+    destination: "Marrakech",
+    status: "Delayed",
+    route: {
+      from: "Jamaa el-Fna",
+      to: "Massira",
+    },
+    duration: "40 min",
+    schedule: ["05:45", "06:30", "07:15", "08:00"],
+    capacity: {
+      total: 50,
+      available: 15,
+    },
+    fare: "10 MAD",
+    alerts: "Minor delays due to traffic",
+  },
+];
 
 export default function BusRoutesAndDepartures() {
-  // Sample data for routes
-  const busRoutes = [
-    {
-      id: 101,
-      name: "marrakich",
-      status: "On Time",
-      route: "fssn → bab dokkala",
-      duration: "25 min",
-      departureTimes: ["06:30", "07:15", "08:00", "08:45"],
-    },
-    {
-      id: 202,
-      name: "marrakich",
-      status: "Delayed",
-      route: "jam3 lfna → massira",
-      duration: "40 min",
-      departureTimes: ["05:45", "06:30", "07:15", "08:00"],
-    },
-  ];
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [selectedRoute, setSelectedRoute] = useState<RouteData | null>(null);
+
+  const openModal = (route: RouteData): void => {
+    setSelectedRoute(route);
+    setIsModalOpen(true);
+  };
+
+  const closeModal = (): void => {
+    setIsModalOpen(false);
+    setSelectedRoute(null);
+  };
 
   return (
     <div className="container my-1 px-4 py-6 text-black">
@@ -59,7 +113,7 @@ export default function BusRoutesAndDepartures() {
                 <div className="bg-gradient-to-r from-green-600 to-red-600 text-white text-lg font-bold rounded-lg px-3 py-1 mr-4">
                   {route.id}
                 </div>
-                <h2 className="text-xl font-bold">{route.name}</h2>
+                <h2 className="text-xl font-bold">{route.destination}</h2>
               </div>
               <span
                 className={`px-3 py-1 rounded-full text-sm ${
@@ -74,7 +128,9 @@ export default function BusRoutesAndDepartures() {
 
             <div className="flex items-center mb-2">
               <MapPin className="h-5 w-5 text-gray-400 mr-2" />
-              <span className="text-gray-600">{route.route}</span>
+              <span className="text-gray-600">
+                {route.route.from} → {route.route.to}
+              </span>
             </div>
 
             <div className="flex items-center mb-4">
@@ -83,7 +139,7 @@ export default function BusRoutesAndDepartures() {
             </div>
 
             <div className="flex flex-wrap gap-2 mb-4">
-              {route.departureTimes.map((time) => (
+              {route.schedule.map((time) => (
                 <div
                   key={time}
                   className="bg-gradient-to-r from-green-500/10 to-red-500/10 px-4 py-2 rounded-lg"
@@ -93,12 +149,20 @@ export default function BusRoutesAndDepartures() {
               ))}
             </div>
 
-            <button className="w-full py-2 text-center  rounded-lg hover:bg-gradient-to-r from-green-500/10 to-red-500/10">
+            <button
+              onClick={() => openModal(route)}
+              className="w-full py-2 text-center  rounded-lg hover:bg-gradient-to-r from-green-500/10 to-red-500/10"
+            >
               View Details
             </button>
           </div>
         ))}
       </div>
+
+      {/* Modal for route details */}
+      {isModalOpen && selectedRoute && (
+        <RouteDetailsModal closeModal={closeModal} routeData={selectedRoute} />
+      )}
     </div>
   );
 }
