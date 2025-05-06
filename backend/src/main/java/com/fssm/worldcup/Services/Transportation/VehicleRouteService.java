@@ -52,4 +52,12 @@ public class VehicleRouteService {
     public boolean existsById(Integer id) {
         return vehicleRouteRepository.existsById(id);
     }
+
+    public VehicleRoute getVehiculeRouteByStrateAndEndDPoint(String startPoint, String endPoint) {
+        try {
+            return vehicleRouteRepository.findVehicleRouteByStartPointAndEndPoint(startPoint, endPoint);
+        } catch (Exception e) {
+            throw new ResourceNotFoundException("Cannot find a route with that start and end point");
+        }
+    }
 }

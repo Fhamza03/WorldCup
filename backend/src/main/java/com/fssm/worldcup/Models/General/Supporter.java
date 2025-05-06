@@ -1,7 +1,7 @@
 package com.fssm.worldcup.Models.General;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.fssm.worldcup.Models.Accommondation.Reservation;
 import com.fssm.worldcup.Models.Transportation.Journey;
 import jakarta.persistence.*;
 import lombok.*;
@@ -22,33 +22,16 @@ public class Supporter extends User {
     @JsonIgnore
     private List<Journey> journeys;
 
-    @OneToOne(cascade = {CascadeType.MERGE, CascadeType.REMOVE, CascadeType.REFRESH, CascadeType.DETACH})
-    @JoinColumn(name = "card_id", unique = true, nullable = false)
-    @JsonIgnoreProperties("supporter") // Use this instead
-    private Card card;
+//    @OneToOne(cascade = {CascadeType.MERGE, CascadeType.REMOVE, CascadeType.REFRESH, CascadeType.DETACH})
+//    @JoinColumn(name = "card_id", unique = true, nullable = true)
+//    private Card card;
 
-    // Getters et Setters
-    public Boolean getIsFanIdValid() {
-        return isFanIdValid;
-    }
+//    @OneToOne(mappedBy = "supporter", cascade = CascadeType.ALL)
+//    private Card card;
+//
 
-    public void setIsFanIdValid(Boolean isFanIdValid) {
-        this.isFanIdValid = isFanIdValid;
-    }
-    public List<Journey> getJourneys() {
-        return journeys;
-    }
 
-    public void setJourneys(List<Journey> journeys) {
-        this.journeys = journeys;
-    }
-
-    public Card getCard() {
-        return card;
-    }
-
-    public void setCard(Card card) {
-        this.card = card;
-    }
-
+    @OneToMany(mappedBy = "supporter", cascade = CascadeType.ALL, orphanRemoval = true)
+    @JsonIgnore
+    private List<Reservation> reservations;
 }
