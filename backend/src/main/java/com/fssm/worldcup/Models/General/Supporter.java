@@ -34,4 +34,8 @@ public class Supporter extends User {
     @OneToMany(mappedBy = "supporter", cascade = CascadeType.ALL, orphanRemoval = true)
     @JsonIgnore
     private List<Reservation> reservations;
+
+    public Card getCard() {
+        return this.getCard();
+    }
 }

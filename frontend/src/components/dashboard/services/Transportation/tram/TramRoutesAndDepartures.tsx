@@ -1,25 +1,39 @@
+"use client";
+import { useGlContext } from "@/context/context";
 import { Calendar, Clock, Filter, MapPin } from "lucide-react";
-import React from "react";
+import React, { useEffect } from "react";
+
+// const busRoutes = [
+//   {
+//     id: 101,
+//     name: "marrakich",
+//     status: "On Time",
+//     route: "fssn → bab dokkala",
+//     duration: "25 min",
+//     departureTimes: ["06:30", "07:15", "08:00", "08:45"],
+//   },
+//   {
+//     id: 202,
+//     name: "marrakich",
+//     status: "Delayed",
+//     route: "jam3 lfna → massira",
+//     duration: "40 min",
+//     departureTimes: ["05:45", "06:30", "07:15", "08:00"],
+//   },
+// ];
+
+// interface TramRoutesProps {
+//   routes: VehicleRoute[];
+// }
 
 function TramRoutesAndDepartures() {
-  const busRoutes = [
-    {
-      id: 101,
-      name: "marrakich",
-      status: "On Time",
-      route: "fssn → bab dokkala",
-      duration: "25 min",
-      departureTimes: ["06:30", "07:15", "08:00", "08:45"],
-    },
-    {
-      id: 202,
-      name: "marrakich",
-      status: "Delayed",
-      route: "jam3 lfna → massira",
-      duration: "40 min",
-      departureTimes: ["05:45", "06:30", "07:15", "08:00"],
-    },
-  ];
+  const { routes } = useGlContext();
+  useEffect(() => {
+    if (routes.length === 0) {
+      console.log("No routes available");
+    }
+    console.log("Routes: ", routes);
+  }, [routes]);
   return (
     <div className="container my-1 px-4 py-6 text-black">
       {/* Header section */}
@@ -47,19 +61,19 @@ function TramRoutesAndDepartures() {
 
       {/* Routes grid */}
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
-        {busRoutes.map((route) => (
+        {routes.map((route) => (
           <div
-            key={route.id}
+            key={route.vehicleRouteId}
             className="bg-white p-6 rounded-lg border border-gray-200"
           >
             <div className="flex flex-col sm:flex-row justify-between items-start mb-4">
               <div className="flex items-center mb-4 sm:mb-0">
                 <div className="bg-gradient-to-r from-green-600 to-red-600 text-white text-lg font-bold rounded-lg px-3 py-1 mr-4">
-                  {route.id}
+                  {route.route.routeId}
                 </div>
-                <h2 className="text-xl font-bold">{route.name}</h2>
+                <h2 className="text-xl font-bold">{route.route.routeName}</h2>
               </div>
-              <span
+              {/* <span
                 className={`px-3 py-1 rounded-full text-sm ${
                   route.status === "On Time"
                     ? "bg-gradient-to-r from-green-600 to-red-600 text-white"
@@ -67,20 +81,24 @@ function TramRoutesAndDepartures() {
                 }`}
               >
                 {route.status}
-              </span>
+              </span> */}
             </div>
 
             <div className="flex items-center mb-2">
               <MapPin className="h-5 w-5 text-gray-400 mr-2" />
-              <span className="text-gray-600">{route.route}</span>
+              <span className="text-gray-600">
+                {route.startPoint} → {route.endPoint}
+              </span>
             </div>
 
             <div className="flex items-center mb-4">
               <Clock className="h-5 w-5 text-gray-400 mr-2" />
-              <span className="text-gray-600">Duration: {route.duration}</span>
+              <span className="text-gray-600">
+                Duration: {route.route.estimatedTime}
+              </span>
             </div>
 
-            <div className="flex flex-wrap gap-2 mb-4">
+            {/* <div className="flex flex-wrap gap-2 mb-4">
               {route.departureTimes.map((time) => (
                 <div
                   key={time}
@@ -89,7 +107,7 @@ function TramRoutesAndDepartures() {
                   {time}
                 </div>
               ))}
-            </div>
+            </div> */}
 
             <button className="w-full py-2 text-center  rounded-lg hover:bg-gradient-to-r from-green-500/10 to-red-500/10">
               View Details

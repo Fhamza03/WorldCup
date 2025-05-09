@@ -2,7 +2,7 @@ import CoVoiturageRoutesAndDepartures from "@/components/dashboard/services/Tran
 import CoVoiturageSchedule from "@/components/dashboard/services/Transportation/utils/TransportSchedule";
 import React from "react";
 
-function page() {
+function Page() {
   return (
     <div className="flex flex-col h-full w-full">
       <div className="flex-none">
@@ -15,4 +15,4 @@ function page() {
   );
 }
 
-export default page;
+export default Page;

@@ -1,8 +1,8 @@
-import React from "react";
+"use client";
 import TramSchedule from "@/components/dashboard/services/Transportation/utils/TransportSchedule";
 import TramRoutesAndDepartures from "@/components/dashboard/services/Transportation/tram/TramRoutesAndDepartures";
 
-function page() {
+function Page() {
   return (
     <div className="flex flex-col h-full w-full">
       <div className="flex-none">
@@ -15,4 +15,4 @@ function page() {
   );
 }
 
-export default page;
+export default Page;

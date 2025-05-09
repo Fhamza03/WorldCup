@@ -1,44 +1,107 @@
 "use client";
-import React, { useState } from "react";
-import { Clock, Filter, RefreshCw, Search } from "lucide-react";
+import React, { useEffect, useState } from "react";
+import { Clock, Filter, RefreshCw, MapPin } from "lucide-react";
+import { findByStartAndEndPoint } from "@/api/transport/transport.api";
+import { useGlContext } from "@/context/context";
 
 interface TransportScheduleProps {
   title: string;
 }
 
+// capitalize the first letter of each word in startPoint and endPoint
+function capitalizeFirstChar(str: string): string {
+  if (!str) return "";
+  return str.charAt(0).toUpperCase() + str.slice(1);
+}
+
 function TransportSchedule({ title }: TransportScheduleProps) {
-  const [searchQuery, setSearchQuery] = useState("");
+  const [startPoint, setStartPoint] = useState("");
+  const [endPoint, setEndPoint] = useState("");
+  const { routes, setRoutes } = useGlContext();
   const [selectedStatus, setSelectedStatus] = useState("All");
   const statuses = ["All", "On Time", "Delayed", "Cancelled"];
+  const [isLoading, setIsLoading] = useState(false);
 
   const handleStatusChange = (status: string) => {
     setSelectedStatus(status);
   };
 
-  const handleSearch = () => {
-    console.log("Searching for:", searchQuery);
+  // Function to handle the search action
+  // It checks if both start and end points are provided, then calls the API to find the route.
+  const handleSearch = async () => {
+    if (!startPoint || !endPoint) {
+      alert("Please enter both start and end points.");
+      return;
+    }
+
+    try {
+      setIsLoading(true); // Show loading state
+      const capitalizedStartPoint = capitalizeFirstChar(startPoint);
+      const capitalizedEndPoint = capitalizeFirstChar(endPoint);
+
+      const response = await findByStartAndEndPoint(
+        capitalizedStartPoint,
+        capitalizedEndPoint
+      );
+
+      if (!response) {
+        alert("No routes found for this route");
+        setRoutes([]); // Clear routes if none found
+        return;
+      }
+
+      // If response is a single route, wrap it in an array
+      const routesToSet = Array.isArray(response) ? response : [response];
+      setRoutes(routesToSet);
+    } catch (error) {
+      console.error("Error finding route:", error);
+      alert("Error finding routes. Please try again.");
+      setRoutes([]); // Clear routes on error
+    } finally {
+      setIsLoading(false); // Hide loading state
+    }
   };
 
   const handleRefresh = () => {
     console.log("Refreshing data");
   };
+
+  useEffect(() => {
+    // This effect runs when the component mounts or when the routes state changes
+    console.log("Routes updated:", routes);
+  }, [routes]);
+
   return (
     <div className="p-4 text-black">
       <h1 className="text-2xl font-bold mb-4">{title}</h1>
       <div className="flex flex-col gap-4">
-        {/* Search & Time Selector */}
+        {/* Start & End Points + Time Selector */}
         <div className="flex flex-col md:flex-row gap-4">
-          {/* Search Input */}
+          {/* Start Point Input */}
           <div className="relative flex-grow">
             <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-              <Search className="h-5 w-5 text-gray-400" />
+              <MapPin className="h-5 w-5 text-gray-400" />
             </div>
             <input
               type="text"
               className="block w-full pl-10 pr-3 py-2 border border-green-600 rounded-lg bg-gray-50 focus:outline-none focus:ring-2 focus:ring-green-500"
-              placeholder="Search routes, stops or destinations..."
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
+              placeholder="Starting point..."
+              value={startPoint}
+              onChange={(e) => setStartPoint(e.target.value)}
+            />
+          </div>
+
+          {/* End Point Input */}
+          <div className="relative flex-grow">
+            <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+              <MapPin className="h-5 w-5 text-gray-400" />
+            </div>
+            <input
+              type="text"
+              className="block w-full pl-10 pr-3 py-2 border border-green-600 rounded-lg bg-gray-50 focus:outline-none focus:ring-2 focus:ring-green-500"
+              placeholder="Destination..."
+              value={endPoint}
+              onChange={(e) => setEndPoint(e.target.value)}
             />
           </div>
 
@@ -49,7 +112,7 @@ function TransportSchedule({ title }: TransportScheduleProps) {
           </div>
         </div>
 
-        {/* status Filter */}
+        {/* Status Filter */}
         <div className="flex flex-col md:flex-row md:items-center gap-2">
           <div className="flex items-center">
             <Filter className="h-5 w-5 text-gray-500 mr-2" />
@@ -76,15 +139,16 @@ function TransportSchedule({ title }: TransportScheduleProps) {
         <div className="flex justify-end gap-2">
           <div className="flex items-center px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-50">
             <RefreshCw className="h-5 w-5 text-gray-500 mr-2" />
-            <button className="" onClick={handleRefresh}>
+            <button onClick={handleRefresh}>
               <span>Refresh</span>
             </button>
           </div>
           <button
-            className="px-4 py-2 bg-gradient-to-r from-green-600 to-red-600 text-white rounded-lg hover:opacity-90"
-            onClick={handleSearch}
+            className="px-4 py-2 bg-gradient-to-r from-green-600 to-red-600 text-white rounded-lg hover:opacity-90 disabled:opacity-50"
+            onClick={() => handleSearch()}
+            disabled={isLoading}
           >
-            Search
+            {isLoading ? "Searching..." : "Search"}
           </button>
         </div>
       </div>
