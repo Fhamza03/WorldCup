@@ -1,5 +1,6 @@
 package com.fssm.worldcup.Controllers.Restoration;
 
+import com.fssm.worldcup.DTOs.RestaurantDetailsDTO;
 import com.fssm.worldcup.Models.Restoration.Restaurant;
 import com.fssm.worldcup.Services.Restoration.RestaurantService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -87,5 +88,11 @@ public class RestaurantController {
     public ResponseEntity<Void> deleteRestaurant(@PathVariable Integer id) {
         restaurantService.deleteRestaurant(id);
         return ResponseEntity.noContent().build();
+    }
+
+    @GetMapping("/provider/{providerId}/details")
+    public ResponseEntity<RestaurantDetailsDTO> getRestaurantDetailsByProvider(@PathVariable Integer providerId) {
+        RestaurantDetailsDTO restaurantDetails = restaurantService.getRestaurantDetailsByProviderId(providerId);
+        return ResponseEntity.ok(restaurantDetails);
     }
 }

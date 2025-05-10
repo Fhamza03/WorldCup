@@ -1,6 +1,10 @@
 package com.fssm.worldcup.Services.Restoration;
 
+import com.fssm.worldcup.DTOs.MenuDTO;
+import com.fssm.worldcup.DTOs.ProductDTO;
+import com.fssm.worldcup.DTOs.RestaurantDetailsDTO;
 import com.fssm.worldcup.Models.General.Provider;
+import com.fssm.worldcup.Models.Restoration.ProductMenu;
 import com.fssm.worldcup.Models.Restoration.Restaurant;
 import com.fssm.worldcup.Repositories.General.ProviderRepository;
 import com.fssm.worldcup.Repositories.Restoration.RestaurantRepository;
@@ -12,6 +16,8 @@ import java.time.DayOfWeek;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.stream.Collectors;
+
 
 @Service
 public class RestaurantService {
@@ -91,5 +97,50 @@ public class RestaurantService {
     @Transactional
     public void deleteRestaurant(Integer id) {
         restaurantRepository.deleteById(id);
+    }
+
+    private RestaurantDetailsDTO mapToRestaurantDetailsDTO(Restaurant restaurant) {
+        List<MenuDTO> menus = restaurant.getMenus().stream().map(menu -> {
+            List<ProductDTO> products = menu.getProductMenus().stream()
+                    .map(ProductMenu::getProduct)
+                    .map(product -> new ProductDTO(
+                            product.getId(),
+                            product.getName(),
+                            product.getDescription(),
+                            product.getPrice(),
+                            product.getIsAvailable()
+                    ))
+                    .collect(Collectors.toList());
+
+            return new MenuDTO(
+                    menu.getId(),
+                    menu.getName(),
+                    menu.getDescription(),
+                    menu.getIsSpecialOffer(),
+                    menu.getOriginalPrice(),
+                    menu.getDiscountedPrice(),
+                    products
+            );
+        }).collect(Collectors.toList());
+
+        return new RestaurantDetailsDTO(
+                restaurant.getId(),
+                restaurant.getName(),
+                restaurant.getDescription(),
+                restaurant.getAddress(),
+                restaurant.getCuisineType(),
+                restaurant.getContactPhone(),
+                restaurant.getEmail(),
+                restaurant.getIsPartner(),
+                restaurant.getOpeningHours(), // ✅ AJOUT
+                menus
+        );
+    }
+    public RestaurantDetailsDTO getRestaurantDetailsByProviderId(Integer providerId) {
+        Restaurant restaurant = restaurantRepository.findByProviderId(providerId).stream()
+                .findFirst()
+                .orElseThrow(() -> new IllegalArgumentException("Restaurant not found for the given provider"));
+
+        return mapToRestaurantDetailsDTO(restaurant);
     }
 }   

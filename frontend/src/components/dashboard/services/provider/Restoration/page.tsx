@@ -139,7 +139,7 @@ export default function RestaurantProviderProfile() {
     useEffect(() => {
         const fetchMenuTypes = async () => {
             try {
-                const response = await axios.get('http://localhost:8082/api/menu-types');
+                const response = await axios.get('http://localhost:8083/api/menu-types');
                 setMenuTypes(response.data);
             } catch (error) {
                 console.error("Error fetching menu types:", error);
@@ -202,6 +202,7 @@ export default function RestaurantProviderProfile() {
     const themeClass = isDarkMode ? "bg-gray-900 text-white" : "bg-white text-gray-700";
     const inputBgClass = isDarkMode ? "bg-gray-800 text-white" : "bg-white text-gray-700";
     const cardBgClass = isDarkMode ? "bg-gray-800" : "bg-white";
+    const providerId = localStorage.getItem("userId"); // Default to 1 if not found
 
     const handleRestaurantChange = (e: ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
         const { name, value } = e.target;
@@ -359,7 +360,8 @@ export default function RestaurantProviderProfile() {
     const handleSubmit = async () => {
         try {
             // Étape 1 : Ajouter le restaurant
-            const restaurantResponse = await axios.post('http://localhost:8082/api/restaurants/provider/1', restaurantData);
+            const url = `http://localhost:8083/api/restaurants/provider/${providerId}`;
+            const restaurantResponse = await axios.post(url, restaurantData);           
             const createdRestaurant = restaurantResponse.data;
             console.log("Restaurant created:", createdRestaurant);
 
@@ -377,7 +379,7 @@ export default function RestaurantProviderProfile() {
                 console.log("Sending menu:", menu);
 
                 const menuResponse = await axios.post(
-                    `http://localhost:8082/api/menus/restaurant/${createdRestaurant.id}/type/${menu.menuTypeId}`,
+                    `http://localhost:8083/api/menus/restaurant/${createdRestaurant.id}/type/${menu.menuTypeId}`,
                     menu
                 );
                 const createdMenu = menuResponse.data;
@@ -387,7 +389,7 @@ export default function RestaurantProviderProfile() {
                 for (const product of menu.products) {
                     // Étape 3.1 : Créer le produit
                     const productResponse = await axios.post(
-                        `http://localhost:8082/api/products/without-add`,
+                        `http://localhost:8083/api/products/without-add`,
                         {
                             name: product.name,
                             price: product.price,
@@ -402,7 +404,7 @@ export default function RestaurantProviderProfile() {
 
                     // Étape 3.2 : Associer le produit au menu
                     const associationResponse = await axios.post(
-                        `http://localhost:8082/api/products/${createdProduct.id}/menu/${createdMenu.id}`,
+                        `http://localhost:8083/api/products/${createdProduct.id}/menu/${createdMenu.id}`,
                         null // Pas de corps requis pour cette requête
                     );
                     console.log("Product associated with menu:", associationResponse.data);

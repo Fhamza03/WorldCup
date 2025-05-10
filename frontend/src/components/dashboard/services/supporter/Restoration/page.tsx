@@ -117,7 +117,6 @@ export default function RestaurantBrowse() {
     return (
         <div className={`min-h-screen ${themeClass}`}>
             <div className="min-h-screen flex">
-                <Sidebar />
 
                 <div className="flex-1 pb-16">
                     <Header isDarkMode={isDarkMode} toggleTheme={toggleTheme} />

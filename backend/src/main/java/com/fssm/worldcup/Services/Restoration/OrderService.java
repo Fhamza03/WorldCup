@@ -1,7 +1,6 @@
 package com.fssm.worldcup.Services.Restoration;
 
-import com.fssm.worldcup.DTOs.OrderDTO;
-import com.fssm.worldcup.DTOs.OrderItemDTO;
+import com.fssm.worldcup.DTOs.*;
 import com.fssm.worldcup.Models.General.Supporter;
 import com.fssm.worldcup.Models.Restoration.Order;
 import com.fssm.worldcup.Models.Restoration.OrderItem;
@@ -78,5 +77,43 @@ public class OrderService {
         // Attach items and save final order
         savedOrder.setOrderItems(orderItems);
         return orderRepository.save(savedOrder);
+    }
+
+    /**
+     * Get detailed order information including product names
+     * @param orderId The ID of the order to retrieve
+     * @return OrderDetailsDTO containing all order details with product names
+     */
+    @Transactional(readOnly = true)
+    public OrderDetailsDTO getOrderDetails(Integer orderId) {
+        Order order = orderRepository.findById(orderId)
+                .orElseThrow(() -> new IllegalArgumentException("Order with ID " + orderId + " not found"));
+
+        // Create the OrderDetailsDTO
+        OrderDetailsDTO orderDetailsDTO = new OrderDetailsDTO();
+        orderDetailsDTO.setId(order.getId());
+        orderDetailsDTO.setOrderDate(order.getOrderDate());
+        orderDetailsDTO.setTotalAmount(order.getTotalAmount());
+        orderDetailsDTO.setDeliveryAddress(order.getNotes()); // Notes field is used for delivery address
+        orderDetailsDTO.setPhoneNumber(order.getPhoneNumber());
+        orderDetailsDTO.setOrderStatus(order.getStatus());
+        orderDetailsDTO.setPaymentStatus(order.getPaymentStatus());
+
+        // Map order items with product names
+        List<OrderItemDetailsDTO> orderItemDetailsDTOs = order.getOrderItems().stream()
+                .map(item -> {
+                    OrderItemDetailsDTO itemDTO = new OrderItemDetailsDTO();
+                    itemDTO.setId(item.getId());
+                    itemDTO.setProductId(item.getProduct().getId());
+                    itemDTO.setProductName(item.getProduct().getName());
+                    itemDTO.setQuantity(item.getQuantity());
+                    itemDTO.setPrice(item.getPrice());
+                    return itemDTO;
+                })
+                .collect(Collectors.toList());
+
+        orderDetailsDTO.setOrderItems(orderItemDetailsDTOs);
+
+        return orderDetailsDTO;
     }
 }

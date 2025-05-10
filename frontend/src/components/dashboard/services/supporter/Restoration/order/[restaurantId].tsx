@@ -5,7 +5,9 @@ import { useParams } from "next/navigation";
 import axios from "axios";
 import Header from "@/components/auth/provider/header";
 import Footer from "@/components/auth/footer";
-import Sidebar from "@/components/dashboard/layout/sidebar";
+import PrintOrderComponent from "./PrintOrderComponent";
+
+// Rest of the imports remain the same...
 
 interface Restaurant {
     id: number;
@@ -38,8 +40,22 @@ interface CartItem {
     quantity: number;
 }
 
+interface OrderResponse {
+    id: number;
+    orderDate: string;
+    totalAmount: number;
+    deliveryAddress: string;
+    phoneNumber: string;
+    orderStatus: string;
+    paymentStatus: string;
+    orderItems: {
+        id: number;
+        productName: string;
+        quantity: number;
+        price: number;
+    }[];
+}
 
-// Update the OrderPayload interface to match the OrderDTO on the backend
 interface OrderItemDTO {
     productId: number;
     quantity: number;
@@ -56,26 +72,26 @@ interface OrderPayload {
     paymentStatus: string;
 }
 
-
-
 export default function RestaurantOrder() {
-    // Use the App Router's useParams hook instead of useRouter
     const params = useParams();
     const restaurantId = params?.restaurantId as string;
-    
+
     const [isDarkMode, setIsDarkMode] = useState(false);
     const [restaurant, setRestaurant] = useState<Restaurant | null>(null);
     const [menus, setMenus] = useState<Menu[]>([]);
     const [isLoading, setIsLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
     const [cart, setCart] = useState<CartItem[]>([]);
-    
+
     // Checkout related states
     const [isCheckingOut, setIsCheckingOut] = useState(false);
     const [checkoutError, setCheckoutError] = useState<string | null>(null);
     const [checkoutSuccess, setCheckoutSuccess] = useState(false);
     const [deliveryAddress, setDeliveryAddress] = useState("");
     const [phoneNumber, setPhoneNumber] = useState("");
+
+    // Order response state to store completed order data
+    const [completedOrder, setCompletedOrder] = useState<OrderResponse | null>(null);
 
     useEffect(() => {
         if (restaurantId) {
@@ -130,9 +146,9 @@ export default function RestaurantOrder() {
         setCart(prevCart => {
             const existingItem = prevCart.find(item => item.productId === product.id);
             if (existingItem) {
-                return prevCart.map(item => 
-                    item.productId === product.id 
-                        ? { ...item, quantity: item.quantity + 1 } 
+                return prevCart.map(item =>
+                    item.productId === product.id
+                        ? { ...item, quantity: item.quantity + 1 }
                         : item
                 );
             } else {
@@ -150,9 +166,9 @@ export default function RestaurantOrder() {
         setCart(prevCart => {
             const existingItem = prevCart.find(item => item.productId === productId);
             if (existingItem && existingItem.quantity > 1) {
-                return prevCart.map(item => 
-                    item.productId === productId 
-                        ? { ...item, quantity: item.quantity - 1 } 
+                return prevCart.map(item =>
+                    item.productId === productId
+                        ? { ...item, quantity: item.quantity - 1 }
                         : item
                 );
             } else {
@@ -165,34 +181,45 @@ export default function RestaurantOrder() {
         return cart.reduce((total, item) => total + (item.price * item.quantity), 0);
     };
 
+    // New function to open the print view in a new window
+    const openPrintView = () => {
+        if (completedOrder && restaurant) {
+            const printWindow = window.open(`/print-view?orderId=${completedOrder.id}&restaurantId=${restaurantId}`, '_blank', 'width=800,height=600');
+            
+            if (!printWindow) {
+                alert("Please allow pop-ups to print your receipt");
+            }
+        }
+    };
+
     const handleCheckout = async () => {
         // Récupérer l'ID du supporter depuis le localStorage
         const supporterId = localStorage.getItem('userId');
-        
+
         // Vérifier si l'ID du supporter est disponible
         if (!supporterId) {
             setCheckoutError("Vous devez être connecté pour passer une commande");
             return;
         }
-        
+
         if (cart.length === 0) {
             setCheckoutError("Votre panier est vide");
             return;
         }
-    
+
         if (!deliveryAddress) {
             setCheckoutError("Veuillez entrer une adresse de livraison");
             return;
         }
-    
+
         if (!phoneNumber) {
             setCheckoutError("Veuillez entrer un numéro de téléphone");
             return;
         }
-    
+
         setIsCheckingOut(true);
         setCheckoutError(null);
-    
+
         try {
             // Préparer les articles de la commande à partir du panier
             const orderItems: OrderItemDTO[] = cart.map(item => ({
@@ -200,7 +227,7 @@ export default function RestaurantOrder() {
                 quantity: item.quantity,
                 price: item.price
             }));
-    
+
             const orderPayload: OrderPayload = {
                 orderDate: new Date().toISOString(),
                 deliveryAddress,
@@ -210,7 +237,7 @@ export default function RestaurantOrder() {
                 orderStatus: "PENDING", // Statut par défaut
                 paymentStatus: "UNPAID"  // Statut de paiement par défaut
             };
-    
+
             // Envoyer la commande à l'API avec l'ID du supporter récupéré du localStorage
             const response = await axios.post(
                 `http://localhost:8083/api/orders/restaurant/${restaurantId}/supporter/${supporterId}`,
@@ -221,9 +248,17 @@ export default function RestaurantOrder() {
                     }
                 }
             );
-    
+
             console.log("Commande créée avec succès:", response.data);
-    
+
+            // Fetch the full order details with product names
+            const orderDetailsResponse = await axios.get(
+                `http://localhost:8083/api/orders/${response.data.id}/details`
+            );
+
+            // Store the completed order data
+            setCompletedOrder(orderDetailsResponse.data);
+
             // Effacer le panier et afficher un message de succès
             setCart([]);
             setCheckoutSuccess(true);
@@ -236,6 +271,7 @@ export default function RestaurantOrder() {
             setIsCheckingOut(false);
         }
     };
+
     const themeClass = isDarkMode ? "bg-gray-900 text-white" : "bg-white text-gray-700";
     const cardBgClass = isDarkMode ? "bg-gray-800" : "bg-white";
     const borderClass = isDarkMode ? "border-gray-700" : "border-gray-300";
@@ -243,12 +279,10 @@ export default function RestaurantOrder() {
 
     return (
         <div className={`min-h-screen ${themeClass}`}>
-            <div className="min-h-screen flex">
-                <Sidebar />
-                
+            <div className="min-h-screen flex no-print">
                 <div className="flex-1 pb-16">
                     <Header isDarkMode={isDarkMode} toggleTheme={toggleTheme} />
-                    
+
                     <div className="max-w-7xl mx-auto px-4 py-8">
                         {isLoading ? (
                             <div className="flex justify-center items-center py-12">
@@ -302,12 +336,12 @@ export default function RestaurantOrder() {
                                                 <div key={menu.id} className={`${cardBgClass} border ${borderClass} rounded-lg p-6 mb-6`}>
                                                     <h3 className="text-lg font-semibold mb-2">{menu.name}</h3>
                                                     <p className="text-gray-600 dark:text-gray-300 mb-4">{menu.description}</p>
-                                                    
+
                                                     {menu.products.length > 0 ? (
                                                         <div className="space-y-4">
                                                             {menu.products.map((product) => (
-                                                                <div 
-                                                                    key={product.id} 
+                                                                <div
+                                                                    key={product.id}
                                                                     className={`border ${borderClass} rounded-lg p-4 flex justify-between items-center`}
                                                                 >
                                                                     <div>
@@ -315,7 +349,7 @@ export default function RestaurantOrder() {
                                                                         <p className="text-sm text-gray-600 dark:text-gray-300">{product.description}</p>
                                                                         <p className="text-green-600 dark:text-green-400 font-medium mt-1">${product.price.toFixed(2)}</p>
                                                                     </div>
-                                                                    <button 
+                                                                    <button
                                                                         onClick={() => addToCart(product)}
                                                                         className="px-4 py-2 bg-green-500 text-white rounded-lg hover:bg-green-600 transition-colors"
                                                                     >
@@ -339,12 +373,36 @@ export default function RestaurantOrder() {
                                 <div className="lg:col-span-1">
                                     <div className={`${cardBgClass} border ${borderClass} rounded-lg p-6 sticky top-8`}>
                                         <h2 className="text-xl font-bold mb-4">Your Order</h2>
-                                        
+
                                         {checkoutSuccess ? (
-                                            <div className="p-4 bg-green-100 dark:bg-green-800 rounded-md mb-4 text-center">
-                                                <p className="text-green-700 dark:text-green-200 font-medium">
-                                                    Order placed successfully! Thank you for your order.
-                                                </p>
+                                            <div>
+                                                <div className="p-4 bg-green-100 dark:bg-green-800 rounded-md mb-4 text-center">
+                                                    <p className="text-green-700 dark:text-green-200 font-medium">
+                                                        Order placed successfully! Thank you for your order.
+                                                    </p>
+                                                </div>
+
+                                                {/* Print Receipt Button */}
+                                                <button
+                                                    onClick={openPrintView}
+                                                    className="w-full mt-4 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors flex items-center justify-center"
+                                                >
+                                                    <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z" />
+                                                    </svg>
+                                                    Print Receipt
+                                                </button>
+
+                                                {/* Place New Order Button */}
+                                                <button
+                                                    onClick={() => {
+                                                        setCheckoutSuccess(false);
+                                                        setCompletedOrder(null);
+                                                    }}
+                                                    className="w-full mt-3 py-3 bg-green-500 text-white rounded-lg hover:bg-green-600 transition-colors"
+                                                >
+                                                    Place New Order
+                                                </button>
                                             </div>
                                         ) : (
                                             <>
@@ -358,15 +416,15 @@ export default function RestaurantOrder() {
                                                                         <p className="text-gray-600 dark:text-gray-300">${item.price.toFixed(2)} x {item.quantity}</p>
                                                                     </div>
                                                                     <div className="flex items-center space-x-2">
-                                                                        <button 
+                                                                        <button
                                                                             onClick={() => removeFromCart(item.productId)}
                                                                             className="px-2 py-1 bg-gray-200 dark:bg-gray-700 rounded"
                                                                         >
                                                                             -
                                                                         </button>
                                                                         <span>{item.quantity}</span>
-                                                                        <button 
-                                                                            onClick={() => addToCart({id: item.productId, name: item.productName, price: item.price, description: ''})}
+                                                                        <button
+                                                                            onClick={() => addToCart({ id: item.productId, name: item.productName, price: item.price, description: '' })}
                                                                             className="px-2 py-1 bg-gray-200 dark:bg-gray-700 rounded"
                                                                         >
                                                                             +
@@ -375,14 +433,14 @@ export default function RestaurantOrder() {
                                                                 </div>
                                                             ))}
                                                         </div>
-                                                        
+
                                                         <div className="border-t border-b py-4 mb-6">
                                                             <div className="flex justify-between items-center">
                                                                 <span className="font-bold">Total</span>
                                                                 <span className="font-bold">${getCartTotal().toFixed(2)}</span>
                                                             </div>
                                                         </div>
-                                                        
+
                                                         {/* Delivery Information */}
                                                         <div className="mb-6">
                                                             <h3 className="font-medium mb-2">Delivery Information</h3>
@@ -401,14 +459,14 @@ export default function RestaurantOrder() {
                                                                 className={inputClass}
                                                             />
                                                         </div>
-                                                        
+
                                                         {checkoutError && (
                                                             <div className="p-3 mb-4 bg-red-100 dark:bg-red-900 text-red-700 dark:text-red-200 rounded-md">
                                                                 {checkoutError}
                                                             </div>
                                                         )}
-                                                        
-                                                        <button 
+
+                                                        <button
                                                             onClick={handleCheckout}
                                                             disabled={isCheckingOut}
                                                             className="w-full py-3 bg-green-500 text-white rounded-lg hover:bg-green-600 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
@@ -430,6 +488,7 @@ export default function RestaurantOrder() {
                     </div>
                 </div>
             </div>
+
             <Footer />
         </div>
     );
