@@ -77,7 +77,7 @@ export default function BusRoutesAndDepartures() {
   };
 
   return (
-    <div className="container my-1 px-4 py-6 text-black">
+    <div className="w-4/5 my-1 px-4 py-6 text-black">
       {/* Header section */}
       <div className="flex flex-col sm:flex-row items-center justify-between mb-6">
         <div className="flex items-center mb-4 sm:mb-0">

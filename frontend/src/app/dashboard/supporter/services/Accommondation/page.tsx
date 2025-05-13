@@ -1,15 +1,17 @@
-import { ContextProvider } from "@/context/context";
-import { Sidebar } from "lucide-react";
-import React, { ReactNode } from "react";
+import Sidebar from "@/components/dashboard/layout/sidebar";
+import AccommodationFinderApp from "@/components/dashboard/services/Accommondation/accommodationFinderApp";
 
-function Page({ children }: { children: ReactNode }) {
+import React from "react";
+
+function Page() {
   return (
-    <ContextProvider>
-      <div className="flex h-screen w-full bg-[#F8FAFC]">
-        <Sidebar />
-        <main className="flex-1 overflow-auto p-4">{children}</main>
-      </div>
-    </ContextProvider>
+    <div className="flex h-screen w-full bg-[#F8FAFC]">
+      <Sidebar />
+
+      <main className="flex-1 overflow-auto p-4">
+        <AccommodationFinderApp />
+      </main>
+    </div>
   );
 }
 

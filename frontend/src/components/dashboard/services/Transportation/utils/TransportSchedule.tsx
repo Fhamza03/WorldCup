@@ -72,7 +72,7 @@ function TransportSchedule({ title }: TransportScheduleProps) {
   }, [routes]);
 
   return (
-    <div className="p-4 text-black">
+    <div className="w-4/5 p-4 text-black mx-auto">
       <h1 className="text-2xl font-bold mb-4">{title}</h1>
       <div className="flex flex-col gap-4">
         {/* Start & End Points + Time Selector */}

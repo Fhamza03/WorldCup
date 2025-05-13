@@ -37,3 +37,27 @@ export interface VehicleRoute {
   vehicle: Vehicle;
   route: RouteInfo;
 }
+
+// Type definition for the accommodation data
+interface Provider {
+  userId: number;
+  email: string;
+  password: string;
+  firstName: string;
+  lastName: string;
+  birthDate: string;
+  nationality: string;
+  nationalCode: string;
+  profilePicture: string;
+}
+
+export interface Accommodation {
+  idAccommodation: number;
+  address: string;
+  roomsCount: number;
+  bathroomsCount: number;
+  showersCount: number;
+  wifiAvailable: boolean;
+  priceForNight: number;
+  provider: Provider;
+}
