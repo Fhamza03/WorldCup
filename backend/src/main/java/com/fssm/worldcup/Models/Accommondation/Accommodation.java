@@ -1,6 +1,7 @@
 package com.fssm.worldcup.Models.Accommondation;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fssm.worldcup.Models.General.Provider;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -28,5 +29,9 @@ public class Accommodation {
     @OneToMany(mappedBy = "accommodation", cascade = CascadeType.ALL, orphanRemoval = true)
     @JsonIgnore
     private List<Reservation> reservations;
+
+    @ManyToOne
+    @JoinColumn(name = "provider_id")
+    private Provider provider;
 
 }

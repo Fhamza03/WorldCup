@@ -1,6 +1,8 @@
 package com.fssm.worldcup.Services.Accommodation;
 
+import com.fssm.worldcup.Exceptions.ResourceNotFoundException;
 import com.fssm.worldcup.Models.Accommondation.Accommodation;
+import com.fssm.worldcup.Models.General.Provider;
 import com.fssm.worldcup.Repositories.Accommodation.AccommodationRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -48,6 +50,14 @@ public class AccommodationService {
 
     public boolean existsById(Integer id) {
         return accommodationRepository.existsById(id);
+    }
+
+    public List<Accommodation> findAccommodationByProvider(Provider provider) {
+        try{
+            return accommodationRepository.findAccommodationByProvider(provider);
+        }catch (Exception e) {
+            throw new ResourceNotFoundException("Accommodation not found with the given provider");
+        }
     }
 
 }
