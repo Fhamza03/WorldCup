@@ -4,32 +4,32 @@ export interface LoadingPageProps {
 
 // src/types/transport.ts
 export interface TransportationType {
-  transportationTypeId: number;
+  transportationTypeId?: number;
   transportationTypeName: string;
   description: string;
 }
 
 export interface Transportation {
-  transportationId: number;
+  transportationId?: number;
   transportationProviderName: string;
   transportationType: TransportationType;
 }
 
 export interface Vehicle {
-  vehicleId: number;
+  vehicleId?: number;
   registrationNumber: string;
   seatsNumber: number;
   transportation: Transportation;
 }
 
 export interface RouteInfo {
-  routeId: number;
+  routeId?: number;
   routeName: string;
   estimatedTime: string;
 }
 
 export interface VehicleRoute {
-  vehicleRouteId: number;
+  vehicleRouteId?: number;
   startPoint: string;
   endPoint: string;
   restStopsNumber: number;

@@ -202,7 +202,7 @@ const sidebarItems = [
 const Sidebar = () => {
   const pathname = usePathname();
   const router = useRouter();
-  const [isExpanded, setIsExpanded] = useState(true);
+  const [isExpanded, setIsExpanded] = useState(false);
   const [activeId, setActiveId] = useState(1);
 
   // Set active tab based on current path
