@@ -13,26 +13,20 @@ public class WorldcupApplication {
 		SpringApplication.run(WorldcupApplication.class, args);
 	}
 
-	@SpringBootApplication
-	public class MyApp {
-		public static void main(String[] args) {
-			SpringApplication.run(MyApp.class, args);
-		}
-
-		@Bean
-		public WebMvcConfigurer corsConfigurer() {
-			return new WebMvcConfigurer() {
-				@Override
-				public void addCorsMappings(CorsRegistry registry) {
-					registry
-							.addMapping("/**")
-							.allowedOrigins("http://localhost:3000", "http://192.168.56.1:3000")
-							.allowedMethods("GET","POST","PUT","DELETE","OPTIONS")
-							.allowedHeaders("Content-Type","Authorization","X-Requested-With")
-							.allowCredentials(true);
-				}
-			};
-		}
+	@Bean
+	public WebMvcConfigurer corsConfigurer() {
+		return new WebMvcConfigurer() {
+			@Override
+			public void addCorsMappings(CorsRegistry registry) {
+				registry
+						.addMapping("/**")
+						.allowedOrigins("http://localhost:3000", "http://192.168.56.1:3000")
+						.allowedMethods("GET","POST","PUT","DELETE","OPTIONS")
+						.allowedHeaders("Content-Type","Authorization","X-Requested-With")
+						.allowCredentials(true);
+			}
+		};
 	}
+
 
 }
