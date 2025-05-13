@@ -161,13 +161,13 @@ const VehicleRouteTable: React.FC<ShowVehicleRouteProps> = ({
                 </td>
                 <td className="py-3 px-4 border-b border-gray-200">
                   <div className="flex items-center">
-                    <MapPin className="w-4 h-4 text-green-600 mr-1" />
+                    {/* <MapPin className="w-4 h-4 text-green-600 mr-1" /> */}
                     {route.startPoint || "-"}
                   </div>
                 </td>
                 <td className="py-3 px-4 border-b border-gray-200">
                   <div className="flex items-center">
-                    <MapPin className="w-4 h-4 text-red-600 mr-1" />
+                    {/* <MapPin className="w-4 h-4 text-red-600 mr-1" /> */}
                     {route.endPoint || "-"}
                   </div>
                 </td>
