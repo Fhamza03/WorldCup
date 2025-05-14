@@ -43,7 +43,8 @@ export default function LoginForm() {
     ? "bg-gray-900 text-white"
     : "bg-white text-gray-700";
 
-    const handleSubmit = async (e: FormEvent) => {
+    const handleSubmit2 = async (e: FormEvent) => {
+          console.log("handleSubmit2 called"); // Ajoute ce log pour vérifier
       e.preventDefault();
       setErrorMessage(null);
     
@@ -65,7 +66,7 @@ export default function LoginForm() {
           localStorage.setItem("userId", data.userId);
           
           // Redirection vers la page de profil
-          window.location.href = "/dashboard/supporter/profile";
+          window.location.href = "/auth/supporter/card";
         } else {
           setErrorMessage(data.message || "Login failed. Please try again.");
         }
@@ -109,7 +110,7 @@ export default function LoginForm() {
           </h2>
 
           {/* Login Form */}
-          <form onSubmit={handleSubmit} className="space-y-6">
+          <form onSubmit={handleSubmit2} className="space-y-6">
             <div className="relative">
               <input
                 type="email"

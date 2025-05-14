@@ -4,6 +4,7 @@ import { useState, useEffect } from "react";
 import { Menu, X, User, LogOut, Sun, Moon } from "lucide-react";
 import Image from "next/image";
 import Link from 'next/link';
+import { useRouter } from "next/navigation";
 
 interface HeaderProps {
     isDarkMode: boolean;
@@ -19,35 +20,114 @@ export default function Header({
     const [isMenuOpen, setIsMenuOpen] = useState(false);
     const [isProfileMenuOpen, setIsProfileMenuOpen] = useState(false);
     const [errorMessage, setErrorMessage] = useState<string | null>(null);
-
+    // Define specific service type values to match with API responses
+    type ServiceType = 'Restauration' | 'Transportation' | 'Accommodation' | null;
+    
+    const [serviceType, setServiceType] = useState<ServiceType>(null);
+    
     const themeClass = isDarkMode ? "bg-gray-900 text-white" : "bg-white text-gray-700";
+    const router = useRouter();
+
+    // Fetch user service type when component mounts
+    useEffect(() => {
+        const fetchUserServiceType = async () => {
+            const userId = localStorage.getItem("userId");
+            
+            if (!userId) {
+                console.error("No userId found in localStorage");
+                return;
+            }
+            
+            try {
+                // Utilisez l'endpoint correct défini dans votre API
+                const response = await fetch(`http://localhost:8083/provider/getProvider/${userId}`);
+                
+                if (!response.ok) {
+                    console.error(`Failed to fetch provider data: ${response.status} ${response.statusText}`);
+                    return;
+                }
+                
+                const providerData = await response.json();
+                console.log("Provider data:", providerData);
+                
+                // Check if serviceTypes array exists and has at least one entry
+                if (providerData.serviceTypes && providerData.serviceTypes.length > 0) {
+                    // Ensure the service type matches one of our defined types
+                    const receivedType = providerData.serviceTypes[0].serviceTypeName;
+                    console.log("Service type from API:", receivedType);
+                    
+                    if (receivedType === "Restauration" || 
+                        receivedType === "Transportation" || 
+                        receivedType === "Accommodation") {
+                        setServiceType(receivedType as ServiceType);
+                    } else {
+                        console.warn(`Received unknown service type: ${receivedType}`);
+                    }
+                } else {
+                    console.error("No service types found in provider data");
+                }
+            } catch (error) {
+                console.error("Error fetching service type:", error);
+            }
+        };
+        
+        fetchUserServiceType();
+    }, []);
+
+    const handleServicesClick = (e: React.MouseEvent<HTMLAnchorElement>) => {
+        e.preventDefault();
+        
+        if (!serviceType) {
+            console.error("No service type available");
+            // Ajouter un message pour l'utilisateur
+            alert("Impossible de déterminer votre type de service. Veuillez contacter le support.");
+            return;
+        }
+        
+        console.log("Redirecting based on service type:", serviceType);
+        
+        // Map the service types from the API to the URL paths
+        const serviceUrlMap: Record<string, string> = {
+            "Restauration": "/dashboard/provider/services/Restoration/liste",
+            "Transportation": "/dashboard/provider/services/Transportation",
+            "Accommodation": "/dashboard/provider/services/Accommondation"
+        };
+        
+        const url = serviceUrlMap[serviceType];
+        if (url) {
+            console.log("Redirecting to:", url);
+            router.push(url);
+        } else {
+            console.error(`No URL mapping for service type: ${serviceType}`);
+            alert("Type de service non supporté. Veuillez contacter le support.");
+        }
+    };
 
     const handleLogout = async () => {
         try {
-          const response = await fetch("http://localhost:8083/api/auth/signout", {
-            method: "POST",
-            headers: {
-              "Content-Type": "application/json",
-            },
-          });
-    
-          const data = await response.json();
-    
-          if (data.success) {
-            localStorage.removeItem("token");
-            localStorage.removeItem("userType");
-            localStorage.removeItem("userId");
-    
-            window.location.href = "/auth/provider/login";
-          } else {
-            setErrorMessage(data.message || "Logout failed. Please try again.");
-          }
+            const response = await fetch("http://localhost:8083/api/auth/signout", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                },
+            });
+      
+            const data = await response.json();
+      
+            if (data.success) {
+                localStorage.removeItem("token");
+                localStorage.removeItem("userType");
+                localStorage.removeItem("userId");
+      
+                window.location.href = "/auth/provider/login";
+            } else {
+                setErrorMessage(data.message || "Logout failed. Please try again.");
+            }
         } catch (error) {
-          console.error("Error during logout:", error);
-          setErrorMessage("An error occurred during logout. Please try again.");
+            console.error("Error during logout:", error);
+            setErrorMessage("An error occurred during logout. Please try again.");
         }
-      };
-
+    };
 
     return (
         <nav className={`${themeClass} shadow-lg w-full z-50`}>
@@ -58,7 +138,9 @@ export default function Header({
                     </div>
                     <div className={`hidden md:flex items-center space-x-8 ${themeClass}`}>
                         <Link className={`${isDarkMode ? 'text-white' : 'text-gray-700'} hover:text-green-700`} href="/provider">Home</Link>
-                        <a href="#" className={`${isDarkMode ? 'text-white' : 'text-gray-700'} hover:text-green-700`}>
+                        <a href="#" 
+                           onClick={handleServicesClick}
+                           className={`${isDarkMode ? 'text-white' : 'text-gray-700'} hover:text-green-700`}>
                             Services
                         </a>
                         <a href="#" className={`${isDarkMode ? 'text-white' : 'text-gray-700'} hover:text-green-700`}>
@@ -83,9 +165,9 @@ export default function Header({
                                 ) : (
                                     <Moon size={20} className="text-red-600" />
                                 )}
-
                             </button>
                         </div>
+                        
                         {/* Profile Photo and Menu */}
                         <div className="relative ml-4">
                             <div
@@ -133,6 +215,7 @@ export default function Header({
                             )}
                         </div>
                     </div>
+                    
                     {/* Mobile menu button */}
                     <div className={`md:hidden ${themeClass} flex items-center`}>
                         {/* Mobile Profile Photo */}
@@ -173,10 +256,8 @@ export default function Header({
                                         className={`block w-full text-left px-4 py-2 text-sm ${isDarkMode ? 'text-gray-300 hover:bg-gray-700' : 'text-gray-700 hover:bg-gray-100'}`}
                                     >
                                         <div className="flex items-center">
-                                            <Link href="/auth/provider/login">
-                                                <LogOut size={16} className="mr-2" />
-                                                Déconnexion
-                                            </Link>
+                                            <LogOut size={16} className="mr-2" />
+                                            Déconnexion
                                         </div>
                                     </button>
                                 </div>
@@ -195,10 +276,12 @@ export default function Header({
                 <div className={`md:hidden ${themeClass}`}>
                     <div className={`md:hidden ${themeClass} fixed inset-0 z-40 pt-16`}>
                         <div className="p-4 space-y-4">
-                            <a href="#" className="block py-2 px-4 text-lg hover:bg-gray-100 dark:hover:bg-gray-800 rounded">
+                            <Link href="/provider" className="block py-2 px-4 text-lg hover:bg-gray-100 dark:hover:bg-gray-800 rounded">
                                 Home
-                            </a>
-                            <a href="#" className="block py-2 px-4 text-lg hover:bg-gray-100 dark:hover:bg-gray-800 rounded">
+                            </Link>
+                            <a href="#" 
+                               onClick={handleServicesClick}
+                               className="block py-2 px-4 text-lg hover:bg-gray-100 dark:hover:bg-gray-800 rounded">
                                 Services
                             </a>
                             <a href="#" className="block py-2 px-4 text-lg hover:bg-gray-100 dark:hover:bg-gray-800 rounded">
@@ -210,9 +293,6 @@ export default function Header({
                             <a href="#" className="block py-2 px-4 text-lg hover:bg-gray-100 dark:hover:bg-gray-800 rounded">
                                 Provider Help
                             </a>
-                            <button className="w-full bg-green-700 text-white py-2 px-4 rounded-full hover:bg-green-800 transition">
-                                <Link href="/auth/provider/login">Login</Link>
-                            </button>
                         </div>
                     </div>
                 </div>

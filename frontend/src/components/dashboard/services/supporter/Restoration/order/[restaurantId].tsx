@@ -3,9 +3,11 @@
 import { useState, useEffect } from "react";
 import { useParams } from "next/navigation";
 import axios from "axios";
-import Header from "@/components/auth/provider/header";
+import Header from "@/components/dashboard/profile/supporter/header";
 import Footer from "@/components/auth/footer";
 import PrintOrderComponent from "./PrintOrderComponent";
+import Link from "next/link";
+import { ChevronLeft } from "lucide-react";
 
 // Rest of the imports remain the same...
 
@@ -89,6 +91,8 @@ export default function RestaurantOrder() {
     const [checkoutSuccess, setCheckoutSuccess] = useState(false);
     const [deliveryAddress, setDeliveryAddress] = useState("");
     const [phoneNumber, setPhoneNumber] = useState("");
+    const [profilePhoto, setProfilePhoto] = useState<string | null>("/profile.png");
+
 
     // Order response state to store completed order data
     const [completedOrder, setCompletedOrder] = useState<OrderResponse | null>(null);
@@ -185,7 +189,7 @@ export default function RestaurantOrder() {
     const openPrintView = () => {
         if (completedOrder && restaurant) {
             const printWindow = window.open(`/print-view?orderId=${completedOrder.id}&restaurantId=${restaurantId}`, '_blank', 'width=800,height=600');
-            
+
             if (!printWindow) {
                 alert("Please allow pop-ups to print your receipt");
             }
@@ -281,8 +285,11 @@ export default function RestaurantOrder() {
         <div className={`min-h-screen ${themeClass}`}>
             <div className="min-h-screen flex no-print">
                 <div className="flex-1 pb-16">
-                    <Header isDarkMode={isDarkMode} toggleTheme={toggleTheme} />
-
+                    <Header
+                        isDarkMode={isDarkMode}
+                        toggleTheme={toggleTheme}
+                        profilePhoto={profilePhoto}
+                    />
                     <div className="max-w-7xl mx-auto px-4 py-8">
                         {isLoading ? (
                             <div className="flex justify-center items-center py-12">
@@ -296,6 +303,7 @@ export default function RestaurantOrder() {
                             <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
                                 {/* Restaurant Info */}
                                 <div className="lg:col-span-2">
+
                                     <div className={`${cardBgClass} border ${borderClass} rounded-lg overflow-hidden`}>
                                         <div className="relative h-48 md:h-64">
                                             <img
@@ -305,6 +313,7 @@ export default function RestaurantOrder() {
                                             />
                                         </div>
                                         <div className="p-6">
+                                            
                                             <div className="flex justify-between items-center mb-4">
                                                 <h1 className="text-2xl font-bold">{restaurant.name}</h1>
                                                 {restaurant.rating && (
@@ -313,7 +322,14 @@ export default function RestaurantOrder() {
                                                         <span className="ml-1">{restaurant.rating.toFixed(1)}</span>
                                                     </div>
                                                 )}
+                                                  <Link href="/dashboard/supporter/services/Restoration">
+                                                <button className="flex items-center px-4 py-2 bg-gray-500 text-white rounded-lg hover:bg-gray-600 transition-colors">
+                                                    <ChevronLeft size={18} className="mr-1" />
+                                                    Back to Restaurants
+                                                </button>
+                                            </Link>
                                             </div>
+                                          
                                             <p className="text-gray-600 dark:text-gray-300 mb-4">{restaurant.description}</p>
                                             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                                                 <div>

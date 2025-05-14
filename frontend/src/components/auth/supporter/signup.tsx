@@ -133,7 +133,7 @@ export default function SignUpForm() {
             localStorage.setItem("userId", data.userId);
 
             // Redirect to provider console
-            window.location.href = "/dashboard/supporter/profile";
+            window.location.href = "/auth/supporter/login";
           } else {
             // Show error message
             alert(data.message || "Registration failed");

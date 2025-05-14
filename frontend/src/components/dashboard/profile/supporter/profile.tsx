@@ -514,24 +514,7 @@ export default function SupporterProfile() {
                                 )}
                             </form>
 
-                            {/* Account Actions */}
-                            <div className={`mt-8 pt-6 border-t ${isDarkMode ? 'border-gray-700' : 'border-gray-200'}`}>
-                                <h3 className={`text-lg font-medium mb-4 text-center ${isDarkMode ? 'text-gray-200' : 'text-gray-800'}`}>
-                                    Account Actions
-                                </h3>
-
-                                <div className="flex flex-wrap justify-center items-center gap-4">
-                                    <button className="flex items-center gap-2 px-4 py-2 bg-yellow-600 text-white rounded-md hover:bg-yellow-700 transition-colors shadow-sm">
-                                        <Shield size={16} />
-                                        Reset Password
-                                    </button>
-                                    <button className="flex items-center gap-2 px-4 py-2 bg-red-600 text-white rounded-md hover:bg-red-700 transition-colors shadow-sm">
-                                        <X size={16} />
-                                        Delete Account
-                                    </button>
-
-                                </div>
-                            </div>
+                      
                         </div>
                     </div>
                 </div>

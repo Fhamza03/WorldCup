@@ -4,6 +4,8 @@ import {
     Menu, X, Upload, Camera, Edit, User, Mail, Calendar, Save,
     Plus, Trash2, Star, DollarSign, Clock, MapPin, ChevronUp, ChevronDown
 } from "lucide-react";
+import { Search, ChevronLeft, Building, AlertCircle } from "lucide-react";
+import Swal from 'sweetalert2';
 import Image from "next/image";
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
@@ -361,7 +363,7 @@ export default function RestaurantProviderProfile() {
         try {
             // Étape 1 : Ajouter le restaurant
             const url = `http://localhost:8083/api/restaurants/provider/${providerId}`;
-            const restaurantResponse = await axios.post(url, restaurantData);           
+            const restaurantResponse = await axios.post(url, restaurantData);
             const createdRestaurant = restaurantResponse.data;
             console.log("Restaurant created:", createdRestaurant);
 
@@ -371,23 +373,18 @@ export default function RestaurantProviderProfile() {
 
             // Étape 2 : Ajouter les menus
             for (const menu of menus) {
-                // Vérifiez que menuTypeId est un nombre
                 if (!menu.menuTypeId || typeof menu.menuTypeId !== 'number') {
                     throw new Error(`Invalid menuTypeId for menu: ${menu.name}`);
                 }
-
-                console.log("Sending menu:", menu);
 
                 const menuResponse = await axios.post(
                     `http://localhost:8083/api/menus/restaurant/${createdRestaurant.id}/type/${menu.menuTypeId}`,
                     menu
                 );
                 const createdMenu = menuResponse.data;
-                console.log("Menu created:", createdMenu);
 
                 // Étape 3 : Ajouter les produits
                 for (const product of menu.products) {
-                    // Étape 3.1 : Créer le produit
                     const productResponse = await axios.post(
                         `http://localhost:8083/api/products/without-add`,
                         {
@@ -400,21 +397,34 @@ export default function RestaurantProviderProfile() {
                         }
                     );
                     const createdProduct = productResponse.data;
-                    console.log("Product created:", createdProduct);
 
-                    // Étape 3.2 : Associer le produit au menu
-                    const associationResponse = await axios.post(
+                    await axios.post(
                         `http://localhost:8083/api/products/${createdProduct.id}/menu/${createdMenu.id}`,
-                        null // Pas de corps requis pour cette requête
+                        null
                     );
-                    console.log("Product associated with menu:", associationResponse.data);
                 }
             }
 
-            alert("All data saved successfully!");
+            // ✅ Afficher l'alerte de succès
+            Swal.fire({
+                icon: 'success',
+                title: 'Succès',
+                text: 'Restaurant, menus et produits ajoutés avec succès.',
+                confirmButtonText: 'OK',
+            }).then(() => {
+                // Rediriger après confirmation
+                router.push('/dashboard/provider/services/Restoration/liste');
+            });
+
         } catch (error) {
             console.error("Error saving data:", error);
-            alert("Failed to save data.");
+
+            // ❌ Afficher une alerte d'erreur
+            Swal.fire({
+                icon: 'error',
+                title: 'Erreur',
+                text: "Une erreur s'est produite lors de l'enregistrement des données.",
+            });
         }
     };
     if (isLoading) {
@@ -427,6 +437,7 @@ export default function RestaurantProviderProfile() {
             </div>
         );
     }
+
 
     const renderBasicInfoStep = () => (
         <div className="space-y-6">
@@ -573,7 +584,7 @@ export default function RestaurantProviderProfile() {
     const renderMenusStep = () => (
         <div className="space-y-6">
             <h3 className={`text-xl font-bold pt-5 ${isDarkMode ? 'text-white' : 'text-gray-800'}`}>Menus</h3>
-    
+
             {menus.map((menu, menuIndex) => (
                 <div
                     key={menuIndex}
@@ -598,7 +609,7 @@ export default function RestaurantProviderProfile() {
                             </button>
                         </div>
                     </div>
-    
+
                     <div className="space-y-4">
                         {/* Menu Name */}
                         <div className="space-y-1">
@@ -612,7 +623,7 @@ export default function RestaurantProviderProfile() {
                                 required
                             />
                         </div>
-    
+
                         {/* Description */}
                         <div className="space-y-1">
                             <label className={`block text-sm font-medium ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}>Description</label>
@@ -623,7 +634,7 @@ export default function RestaurantProviderProfile() {
                                 rows={2}
                             />
                         </div>
-    
+
                         {/* Menu Type */}
                         <div className="space-y-1">
                             <label className={`block text-sm font-medium ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}>Menu Type*</label>
@@ -641,7 +652,7 @@ export default function RestaurantProviderProfile() {
                                 ))}
                             </select>
                         </div>
-    
+
                         {/* Additional Fields */}
                         <div className="space-y-1">
                             <label className={`block text-sm font-medium ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}>Special Offer</label>
@@ -652,7 +663,7 @@ export default function RestaurantProviderProfile() {
                                 className="rounded"
                             />
                         </div>
-    
+
                         <div className="space-y-1">
                             <label className={`block text-sm font-medium ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}>Requires Fan ID</label>
                             <input
@@ -662,7 +673,7 @@ export default function RestaurantProviderProfile() {
                                 className="rounded"
                             />
                         </div>
-    
+
                         <div className="space-y-1">
                             <label className={`block text-sm font-medium ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}>Original Price</label>
                             <input
@@ -675,7 +686,7 @@ export default function RestaurantProviderProfile() {
                                 min="0"
                             />
                         </div>
-    
+
                         <div className="space-y-1">
                             <label className={`block text-sm font-medium ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}>Discounted Price</label>
                             <input
@@ -688,7 +699,7 @@ export default function RestaurantProviderProfile() {
                                 min="0"
                             />
                         </div>
-    
+
                         <div className="space-y-1">
                             <label className={`block text-sm font-medium ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}>Promotion Details</label>
                             <textarea
@@ -698,7 +709,7 @@ export default function RestaurantProviderProfile() {
                                 rows={2}
                             />
                         </div>
-    
+
                         {/* Products Section */}
                         <div className="space-y-4">
                             <h5 className={`font-medium ${isDarkMode ? 'text-white' : 'text-gray-800'}`}>Products</h5>
@@ -719,7 +730,7 @@ export default function RestaurantProviderProfile() {
                                             required
                                         />
                                     </div>
-    
+
                                     {/* Product Price */}
                                     <div className="space-y-1">
                                         <label className={`block text-sm font-medium ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}>Price*</label>
@@ -734,7 +745,7 @@ export default function RestaurantProviderProfile() {
                                             required
                                         />
                                     </div>
-    
+
                                     {/* Product Description */}
                                     <div className="space-y-1">
                                         <label className={`block text-sm font-medium ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}>Description</label>
@@ -745,7 +756,7 @@ export default function RestaurantProviderProfile() {
                                             rows={2}
                                         />
                                     </div>
-    
+
                                     {/* Product Supplements */}
                                     {product.hasSupplements && (
                                         <div className="space-y-1">
@@ -784,7 +795,7 @@ export default function RestaurantProviderProfile() {
                                             </button>
                                         </div>
                                     )}
-    
+
                                     {/* Remove Product Button */}
                                     <button
                                         onClick={() => handleRemoveProduct(menuIndex, productIndex)}
@@ -795,7 +806,7 @@ export default function RestaurantProviderProfile() {
                                     </button>
                                 </div>
                             ))}
-    
+
                             {/* Add Product Button */}
                             <button
                                 onClick={() => handleAddProduct(menuIndex)}
@@ -806,7 +817,7 @@ export default function RestaurantProviderProfile() {
                             </button>
                         </div>
                     </div>
-    
+
                     {/* Remove Menu Button */}
                     <div className="mt-4 pt-4 border-t border-gray-200 dark:border-gray-700">
                         <button
@@ -819,7 +830,7 @@ export default function RestaurantProviderProfile() {
                     </div>
                 </div>
             ))}
-    
+
             {/* Add Menu Button */}
             <button
                 onClick={handleAddMenu}
@@ -874,6 +885,12 @@ export default function RestaurantProviderProfile() {
                     </div>
 
                     <div className="max-w-3xl mx-auto flex justify-between mt-6 gap-8 pb-10">
+                        <Link href="/dashboard/provider/services/Restoration/liste ">
+                            <button className="flex items-center px-4 py-2 bg-gray-500 text-white rounded-lg hover:bg-gray-600 transition-colors">
+                                <ChevronLeft size={18} className="mr-1" />
+                                Back to list
+                            </button>
+                        </Link>
                         {currentStep > 1 && currentStep < 3 && (
                             <button onClick={handlePreviousStep} className="bg-gray-500 text-white px-4 py-2 rounded-lg">Back</button>
                         )}

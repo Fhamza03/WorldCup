@@ -95,4 +95,26 @@ public class RestaurantController {
         RestaurantDetailsDTO restaurantDetails = restaurantService.getRestaurantDetailsByProviderId(providerId);
         return ResponseEntity.ok(restaurantDetails);
     }
+    @GetMapping("/{id}/details")
+    public ResponseEntity<RestaurantDetailsDTO> getRestaurantDetailsById(@PathVariable Integer id) {
+        try {
+            RestaurantDetailsDTO restaurantDetails = restaurantService.getRestaurantDetailsById(id);
+            return ResponseEntity.ok(restaurantDetails);
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.notFound().build();
+        }
+    }
+    @PutMapping("/{id}/details")
+    public ResponseEntity<Restaurant> updateRestaurantWithDetails(@PathVariable Integer id,
+                                                                  @RequestBody RestaurantDetailsDTO dto) {
+        try {
+            Restaurant updated = restaurantService.updateRestaurantWithDetails(id, dto);
+            return ResponseEntity.ok(updated);
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.notFound().build();
+        }
+    }
+
+
+
 }

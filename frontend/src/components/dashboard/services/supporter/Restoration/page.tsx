@@ -2,13 +2,17 @@
 
 import { useState, useEffect, ChangeEvent } from "react";
 import {
-    Search, MapPin, Star, Clock, ArrowRight, ChevronDown, Filter,
+    Search, MapPin, Star, Clock, ArrowRight, ChevronDown, Filter, ChevronLeft
 } from "lucide-react";
 import Link from "next/link";
-import Header from "@/components/auth/provider/header";
+import Header from "@/components/dashboard/profile/supporter/header";
 import Footer from "@/components/auth/footer";
 import Sidebar from "@/components/dashboard/layout/sidebar";
 import axios from "axios";
+
+interface OpeningHours {
+    [day: string]: string | null; // e.g., "MONDAY": "08" or null
+}
 
 interface Restaurant {
     id: number;
@@ -18,8 +22,9 @@ interface Restaurant {
     cuisineType: string;
     address: string;
     rating?: number;
-    deliveryTime?: string;
+    openingHours?: OpeningHours;
 }
+
 
 interface Menu {
     id: number;
@@ -43,6 +48,8 @@ export default function RestaurantBrowse() {
     const [restaurants, setRestaurants] = useState<Restaurant[]>([]);
     const [menus, setMenus] = useState<{ [key: number]: Menu[] }>({});
     const [error, setError] = useState<string | null>(null);
+    const [profilePhoto, setProfilePhoto] = useState<string | null>("/logo.png");
+
 
     useEffect(() => {
         fetchRestaurants();
@@ -97,6 +104,33 @@ export default function RestaurantBrowse() {
             setIsLoading(false);
         }
     };
+    const formatOpeningHours = (openingHours: any) => {
+        if (!openingHours) return null;
+
+        const daysOrder = ["MONDAY", "TUESDAY", "WEDNESDAY", "THURSDAY", "FRIDAY", "SATURDAY", "SUNDAY"];
+
+        return (
+            <div className="mt-3">
+                <h4 className={`text-sm font-semibold mb-1 flex items-center gap-1 ${isDarkMode ? 'text-white-300' : 'text-white-700'}`}>
+                    <Clock className="w-4 h-4" />
+                    Opening Hours
+                </h4>
+                <div className="grid grid-cols-1 gap-1">
+                    {daysOrder.map(day => (
+                        <div key={day} className="flex justify-between text-xs">
+                            <span className="capitalize">{day.toLowerCase()}</span>
+                            <span className={`${isDarkMode ? 'text-gray-400' : 'text-gray-600'}`}>
+                                {openingHours[day]
+                                    ? `${openingHours[day]}:00 - ${parseInt(openingHours[day]) + 8}:00`
+                                    : 'Closed'}
+                            </span>
+                        </div>
+                    ))}
+                </div>
+            </div>
+        );
+
+    };
 
     const toggleTheme = () => {
         setIsDarkMode((prevMode) => !prevMode);
@@ -119,12 +153,25 @@ export default function RestaurantBrowse() {
             <div className="min-h-screen flex">
 
                 <div className="flex-1 pb-16">
-                    <Header isDarkMode={isDarkMode} toggleTheme={toggleTheme} />
+                    <Header
+                        isDarkMode={isDarkMode}
+                        toggleTheme={toggleTheme}
+                        profilePhoto={profilePhoto}
+                    />
+
 
                     <div className="max-w-7xl mx-auto px-4 py-8 space-y-8">
-                        <h1 className={`text-2xl md:text-3xl font-bold ${isDarkMode ? "text-white" : "text-gray-900"}`}>
-                            Find Restaurants
-                        </h1>
+                        <div className="flex items-center justify-between">
+                            <h1 className={`text-2xl md:text-3xl font-bold ${isDarkMode ? "text-white" : "text-gray-900"}`}>
+                                Find Restaurants
+                            </h1>
+                            <Link href="/dashboard/supporter/services/choices">
+                                <button className="flex items-center px-4 py-2 bg-gray-500 text-white rounded-lg hover:bg-gray-600 transition-colors">
+                                    <ChevronLeft size={18} className="mr-1" />
+                                    Back to Dashboard
+                                </button>
+                            </Link>
+                        </div>
 
                         {/* Search Section */}
                         <div className="flex items-center border rounded-lg overflow-hidden">
@@ -175,32 +222,7 @@ export default function RestaurantBrowse() {
                                                 <MapPin size={16} className="text-gray-500 mt-0.5" />
                                                 <span>{restaurant.address}</span>
                                             </div>
-                                            <div className="flex items-center space-x-1 text-sm mb-4">
-                                                <Clock size={16} className="text-gray-500" />
-                                                <span>Delivery: {restaurant.deliveryTime || "N/A"}</span>
-                                            </div>
-
-                                            {/* Menus */}
-                                            {menus[restaurant.id]?.map((menu) => (
-                                                <div key={menu.id} className="mt-4">
-                                                    <h4 className="font-semibold">{menu.name}</h4>
-                                                    <p className="text-sm">{menu.description}</p>
-
-                                                    {/* Products */}
-                                                    <div className="mt-2">
-                                                        {menu.products.map((product) => (
-                                                            <div key={product.id} className="ml-4">
-                                                                <p>
-                                                                    {product.name} - $
-                                                                    {product.price !== null && product.price !== undefined
-                                                                        ? product.price.toFixed(2)
-                                                                        : "0.00"}
-                                                                </p>
-                                                            </div>
-                                                        ))}
-                                                    </div>
-                                                </div>
-                                            ))}
+                                            {formatOpeningHours(restaurant.openingHours)}
                                             <Link href={`/dashboard/supporter/services/Restoration/order/${restaurant.id}`}>
                                                 <button className="w-full py-2 bg-green-500 text-white rounded-lg hover:bg-green-600 transition-colors flex items-center justify-center mt-4">
                                                     Order Now

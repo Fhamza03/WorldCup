@@ -152,8 +152,8 @@ export default function ProviderSignUp() {
     
             if (response.ok) {
                 localStorage.setItem("userType", "PROVIDER");
-                alert("Registration successful! Redirecting to console...");
-                window.location.href = "/provider";
+                alert("Registration successful! Redirecting to profile...");
+                window.location.href = "/dashboard/provider/profile";
             } else {
                 throw new Error(`Registration failed: ${response.status}`);
             }

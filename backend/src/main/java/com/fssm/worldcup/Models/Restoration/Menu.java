@@ -4,6 +4,7 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.*;
 
+import java.util.ArrayList;
 import java.util.List;
 
 @Entity
@@ -31,7 +32,7 @@ public class Menu {
 
     @JsonIgnore
     @OneToMany(mappedBy = "menu", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<ProductMenu> productMenus;
+    private List<ProductMenu> productMenus = new ArrayList<>(); // ✅ correction ici
 
     private Boolean isSpecialOffer;
     private Boolean requiresFanId;

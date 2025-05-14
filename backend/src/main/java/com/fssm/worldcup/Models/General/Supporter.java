@@ -16,16 +16,17 @@ import java.util.List;
 @Builder
 public class Supporter extends User {
 
-    private Boolean isFanIdValid;
+    private Boolean isFanIdValid = false; // Valeur par défaut à false
 
     @OneToMany(mappedBy = "supporter", cascade = CascadeType.ALL, orphanRemoval = true)
     @JsonManagedReference // Move annotation here
     private List<Journey> journeys;
 
-    @OneToOne(cascade = CascadeType.ALL, orphanRemoval = true)
-    @JoinColumn(name = "card_id", unique = true, nullable = false)
-    @JsonIgnoreProperties("supporter") // Use this instead
+    @OneToOne
+    @JoinColumn(name = "card_id", unique = true)
+    @JsonIgnoreProperties("supporter")
     private Card card;
+
 
     // Getters et Setters
     public Boolean getIsFanIdValid() {

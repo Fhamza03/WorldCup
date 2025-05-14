@@ -4,9 +4,12 @@ import com.fssm.worldcup.DTOs.MenuDTO;
 import com.fssm.worldcup.DTOs.ProductDTO;
 import com.fssm.worldcup.DTOs.RestaurantDetailsDTO;
 import com.fssm.worldcup.Models.General.Provider;
+import com.fssm.worldcup.Models.Restoration.Menu;
+import com.fssm.worldcup.Models.Restoration.Product;
 import com.fssm.worldcup.Models.Restoration.ProductMenu;
 import com.fssm.worldcup.Models.Restoration.Restaurant;
 import com.fssm.worldcup.Repositories.General.ProviderRepository;
+import com.fssm.worldcup.Repositories.Restoration.ProductRepository;
 import com.fssm.worldcup.Repositories.Restoration.RestaurantRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -27,6 +30,9 @@ public class RestaurantService {
 
     @Autowired
     private ProviderRepository providerRepository;
+    @Autowired
+    private ProductRepository productRepository;
+
 
     public List<Restaurant> getAllRestaurants() {
         return restaurantRepository.findAll();
@@ -143,4 +149,77 @@ public class RestaurantService {
 
         return mapToRestaurantDetailsDTO(restaurant);
     }
+    public RestaurantDetailsDTO getRestaurantDetailsById(Integer id) {
+        Restaurant restaurant = restaurantRepository.findById(id)
+                .orElseThrow(() -> new IllegalArgumentException("Restaurant not found with ID: " + id));
+
+        return mapToRestaurantDetailsDTO(restaurant);
+    }
+    @Transactional
+    public Restaurant updateRestaurantWithDetails(Integer id, RestaurantDetailsDTO dto) {
+        Restaurant restaurant = restaurantRepository.findById(id)
+                .orElseThrow(() -> new IllegalArgumentException("Restaurant not found with ID: " + id));
+
+        // ✅ Mise à jour des infos de base
+        restaurant.setName(dto.getName());
+        restaurant.setDescription(dto.getDescription());
+        restaurant.setCuisineType(dto.getCuisineType());
+        restaurant.setLocation(dto.getAddress()); // Vérifie si location != address
+        restaurant.setAddress(dto.getAddress());
+        restaurant.setContactPhone(dto.getContactPhone());
+        restaurant.setEmail(dto.getEmail());
+        restaurant.setOpeningHours(dto.getOpeningHours());
+
+        // ✅ Supprimer les anciens menus
+        restaurant.getMenus().clear();
+
+        for (MenuDTO menuDTO : dto.getMenus()) {
+            Menu menu = new Menu();
+            // Ne jamais utiliser d'ID négatif (généré temporairement côté front)
+            if (menuDTO.getId() != null && menuDTO.getId() > 0) {
+                menu.setId(menuDTO.getId());
+            }
+
+            menu.setName(menuDTO.getName());
+            menu.setDescription(menuDTO.getDescription());
+            menu.setIsSpecialOffer(menuDTO.getIsSpecialOffer());
+            menu.setOriginalPrice(menuDTO.getOriginalPrice());
+            menu.setDiscountedPrice(menuDTO.getDiscountedPrice());
+            menu.setRestaurant(restaurant);
+
+            for (ProductDTO productDTO : menuDTO.getProducts()) {
+                Product product;
+
+                if (productDTO.getId() != null && productDTO.getId() > 0) {
+                    // Produit existant : mise à jour
+                    product = productRepository.findById(productDTO.getId())
+                            .orElseThrow(() -> new IllegalArgumentException("Produit introuvable avec ID: " + productDTO.getId()));
+                    product.setName(productDTO.getName());
+                    product.setDescription(productDTO.getDescription());
+                    product.setPrice(productDTO.getPrice());
+                    product.setIsAvailable(productDTO.getIsAvailable());
+                } else {
+                    // Nouveau produit
+                    product = new Product();
+                    product.setName(productDTO.getName());
+                    product.setDescription(productDTO.getDescription());
+                    product.setPrice(productDTO.getPrice());
+                    product.setIsAvailable(productDTO.getIsAvailable());
+                }
+
+                ProductMenu productMenu = new ProductMenu();
+                productMenu.setMenu(menu);
+                productMenu.setProduct(product);
+
+                menu.getProductMenus().add(productMenu);
+            }
+
+            restaurant.getMenus().add(menu);
+        }
+
+        return restaurantRepository.save(restaurant);
+    }
+
+
+
 }   
