@@ -9,6 +9,15 @@ import lombok.*;
 @Getter
 @Setter
 @Builder
+import jakarta.persistence.*;
+import lombok.*;
+
+@Entity
+@AllArgsConstructor
+@NoArgsConstructor
+@Getter
+@Setter
+@Builder
 public class ProductMenu {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

@@ -18,7 +18,7 @@ export default function SupporterProfile() {
     const [errorMessage, setErrorMessage] = useState<string | null>(null);
     const [isLoading, setIsLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
-    
+
     const [formData, setFormData] = useState({
         id: 0,
         email: "",
@@ -27,7 +27,7 @@ export default function SupporterProfile() {
         birthDate: "",
         nationality: "",
         nationalCode: "",
-     
+
     });
 
     useEffect(() => {
@@ -37,7 +37,7 @@ export default function SupporterProfile() {
         } else {
             setIsDarkMode(false);
         }
-        
+
         // Fetch all required data in parallel
         Promise.all([
             fetchCountries(),
@@ -60,7 +60,7 @@ export default function SupporterProfile() {
                 throw new Error("Authentication information missing. Please login again.");
             }
 
-            const response = await fetch(`http://localhost:8080/supporter/getSupporter/${supporterId}`, {
+            const response = await fetch(`http://localhost:8083/supporter/getSupporter/${supporterId}`, {
                 headers: {
                     "Authorization": `Bearer ${token}`
                 }
@@ -83,9 +83,24 @@ export default function SupporterProfile() {
                 nationalCode: supporterData.nationalCode || "",
             });
 
-            // Set profile photo if available
+            // Dans fetchProviderData()
             if (supporterData.profilePicture) {
-                setProfilePhoto(`http://localhost:8080/${supporterData.profilePicture}`);
+                // Vérifiez si le chemin est absolu ou relatif
+                const profilePicPath = supporterData.profilePicture;
+
+                // Si le chemin contient déjà le protocole http://, utilisez-le tel quel
+                if (profilePicPath.startsWith('http')) {
+                    setProfilePhoto(profilePicPath);
+                }
+                // Si c'est un chemin relatif, ajoutez l'URL de base
+                else {
+                    // Extraire le chemin relatif si nécessaire
+                    const relativePath = profilePicPath.includes('uploads')
+                        ? profilePicPath.substring(profilePicPath.indexOf('uploads'))
+                        : profilePicPath;
+
+                    setProfilePhoto(`http://localhost:8083/${relativePath}`);
+                }
             }
 
             return supporterData;
@@ -121,27 +136,27 @@ export default function SupporterProfile() {
 
     const handleLogout = async () => {
         try {
-          const response = await fetch("http://localhost:8080/api/auth/signout", {
-            method: "POST",
-            headers: {
-              "Content-Type": "application/json",
-            },
-          });
-    
-          const data = await response.json();
-    
-          if (data.success) {
-            localStorage.removeItem("token");
-            localStorage.removeItem("userType");
-            localStorage.removeItem("userId");
-    
-            window.location.href = "/auth/supporter/login";
-          } else {
-            setErrorMessage(data.message || "Logout failed. Please try again.");
-          }
+            const response = await fetch("http://localhost:8083/api/auth/signout", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                },
+            });
+
+            const data = await response.json();
+
+            if (data.success) {
+                localStorage.removeItem("token");
+                localStorage.removeItem("userType");
+                localStorage.removeItem("userId");
+
+                window.location.href = "/auth/supporter/login";
+            } else {
+                setErrorMessage(data.message || "Logout failed. Please try again.");
+            }
         } catch (error) {
-          console.error("Error during logout:", error);
-          setErrorMessage("An error occurred during logout. Please try again.");
+            console.error("Error during logout:", error);
+            setErrorMessage("An error occurred during logout. Please try again.");
         }
     };
 
@@ -168,7 +183,7 @@ export default function SupporterProfile() {
 
     const handleSubmit = async (e: FormEvent) => {
         e.preventDefault();
-        
+
         try {
             const token = localStorage.getItem("token");
 
@@ -177,7 +192,7 @@ export default function SupporterProfile() {
             }
 
             // Create an endpoint in your backend for updating supporter data
-            const response = await fetch(`http://localhost:8080/supporter/updateSupporter/${formData.id}`, {
+            const response = await fetch(`http://localhost:8083/supporter/updateSupporter/${formData.id}`, {
                 method: "PUT",
                 headers: {
                     "Content-Type": "application/json",
@@ -205,12 +220,12 @@ export default function SupporterProfile() {
     useEffect(() => {
         const token = localStorage.getItem("token");
         const userType = localStorage.getItem("userType");
-        
+
         if (!token) {
-          router.push("/auth/spporter/login");
+            router.push("/auth/spporter/login");
         } else if (userType !== "SUPPORTER") {
-          // Redirect to appropriate page if not a supporter
-          router.push("/");
+            // Redirect to appropriate page if not a supporter
+            router.push("/");
         }
     }, [router]);
 
@@ -266,10 +281,10 @@ export default function SupporterProfile() {
     return (
         <div className={`min-h-screen ${themeClass} flex flex-col bg-gradient-to-b ${isDarkMode ? 'from-gray-900 to-gray-800' : 'from-gray-50 to-white'}`}>
             {/* Header Component */}
-            <Header 
-                isDarkMode={isDarkMode} 
-                toggleTheme={toggleTheme} 
-                profilePhoto={profilePhoto} 
+            <Header
+                isDarkMode={isDarkMode}
+                toggleTheme={toggleTheme}
+                profilePhoto={profilePhoto}
             />
 
             {/* Main Content */}
@@ -288,7 +303,7 @@ export default function SupporterProfile() {
                                                 width={96}
                                                 height={96}
                                                 className="w-full h-full object-cover"
-                                                onError={() => setProfilePhoto("/logo.png")}
+                                                onError={() => setProfilePhoto("/logo.png")} // Fallback image
                                                 unoptimized
                                             />
                                         ) : (
@@ -499,24 +514,7 @@ export default function SupporterProfile() {
                                 )}
                             </form>
 
-                            {/* Account Actions */}
-                            <div className={`mt-8 pt-6 border-t ${isDarkMode ? 'border-gray-700' : 'border-gray-200'}`}>
-                                <h3 className={`text-lg font-medium mb-4 text-center ${isDarkMode ? 'text-gray-200' : 'text-gray-800'}`}>
-                                    Account Actions
-                                </h3>
-
-                                <div className="flex flex-wrap justify-center items-center gap-4">
-                                    <button className="flex items-center gap-2 px-4 py-2 bg-yellow-600 text-white rounded-md hover:bg-yellow-700 transition-colors shadow-sm">
-                                        <Shield size={16} />
-                                        Reset Password
-                                    </button>
-                                    <button className="flex items-center gap-2 px-4 py-2 bg-red-600 text-white rounded-md hover:bg-red-700 transition-colors shadow-sm">
-                                        <X size={16} />
-                                        Delete Account
-                                    </button>
-
-                                </div>
-                            </div>
+                      
                         </div>
                     </div>
                 </div>

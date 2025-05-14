@@ -119,7 +119,7 @@ export default function SignUpForm() {
         }
 
         // Send request to backend
-        const response = await fetch("http://localhost:8080/api/auth/signup", {
+        const response = await fetch("http://localhost:8083/api/auth/signup", {
             method: "POST",
             body: formDataObj,
         });
@@ -133,7 +133,7 @@ export default function SignUpForm() {
             localStorage.setItem("userId", data.userId);
 
             // Redirect to provider console
-            window.location.href = "/dashboard/supporter/profile";
+            window.location.href = "/auth/supporter/login";
           } else {
             // Show error message
             alert(data.message || "Registration failed");

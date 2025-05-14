@@ -1,6 +1,7 @@
 // src/main/java/com/fssm/worldcup/Models/General/ServiceType.java
 package com.fssm.worldcup.Models.General;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.*;

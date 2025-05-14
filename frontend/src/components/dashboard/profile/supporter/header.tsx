@@ -24,29 +24,29 @@ export default function Header({
 
     const handleLogout = async () => {
         try {
-          const response = await fetch("http://localhost:8080/api/auth/signout", {
-            method: "POST",
-            headers: {
-              "Content-Type": "application/json",
-            },
-          });
-    
-          const data = await response.json();
-    
-          if (data.success) {
-            localStorage.removeItem("token");
-            localStorage.removeItem("userType");
-            localStorage.removeItem("userId");
-    
-            window.location.href = "/auth/supporter/login";
-          } else {
-            setErrorMessage(data.message || "Logout failed. Please try again.");
-          }
+            const response = await fetch("http://localhost:8083/api/auth/signout", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                },
+            });
+
+            const data = await response.json();
+
+            if (data.success) {
+                localStorage.removeItem("token");
+                localStorage.removeItem("userType");
+                localStorage.removeItem("userId");
+
+                window.location.href = "/auth/supporter/login";
+            } else {
+                setErrorMessage(data.message || "Logout failed. Please try again.");
+            }
         } catch (error) {
-          console.error("Error during logout:", error);
-          setErrorMessage("An error occurred during logout. Please try again.");
+            console.error("Error during logout:", error);
+            setErrorMessage("An error occurred during logout. Please try again.");
         }
-      };
+    };
 
 
     return (
@@ -58,9 +58,9 @@ export default function Header({
                     </div>
                     <div className={`hidden md:flex items-center space-x-8 ${themeClass}`}>
                         <Link className={`${isDarkMode ? 'text-white' : 'text-gray-700'} hover:text-green-700`} href="/">Home</Link>
-                        <a href="#" className={`${isDarkMode ? 'text-white' : 'text-gray-700'} hover:text-green-700`}>
+                        <Link href="/dashboard/supporter/services" className={`${isDarkMode ? 'text-white' : 'text-gray-700'} hover:text-green-700`}>
                             Services
-                        </a>
+                        </Link>
                         <a href="#" className={`${isDarkMode ? 'text-white' : 'text-gray-700'} hover:text-green-700`}>
                             Support
                         </a>
@@ -93,7 +93,7 @@ export default function Header({
                                 onClick={() => setIsProfileMenuOpen(!isProfileMenuOpen)}
                             >
                                 {profilePhoto ? (
-                                    <img src={profilePhoto} alt="Profile" className="w-full h-full object-cover" />
+                                    <img src={"/logo.png"} alt="Profile" className="w-full h-full object-cover" />
                                 ) : (
                                     <div className={`w-full h-full flex items-center justify-center ${isDarkMode ? 'bg-gray-700' : 'bg-gray-200'}`}>
                                         <User size={24} className={isDarkMode ? 'text-gray-500' : 'text-gray-400'} />
@@ -108,7 +108,7 @@ export default function Header({
                                     onBlur={() => setTimeout(() => setIsProfileMenuOpen(false), 100)}
                                 >
                                     <Link
-                                        href=""
+                                        href="/dashboard/supporter/profile"
                                         className={`block px-4 py-2 text-sm ${isDarkMode ? 'text-gray-300 hover:bg-gray-700' : 'text-gray-700 hover:bg-gray-100'}`}
                                         onClick={() => setIsProfileMenuOpen(false)}
                                     >
@@ -156,7 +156,7 @@ export default function Header({
                                     className={`absolute right-0 mt-2 w-48 rounded-md shadow-lg py-1 z-50 ${isDarkMode ? 'bg-gray-800' : 'bg-white'} ring-1 ring-black ring-opacity-5`}
                                 >
                                     <Link
-                                        href=""
+                                        href="/dashboard/supporter/profile"
                                         className={`block px-4 py-2 text-sm ${isDarkMode ? 'text-gray-300 hover:bg-gray-700' : 'text-gray-700 hover:bg-gray-100'}`}
                                         onClick={() => setIsProfileMenuOpen(false)}
                                     >
@@ -195,12 +195,12 @@ export default function Header({
                 <div className={`md:hidden ${themeClass}`}>
                     <div className={`md:hidden ${themeClass} fixed inset-0 z-40 pt-16`}>
                         <div className="p-4 space-y-4">
-                            <a href="#" className="block py-2 px-4 text-lg hover:bg-gray-100 dark:hover:bg-gray-800 rounded">
+                            <Link href="/" className="block py-2 px-4 text-lg hover:bg-gray-100 dark:hover:bg-gray-800 rounded">
                                 Home
-                            </a>
-                            <a href="#" className="block py-2 px-4 text-lg hover:bg-gray-100 dark:hover:bg-gray-800 rounded">
+                            </Link>
+                            <Link href="/dashboard/supporter/services" className="block py-2 px-4 text-lg hover:bg-gray-100 dark:hover:bg-gray-800 rounded">
                                 Services
-                            </a>
+                            </Link>
                             <a href="#" className="block py-2 px-4 text-lg hover:bg-gray-100 dark:hover:bg-gray-800 rounded">
                                 Support
                             </a>

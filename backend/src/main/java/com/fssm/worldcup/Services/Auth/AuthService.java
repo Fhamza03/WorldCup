@@ -85,7 +85,7 @@ public class AuthService {
             Path filePath = Paths.get(folder + fileName);
             Files.write(filePath, file.getBytes());
 
-            return filePath.toString(); // Retourner le chemin enregistré
+            return folder + fileName; // Retournez un chemin relatif
         } catch (IOException e) {
             e.printStackTrace();
             return null;

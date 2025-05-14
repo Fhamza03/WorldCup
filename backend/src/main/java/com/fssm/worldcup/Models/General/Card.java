@@ -4,6 +4,8 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.*;
 
+import java.time.LocalDate;
+
 @Entity
 @AllArgsConstructor
 @NoArgsConstructor
@@ -14,12 +16,12 @@ public class Card {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    Integer cardId;
+    private Integer cardId;
 
-    String cardNumber;
-    String cardType;
-    String issueDate;
-    String expiryDate;
+    private String cardNumber;
+    private String cardType;
+    private String issueDate;
+    private String expiryDate;
 
 //    @OneToOne(mappedBy = "card")
 //    @JoinColumn(name = "supporter_id", unique = true, nullable = false)

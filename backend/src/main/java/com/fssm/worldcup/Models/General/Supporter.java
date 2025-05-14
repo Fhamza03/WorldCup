@@ -16,7 +16,7 @@ import java.util.List;
 @Builder
 public class Supporter extends User {
 
-    private Boolean isFanIdValid;
+    private Boolean isFanIdValid = false; // Valeur par défaut à false
 
     @OneToMany(mappedBy = "supporter", cascade = CascadeType.ALL, orphanRemoval = true)
     @JsonIgnore

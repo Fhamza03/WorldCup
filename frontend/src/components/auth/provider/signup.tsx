@@ -62,7 +62,7 @@ export default function ProviderSignUp() {
 
     const fetchServiceTypes = async () => {
         try {
-            const response = await fetch('http://localhost:8080/serviceType/getAllServiceTypes', {
+            const response = await fetch('http://localhost:8083/serviceType/getAllServiceTypes', {
                 method: 'GET',
                 headers: {
                     'Content-Type': 'application/json',
@@ -145,15 +145,15 @@ export default function ProviderSignUp() {
             }
     
             // Envoi de la requête au backend
-            const response = await fetch("http://localhost:8080/api/auth/signup", {
+            const response = await fetch("http://localhost:8083/api/auth/signup", {
                 method: "POST",
                 body: formDataObj,
             });
     
             if (response.ok) {
                 localStorage.setItem("userType", "PROVIDER");
-                alert("Registration successful! Redirecting to console...");
-                window.location.href = "/provider";
+                alert("Registration successful! Redirecting to profile...");
+                window.location.href = "/dashboard/provider/profile";
             } else {
                 throw new Error(`Registration failed: ${response.status}`);
             }

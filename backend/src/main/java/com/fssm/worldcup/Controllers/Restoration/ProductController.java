@@ -11,6 +11,17 @@ import java.util.List;
 
 @RestController
 @RequestMapping("/api/products")
+import com.fssm.worldcup.Models.Restoration.*;
+import com.fssm.worldcup.Services.Restoration.ProductService;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
+
+@RestController
+@RequestMapping("/api/products")
 public class ProductController {
 
     @Autowired
