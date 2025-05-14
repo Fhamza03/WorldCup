@@ -52,7 +52,7 @@ interface Provider {
 }
 
 export interface Accommodation {
-  idAccommodation: number;
+  idAccommodation?: number;
   address: string;
   roomsCount: number;
   bathroomsCount: number;
@@ -60,4 +60,35 @@ export interface Accommodation {
   wifiAvailable: boolean;
   priceForNight: number;
   provider: Provider;
+}
+
+export interface Reservation {
+  reservationId?: number;
+  accommodation: Accommodation;
+  supporter: Supporter;
+}
+
+export interface User {
+  userId: number;
+  email: string;
+  password: string;
+  firstName: string;
+  lastName: string;
+  birthDate: string;
+  nationality: string;
+  nationalCode: string;
+  profilePicture: string;
+}
+
+export interface Supporter extends User {
+  isFanIdValid: boolean;
+  card: Card;
+}
+
+export interface Card {
+  cardId: number;
+  cardNumber: string;
+  cardType: string;
+  issueDate: string;
+  expiryDate: string;
 }

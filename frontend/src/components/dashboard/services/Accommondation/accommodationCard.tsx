@@ -13,6 +13,7 @@ import {
   Bed,
 } from "lucide-react";
 import { Accommodation } from "@/interfaces";
+// import { createReservation } from "@/api/accomondation/accomondation.api";
 
 const AccommodationCard = ({
   accommodation,
@@ -28,6 +29,12 @@ const AccommodationCard = ({
     const parts = address.split(",");
     return parts.length > 1 ? parts[1].trim() : address;
   };
+
+  // const handleReserve() = async (reservation:Reservation)=>{
+  //   const response = await createReservation(reservation)
+  //   if (!response)
+  //     console.error("Failed to create Reservation")
+  // }
 
   return (
     <div className="p-6 border border-gray-300 rounded-lg mb-4">
@@ -74,7 +81,7 @@ const AccommodationCard = ({
           <div className="flex items-center">
             <DollarSign className="w-4 h-4 mr-1 text-gray-600" />
             <span className="font-bold text-lg">
-              ${accommodation.priceForNight}
+              {accommodation.priceForNight}DH
             </span>
             <span className="text-gray-500 text-sm ml-1">/ night</span>
           </div>
@@ -112,11 +119,16 @@ const AccommodationCard = ({
               </span>
             </div>
           </div>
-          <div className="flex justify-end items-center mb-2">
-            <button className="px-4 py-2 bg-gradient-to-r from-green-600 to-yellow-500 text-white rounded-md">
-              Reserve
-            </button>
-          </div>
+          {status !== "Reserved" && (
+            <div className="flex justify-end items-center mb-2">
+              <button
+                onClick={() => {}}
+                className="px-4 py-2 bg-gradient-to-r from-green-600 to-yellow-500 text-white rounded-md"
+              >
+                Reserve
+              </button>
+            </div>
+          )}
         </div>
       )}
 

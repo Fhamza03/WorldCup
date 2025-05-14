@@ -1,60 +1,15 @@
 "use client";
-import {
-  Calendar,
-  ChevronDown,
-  Filter,
-  MapPin,
-  RefreshCw,
-  Search,
-} from "lucide-react";
+import { Calendar, Filter, MapPin, RefreshCw, Search } from "lucide-react";
 import { useEffect, useState } from "react";
 import AccommodationCard from "./accommodationCard";
-import { Accommodation } from "@/interfaces";
-import { getAccomondatios } from "@/api/accomondation/accomondation.api";
-
-// // Sample accommodation data
-// const accommodationData: Accommodation[] = [
-//   {
-//     idAccommodation: 101,
-//     address: "27 Avenue Mohammed V, Marrakech",
-//     roomsCount: 3,
-//     bathroomsCount: 2,
-//     showersCount: 1,
-//     wifiAvailable: true,
-//     priceForNight: 75,
-//     provider: {
-//       userId: 1001,
-//       email: "host@example.com",
-//       password: "********",
-//       firstName: "Mohammed",
-//       lastName: "Alaoui",
-//       birthDate: "1985-06-15",
-//       nationality: "Moroccan",
-//       nationalCode: "MA12345",
-//       profilePicture: "/api/placeholder/64/64",
-//     },
-//   },
-//   {
-//     idAccommodation: 202,
-//     address: "45 Rue des Fès, Casablanca",
-//     roomsCount: 4,
-//     bathroomsCount: 3,
-//     showersCount: 2,
-//     wifiAvailable: true,
-//     priceForNight: 95,
-//     provider: {
-//       userId: 1002,
-//       email: "host2@example.com",
-//       password: "********",
-//       firstName: "Fatima",
-//       lastName: "Benyoussef",
-//       birthDate: "1990-03-20",
-//       nationality: "Moroccan",
-//       nationalCode: "MA54321",
-//       profilePicture: "/api/placeholder/64/64",
-//     },
-//   },
-// ];
+import {
+  Accommodation,
+  // Reservation
+} from "@/interfaces";
+import {
+  getAccomondations,
+  // getAllReservations,
+} from "@/api/accomondation/accomondation.api";
 
 const AccommodationFinderApp = () => {
   const [statusFilter, setStatusFilter] = useState("All");
@@ -65,17 +20,24 @@ const AccommodationFinderApp = () => {
   const [allAccommodations, setAllAccommodations] = useState<Accommodation[]>(
     []
   );
+  // const [allReservations, setAllReservations] = useState<Reservation[]>([]);
 
   useEffect(() => {
     // Fetch data from the API
     const fetchData = async () => {
-      const response = await getAccomondatios();
+      const response = await getAccomondations();
       if (response) {
         setAllAccommodations(response);
         setAccommodationData(response);
       } else {
-        console.error("Failed to fetch routes");
+        console.error("Failed to fetch Accomondations");
       }
+      // const reservations = await getAllReservations();
+      // if (reservations) {
+      //   setAllReservations(reservations.data);
+      // } else {
+      //   console.error("Failed to fetch Reservations");
+      // }
     };
     fetchData();
   }, []);
@@ -89,7 +51,6 @@ const AccommodationFinderApp = () => {
             .toLowerCase()
             .includes(searchLocation.toLowerCase()));
 
-      console.log("fffffff");
       return locationMatches;
     });
 
@@ -138,11 +99,14 @@ const AccommodationFinderApp = () => {
 
         <div className="flex space-x-2">
           <button
-            onClick={() => setAccommodationData(allAccommodations)}
+            onClick={() => {
+              setAccommodationData(allAccommodations);
+              setSearchLocation("");
+            }}
             className="flex items-center px-4 py-2 bg-gray-200 text-gray-700 rounded-md"
           >
             <RefreshCw className="w-5 h-5 mr-1" />
-            Reset
+            Refrech
           </button>
           <button
             onClick={getFilteredAccommodations}
@@ -160,14 +124,6 @@ const AccommodationFinderApp = () => {
             <Calendar className="w-5 h-5" />
           </div>
           <h2 className="text-xl text-gray-600">Today&apos;s Schedule</h2>
-
-          <div className="ml-auto">
-            <button className="flex items-center px-4 py-2 border border-red-500 rounded-md text-gray-600">
-              <Filter className="w-4 h-4 mr-1" />
-              Filter by status
-              <ChevronDown className="w-4 h-4 ml-1" />
-            </button>
-          </div>
         </div>
 
         <div className="grid grid-cols-1 gap-6">
