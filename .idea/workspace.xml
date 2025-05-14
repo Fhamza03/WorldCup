@@ -1,0 +1,133 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="AutoImportSettings">
+    <option name="autoReloadType" value="SELECTIVE" />
+  </component>
+  <component name="ChangeListManager">
+    <list default="true" id="acd0081c-67b4-46cf-ae15-f0f7efaea2dc" name="Changes" comment="//adding comments for explications" />
+    <option name="SHOW_DIALOG" value="false" />
+    <option name="HIGHLIGHT_CONFLICTS" value="true" />
+    <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
+    <option name="LAST_RESOLUTION" value="IGNORE" />
+  </component>
+  <component name="FileTemplateManagerImpl">
+    <option name="RECENT_TEMPLATES">
+      <list>
+        <option value="Interface" />
+        <option value="Class" />
+      </list>
+    </option>
+  </component>
+  <component name="Git.Settings">
+    <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
+  </component>
+  <component name="GitHubPullRequestSearchHistory">{
+  &quot;lastFilter&quot;: {
+    &quot;state&quot;: &quot;OPEN&quot;,
+    &quot;assignee&quot;: &quot;ABDOOMARI11&quot;
+  }
+}</component>
+  <component name="GithubPullRequestsUISettings">{
+  &quot;selectedUrlAndAccountId&quot;: {
+    &quot;url&quot;: &quot;https://github.com/Fhamza03/WorldCup.git&quot;,
+    &quot;accountId&quot;: &quot;591f256b-e9df-40f1-84b1-0f929e1112b0&quot;
+  }
+}</component>
+  <component name="ProjectColorInfo">{
+  &quot;associatedIndex&quot;: 2
+}</component>
+  <component name="ProjectId" id="2uXby2iiQXq19tRhbhTfqkWoDma" />
+  <component name="ProjectLevelVcsManager">
+    <ConfirmationsSetting value="1" id="Add" />
+  </component>
+  <component name="ProjectViewState">
+    <option name="hideEmptyMiddlePackages" value="true" />
+    <option name="showLibraryContents" value="true" />
+  </component>
+  <component name="PropertiesComponent"><![CDATA[{
+  "keyToString": {
+    "RequestMappingsPanelOrder0": "0",
+    "RequestMappingsPanelOrder1": "1",
+    "RequestMappingsPanelWidth0": "897",
+    "RequestMappingsPanelWidth1": "896",
+    "RunOnceActivity.ShowReadmeOnStart": "true",
+    "RunOnceActivity.git.unshallow": "true",
+    "SHARE_PROJECT_CONFIGURATION_FILES": "true",
+    "Spring Boot.WorldcupApplication.executor": "Run",
+    "git-widget-placeholder": "frontend",
+    "ignore.virus.scanning.warn.message": "true",
+    "kotlin-language-version-configured": "true",
+    "last_opened_file_path": "C:/Users/USER/Desktop/Convertisseur-EL-AOUMARI-Abdelmoughith",
+    "node.js.detected.package.eslint": "true",
+    "node.js.detected.package.tslint": "true",
+    "node.js.selected.package.eslint": "(autodetect)",
+    "node.js.selected.package.tslint": "(autodetect)",
+    "nodejs_package_manager_path": "npm",
+    "vue.rearranger.settings.migration": "true"
+  }
+}]]></component>
+  <component name="RunManager">
+    <configuration name="WorldcupApplication" type="SpringBootApplicationConfigurationType" factoryName="Spring Boot" nameIsGenerated="true">
+      <module name="worldcup" />
+      <option name="SPRING_BOOT_MAIN_CLASS" value="com.fssm.worldcup.WorldcupApplication" />
+      <method v="2">
+        <option name="Make" enabled="true" />
+      </method>
+    </configuration>
+  </component>
+  <component name="SharedIndexes">
+    <attachedChunks>
+      <set>
+        <option value="bundled-jdk-9823dce3aa75-a94e463ab2e7-intellij.indexing.shared.core-IU-243.26053.27" />
+        <option value="bundled-js-predefined-d6986cc7102b-1632447f56bf-JavaScript-IU-243.26053.27" />
+      </set>
+    </attachedChunks>
+  </component>
+  <component name="SpellCheckerSettings" RuntimeDictionaries="0" Folders="0" CustomDictionaries="0" DefaultDictionary="application-level" UseSingleDictionary="true" transferred="true" />
+  <component name="TaskManager">
+    <task active="true" id="Default" summary="Default task">
+      <changelist id="acd0081c-67b4-46cf-ae15-f0f7efaea2dc" name="Changes" comment="" />
+      <created>1742398116758</created>
+      <option name="number" value="Default" />
+      <option name="presentableId" value="Default" />
+      <updated>1742398116758</updated>
+      <workItem from="1742398117897" duration="5558000" />
+      <workItem from="1742406939227" duration="776000" />
+      <workItem from="1742412412531" duration="427000" />
+      <workItem from="1742460572863" duration="104000" />
+      <workItem from="1742469701250" duration="2341000" />
+      <workItem from="1742476512826" duration="2381000" />
+      <workItem from="1742506439043" duration="4833000" />
+      <workItem from="1742547786751" duration="13231000" />
+      <workItem from="1742633270788" duration="808000" />
+      <workItem from="1742734373360" duration="6477000" />
+      <workItem from="1742846978529" duration="1297000" />
+      <workItem from="1742905161273" duration="660000" />
+      <workItem from="1742980591774" duration="92000" />
+      <workItem from="1743080865899" duration="1934000" />
+      <workItem from="1743250932467" duration="7134000" />
+      <workItem from="1743592583878" duration="1373000" />
+      <workItem from="1743671444453" duration="14000" />
+      <workItem from="1743690463587" duration="912000" />
+      <workItem from="1743760322621" duration="160000" />
+      <workItem from="1743798906668" duration="120000" />
+      <workItem from="1743846986438" duration="109000" />
+      <workItem from="1746116708568" duration="10435000" />
+      <workItem from="1746174398749" duration="3364000" />
+      <workItem from="1746265012919" duration="86000" />
+      <workItem from="1746281898415" duration="6153000" />
+      <workItem from="1746352985182" duration="901000" />
+      <workItem from="1746553640599" duration="5467000" />
+      <workItem from="1746792605878" duration="774000" />
+      <workItem from="1746881527947" duration="110000" />
+      <workItem from="1746881767706" duration="5424000" />
+      <workItem from="1747128559752" duration="29000" />
+      <workItem from="1747130334411" duration="22319000" />
+      <workItem from="1747209743574" duration="14696000" />
+    </task>
+    <servers />
+  </component>
+  <component name="TypeScriptGeneratedFilesManager">
+    <option name="version" value="3" />
+  </component>
+</project>
