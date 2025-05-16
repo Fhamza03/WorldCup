@@ -137,7 +137,7 @@ export default function RouteDetailsModal({
           {/* Action Button */}
           <div className="mt-6">
             <button className="bg-green-600 hover:bg-green-700 text-white font-semibold py-2 px-4 rounded-md w-full">
-              Track Bus
+              Get Teckit
             </button>
           </div>
         </div>

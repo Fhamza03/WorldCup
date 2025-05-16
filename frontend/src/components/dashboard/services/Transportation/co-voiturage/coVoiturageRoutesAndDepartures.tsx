@@ -25,7 +25,7 @@ function CoVoiturageRoutesAndDepartures() {
   ];
 
   return (
-    <div className="w-full p-4 text-black">
+    <div className="w-4/5 p-4 text-black">
       <div className="flex items-center gap-3 mb-6">
         <div className="rounded-full bg-gradient-to-r from-green-600 to-red-600 p-3 mr-4">
           <Calendar className="h-6 w-6 text-white" />

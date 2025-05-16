@@ -18,7 +18,7 @@ public class Route {
     private Integer routeId;
     private String routeName;
     private String estimatedTime;
-    @OneToMany(mappedBy = "route", cascade = CascadeType.ALL, orphanRemoval = true)
+    @OneToMany(mappedBy = "route")
     @JsonIgnore
     private List<VehicleRoute> vehicleRoutes;
 }

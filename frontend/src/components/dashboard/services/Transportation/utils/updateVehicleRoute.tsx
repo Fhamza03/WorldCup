@@ -170,77 +170,95 @@ const UpdateVehicleRoute: React.FC<UpdateVehicleRouteProps> = ({
   // Handle form submission
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+
     if (!validateForm()) {
       // If validation fails, show an alert and return
       alert("Please fill in all required fields correctly.");
       return;
     }
-    // update the route if it changes
-    if (
-      vehicleRouteData.route.routeName !== routeInfo.routeName ||
-      vehicleRouteData.route.estimatedTime !== routeInfo.estimatedTime
-    ) {
-      // Call the update route API here
-      const updatedRoute = await updateRoute(routeInfo);
-      if (!updatedRoute) {
-        return alert("Error updating route");
+
+    try {
+      // Update the route if it changes
+      if (
+        vehicleRouteData.route.routeName !== routeInfo.routeName ||
+        vehicleRouteData.route.estimatedTime !== routeInfo.estimatedTime
+      ) {
+        const updatedRoute = await updateRoute(routeInfo);
+        if (!updatedRoute) {
+          throw new Error("Error updating route");
+        }
+        console.log("Route updated successfully:", updatedRoute);
       }
-      console.log("Route updated successfully:", updatedRoute);
-    }
-    // update the Transportation Type if it changes
-    if (
-      vehicleRouteData.vehicle.transportation.transportationType
-        .transportationTypeName !== transportationType.transportationTypeName ||
-      vehicleRouteData.vehicle.transportation.transportationType.description !==
-        transportationType.description
-    ) {
-      // Call the update route API here
-      const updatedTransportationType = await updateTransportationType(
-        transportationType
+
+      // Update the Transportation Type if it changes
+      if (
+        vehicleRouteData.vehicle.transportation.transportationType
+          .transportationTypeName !==
+          transportationType.transportationTypeName ||
+        vehicleRouteData.vehicle.transportation.transportationType
+          .description !== transportationType.description
+      ) {
+        const updatedTransportationType = await updateTransportationType(
+          transportationType
+        );
+        if (!updatedTransportationType) {
+          throw new Error("Error updating transportation type");
+        }
+        console.log("Transportation type updated successfully");
+      }
+
+      // Update the Transportation if it changes
+      if (
+        vehicleRouteData.vehicle.transportation.transportationProviderName !==
+        transportationInfo.transportationProviderName
+      ) {
+        const updatedTransportation = await updateTransportation(
+          transportationInfo
+        );
+        if (!updatedTransportation) {
+          throw new Error("Error updating transportation");
+        }
+        console.log("Transportation updated successfully");
+      }
+
+      // Update the Vehicle if it changes
+      if (
+        vehicleRouteData.vehicle.registrationNumber !==
+          vehicleInfo.registrationNumber ||
+        vehicleRouteData.vehicle.seatsNumber !== vehicleInfo.seatsNumber
+      ) {
+        const updatedVehicle = await updateVehicle(vehicleInfo);
+        if (!updatedVehicle) {
+          throw new Error("Error updating vehicle");
+        }
+        console.log("Vehicle updated successfully");
+      }
+
+      // Update the Vehicle Route if it changes
+      if (
+        vehicleRouteData.startPoint !== vehicleRoute.startPoint ||
+        vehicleRouteData.endPoint !== vehicleRoute.endPoint ||
+        vehicleRouteData.restStopsNumber !== vehicleRoute.restStopsNumber ||
+        vehicleRouteData.date !== vehicleRoute.date
+      ) {
+        const updatedVehicleRoute = await updateVehicleRoute(vehicleRoute);
+        if (!updatedVehicleRoute) {
+          throw new Error("Error updating vehicle route");
+        }
+        console.log("Vehicle route updated successfully");
+      }
+
+      // All updates completed successfully
+      onClose();
+    } catch (error) {
+      // Handle all errors in one place
+      alert(
+        error instanceof Error
+          ? error.message
+          : "An error occurred during form submission"
       );
-      if (!updatedTransportationType) {
-        return alert("Error updating transportation type");
-      }
+      console.error("Form submission error:", error);
     }
-    // update the Transportation if it changes
-    if (
-      vehicleRouteData.vehicle.transportation.transportationProviderName !==
-      transportationInfo.transportationProviderName
-    ) {
-      // Call the update route API here
-      const updatedTransportation = await updateTransportation(
-        transportationInfo
-      );
-      if (!updatedTransportation) {
-        return alert("Error updating transportation");
-      }
-    }
-    // update the Vehicle if it changes
-    if (
-      vehicleRouteData.vehicle.registrationNumber !==
-        vehicleInfo.registrationNumber ||
-      vehicleRouteData.vehicle.seatsNumber !== vehicleInfo.seatsNumber
-    ) {
-      // Call the update route API here
-      const updatedVehicle = await updateVehicle(vehicleInfo);
-      if (!updatedVehicle) {
-        return alert("Error updating vehicle");
-      }
-    }
-    // update the Vehicle Route if it changes
-    if (
-      vehicleRouteData.startPoint !== vehicleRoute.startPoint ||
-      vehicleRouteData.endPoint !== vehicleRoute.endPoint ||
-      vehicleRouteData.restStopsNumber !== vehicleRoute.restStopsNumber ||
-      vehicleRouteData.date !== vehicleRoute.date
-    ) {
-      // Call the update route API here
-      const updatedVehicleRoute = await updateVehicleRoute(vehicleRoute);
-      if (!updatedVehicleRoute) {
-        return alert("Error updating vehicle route");
-      }
-    }
-    onClose();
   };
 
   return (

@@ -27,6 +27,7 @@ export default function Home() {
         setSampleRoutes(response);
       } else {
         console.error("Failed to fetch routes");
+        setSampleRoutes([]);
       }
     };
     fetchData();
