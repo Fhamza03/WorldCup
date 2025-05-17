@@ -1,0 +1,50 @@
+version: '3.7'
+services:
+  mysqldb:
+    image: mysql:8.0.33
+    container_name: mysqldb
+    environment:
+      - MYSQL_DATABASE=${MYSQL_DATABASE}
+      - MYSQL_ROOT_PASSWORD=${MYSQL_PASSWORD}
+    networks:
+      - worldcup-network
+    ports:
+      - "3306:3306"
+    healthcheck:
+      test: ["CMD", "mysqladmin" ,"ping", "-h", "localhost"]
+      retries: 10
+      interval: 3s
+      timeout: 30s
+
+  backend:
+    build: ./backend
+    container_name: worldcup-backend
+    depends_on:
+      mysqldb:
+        condition: service_healthy
+    environment:
+      - SPRING_DATASOURCE_URL=jdbc:mysql://mysqldb:3306/${MYSQL_DATABASE}
+      - SPRING_DATASOURCE_USERNAME=root
+      - SPRING_DATASOURCE_PASSWORD=${MYSQL_PASSWORD}
+      - SPRING_DATASOURCE_DRIVER_CLASS_NAME=com.mysql.cj.jdbc.Driver
+    ports:
+      - "8080:8080"
+    networks:
+      - worldcup-network
+    restart: on-failure
+
+  frontend:
+    build: ./frontend
+    container_name: worldcup-frontend
+    depends_on:
+      - backend
+    ports:
+      - "3000:3000"
+    networks:
+      - worldcup-network
+    environment:
+      - NEXT_PUBLIC_API_URL=http://localhost:8080
+
+networks:
+  worldcup-network:
+    driver: bridge
